@@ -65,7 +65,7 @@ gtk_clutter_destroy (GtkObject *object)
 
   if (priv->stage)
     {
-      g_object_unref (G_OBJECT (priv->stage));
+      clutter_actor_destroy (priv->stage);
       priv->stage = NULL;
     }
 
@@ -82,7 +82,8 @@ gtk_clutter_size_allocate (GtkWidget     *widget,
                           allocation->width,
                           allocation->height);
 
-  clutter_actor_queue_redraw (priv->stage);
+  if (CLUTTER_ACTOR_IS_VISIBLE (priv->stage))
+    clutter_actor_queue_redraw (priv->stage);
 }
 
 static void
@@ -125,9 +126,6 @@ gtk_clutter_realize (GtkWidget *widget)
 
   clutter_stage_set_xwindow_foreign (CLUTTER_STAGE (priv->stage), 
                                      GDK_WINDOW_XID (widget->window));
-  
-  /* force a realize */
-  clutter_actor_realize (priv->stage);
 }
 
 static void

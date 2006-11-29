@@ -49,7 +49,7 @@ input_cb (ClutterStage *stage,
 	       clutter_key_event_symbol (kev));
       
       if (clutter_key_event_symbol (kev) == CLUTTER_q)
-	clutter_main_quit ();
+	gtk_main_quit ();
     }
 }
 

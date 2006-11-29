@@ -1,5 +1,19 @@
 2006-11-29  Emmanuele Bassi  <ebassi@openedhand.com>
 
+	* clutter-gtk/gtk-clutter.c:
+	(gtk_clutter_destroy): Destroy the ClutterStage instead
+	of unreffing it.
+
+	(gtk_clutter_size_allocate): Queue a redraw if the stage
+	is marked as visible.
+
+	(gtk_clutter_realize): Remove the forced realize: the
+	stage is already realized by default.
+
+	* examples/gtk-clutter-test.c: Use gtk_main_quit().
+
+2006-11-29  Emmanuele Bassi  <ebassi@openedhand.com>
+
 	* clutter-gtk/gtk-clutter.h: Add constructor; clean up.
 
 	* clutter-gtk/gtk-clutter.c:
