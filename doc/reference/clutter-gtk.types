@@ -1,0 +1,3 @@
+#include <clutter-gtk/gtk-clutter.h>
+
+gtk_clutter_get_type
