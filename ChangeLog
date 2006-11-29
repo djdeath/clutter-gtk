@@ -1,3 +1,27 @@
 2006-11-29  Emmanuele Bassi  <ebassi@openedhand.com>
 
+	* clutter-gtk/gtk-clutter.h: Add constructor; clean up.
+
+	* clutter-gtk/gtk-clutter.c:
+	(gtk_clutter_destroy), (gtk_clutter_class_init): Move
+	the stage unref to the GtkObject::destroy method.
+
+	(gtk_clutter_size_allocate): Oblige to the size allocation
+	request from the container of the GtkClutter widget by
+	resizing the ClutterStage.
+
+	(gtk_clutter_size_request): Require the size of the stage.
+
+	(gtk_clutter_destroy), (gtk_clutter_size_request),
+	(gtk_clutter_realize): Do not use the G_TYPE_INSTANCE_GET_PRIVATE()
+	macro, which does a type check and a function call; use the
+	priv pointer we conveniently keep around.
+
+	* examples/gtk-clutter-test.c: Use the given constructor;
+	now window resizing works.  The stage doesn't get refreshed
+	immediately (resize the window), though, and there's still
+	the X error when we close the window.
+
+2006-11-29  Emmanuele Bassi  <ebassi@openedhand.com>
+
 	* *: Initial import out of the main tree.

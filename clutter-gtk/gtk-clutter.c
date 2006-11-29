@@ -31,7 +31,10 @@
  * #ClutterStage, allowing it to be used in a GTK+ based program like any 
  * normal GTK+ widget.
  */
+
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
 
 #include <gdk/gdkx.h>
 
@@ -46,54 +49,63 @@
 #define GTK_CLUTTER_GET_PRIVATE(obj) \
 (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GTK_TYPE_CLUTTER, GtkClutterPrivate))
 
-struct _GtkClutterPrivate {
+struct _GtkClutterPrivate
+{
   ClutterActor *stage;
 };
 
-static GtkDrawingAreaClass *parent_class;
+G_DEFINE_TYPE (GtkClutter, gtk_clutter, GTK_TYPE_DRAWING_AREA);
 
 static void
-dispose (GObject *object)
+gtk_clutter_destroy (GtkObject *object)
 {
-  GtkClutter *clutter;
   GtkClutterPrivate *priv;
 
-  clutter = GTK_CLUTTER (object);
-  priv = GTK_CLUTTER_GET_PRIVATE (clutter);
+  priv = GTK_CLUTTER (object)->priv;
 
-  if (priv->stage) {
-    g_object_unref (G_OBJECT (priv->stage));
-    priv->stage = NULL;
-  }
+  if (priv->stage)
+    {
+      g_object_unref (G_OBJECT (priv->stage));
+      priv->stage = NULL;
+    }
 
-  G_OBJECT_CLASS (parent_class)->dispose (object);
+  GTK_OBJECT_CLASS (gtk_clutter_parent_class)->destroy (object);
 }
 
 static void
-size_request (GtkWidget *widget,
-              GtkRequisition *req)
+gtk_clutter_size_allocate (GtkWidget     *widget,
+                           GtkAllocation *allocation)
 {
-  GtkClutter *clutter;
-  GtkClutterPrivate *priv;
+  GtkClutterPrivate *priv = GTK_CLUTTER (widget)->priv;
 
-  clutter = GTK_CLUTTER (widget);
-  priv = GTK_CLUTTER_GET_PRIVATE (clutter);
+  clutter_actor_set_size (priv->stage,
+                          allocation->width,
+                          allocation->height);
 
-  req->width = 800;
-  req->height = 600;
+  clutter_actor_queue_redraw (priv->stage);
 }
 
 static void
-realize (GtkWidget *widget)
+gtk_clutter_size_request (GtkWidget      *widget,
+                          GtkRequisition *req)
 {
-  GtkClutter *clutter;
+  GtkClutterPrivate *priv;
+
+  priv = GTK_CLUTTER (widget)->priv;
+
+  req->width = clutter_actor_get_width (priv->stage);
+  req->height = clutter_actor_get_height (priv->stage);
+}
+
+static void
+gtk_clutter_realize (GtkWidget *widget)
+{
   GtkClutterPrivate *priv;
   const XVisualInfo *xvinfo;
   GdkVisual *visual;
   GdkColormap *colormap;
 
-  clutter = GTK_CLUTTER (widget);
-  priv = GTK_CLUTTER_GET_PRIVATE (clutter);
+  priv = GTK_CLUTTER (widget)->priv;
 
   /* We need to use the colormap from the Clutter visual */
   xvinfo = clutter_stage_get_xvisual (CLUTTER_STAGE (priv->stage));
@@ -105,31 +117,33 @@ realize (GtkWidget *widget)
   /* And turn off double buffering, cos GL doesn't like it */
   gtk_widget_set_double_buffered (widget, FALSE);
 
-  GTK_WIDGET_CLASS (parent_class)->realize (widget);
+  GTK_WIDGET_CLASS (gtk_clutter_parent_class)->realize (widget);
 
   gdk_window_set_back_pixmap (widget->window, NULL, FALSE);
 
-  clutter = GTK_CLUTTER (widget);
-  priv = GTK_CLUTTER_GET_PRIVATE (clutter);
+  priv = GTK_CLUTTER (widget)->priv;
 
   clutter_stage_set_xwindow_foreign (CLUTTER_STAGE (priv->stage), 
                                      GDK_WINDOW_XID (widget->window));
+  
+  /* force a realize */
+  clutter_actor_realize (priv->stage);
 }
 
 static void
 gtk_clutter_class_init (GtkClutterClass *klass)
 {
-  GObjectClass *gobject_class = (GObjectClass *) klass;
-  GtkWidgetClass *widget_class = (GtkWidgetClass *) klass;
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+  GtkObjectClass *object_class = GTK_OBJECT_CLASS (klass);
+  GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
 
-  gobject_class->dispose = dispose;
+  object_class->destroy = gtk_clutter_destroy;
 
-  widget_class->size_request = size_request;
-  widget_class->realize = realize;
+  widget_class->size_request = gtk_clutter_size_request;
+  widget_class->size_allocate = gtk_clutter_size_allocate;
+  widget_class->realize = gtk_clutter_realize;
 
   g_type_class_add_private (gobject_class, sizeof (GtkClutterPrivate));
-
-  parent_class = g_type_class_peek_parent (klass);
 }
 
 static void
@@ -143,8 +157,6 @@ gtk_clutter_init (GtkClutter *clutter)
 
   priv->stage = clutter_stage_get_default ();
 }
-
-G_DEFINE_TYPE (GtkClutter, gtk_clutter, GTK_TYPE_DRAWING_AREA);
 
 /**
  * gtk_clutter_get_stage:
@@ -160,4 +172,10 @@ gtk_clutter_get_stage (GtkClutter *clutter)
   g_return_val_if_fail (GTK_IS_CLUTTER (clutter), NULL);
 
   return clutter->priv->stage;
+}
+
+GtkWidget *
+gtk_clutter_new (void)
+{
+  return g_object_new (GTK_TYPE_CLUTTER, NULL);
 }

@@ -23,16 +23,15 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef _HAVE_GTK_CLUTTER_H
-#define _HAVE_GTK_CLUTTER_H
+#ifndef __GTK_CLUTTER_H__
+#define __GTK_CLUTTER_H__
 
 #include <gtk/gtkdrawingarea.h>
-
 #include <clutter/clutter-actor.h>
 
 G_BEGIN_DECLS
 
-#define GTK_TYPE_CLUTTER gtk_clutter_get_type ()
+#define GTK_TYPE_CLUTTER (gtk_clutter_get_type ())
 
 #define GTK_CLUTTER(obj) \
   (G_TYPE_CHECK_INSTANCE_CAST ((obj), \
@@ -54,9 +53,9 @@ G_BEGIN_DECLS
   (G_TYPE_INSTANCE_GET_CLASS ((obj), \
   GTK_TYPE_CLUTTER, GtkClutterClass))
 
-typedef struct _GtkClutterPrivate GtkClutterPrivate;
-typedef struct _GtkClutter GtkClutter;
-typedef struct _GtkClutterClass GtkClutterClass;
+typedef struct _GtkClutter              GtkClutter;
+typedef struct _GtkClutterClass         GtkClutterClass;
+typedef struct _GtkClutterPrivate       GtkClutterPrivate;
 
 struct _GtkClutter 
 {
@@ -69,12 +68,20 @@ struct _GtkClutter
 struct _GtkClutterClass
 {
   GtkDrawingAreaClass parent_class;
+
+  void (*_gtk_clutter_1) (void);
+  void (*_gtk_clutter_2) (void);
+  void (*_gtk_clutter_3) (void);
+  void (*_gtk_clutter_4) (void);
+  void (*_gtk_clutter_5) (void);
+  void (*_gtk_clutter_6) (void);
 };
 
-GType gtk_clutter_get_type (void);
+GType gtk_clutter_get_type (void) G_GNUC_CONST;
 
+GtkWidget    *gtk_clutter_new       (void);
 ClutterActor *gtk_clutter_get_stage (GtkClutter *clutter);
 
 G_END_DECLS
 
-#endif
+#endif /* __GTK_CLUTTER_H__ */

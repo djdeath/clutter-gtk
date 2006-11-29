@@ -22,7 +22,7 @@ gboolean fade = FALSE;
 
 /* input handler */
 void 
-input_cb (ClutterStage *stage, 
+input_cb (ClutterStage *stage,
 	  ClutterEvent *event,
 	  gpointer      data)
 {
@@ -133,7 +133,7 @@ main (int argc, char *argv[])
   vbox = gtk_vbox_new (FALSE, 6);
   gtk_container_add (GTK_CONTAINER (window), vbox);
 
-  clutter = g_object_new (GTK_TYPE_CLUTTER, NULL);
+  clutter = gtk_clutter_new ();
   stage = gtk_clutter_get_stage (GTK_CLUTTER (clutter));
   
   gtk_container_add (GTK_CONTAINER (vbox), clutter);
