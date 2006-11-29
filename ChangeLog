@@ -1,5 +1,9 @@
 2006-11-29  Emmanuele Bassi  <ebassi@openedhand.com>
 
+	* examples/gtk-clutter-test.c: Add a "quit" button.
+
+2006-11-29  Emmanuele Bassi  <ebassi@openedhand.com>
+
 	* clutter-gtk/gtk-clutter.c:
 	(gtk_clutter_destroy): Destroy the ClutterStage instead
 	of unreffing it.

@@ -148,6 +148,12 @@ main (int argc, char *argv[])
   g_signal_connect (button, "clicked",
                     G_CALLBACK (clickity), NULL);
   gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 0);
+
+  button = gtk_button_new_from_stock (GTK_STOCK_QUIT);
+  g_signal_connect_swapped (button, "clicked",
+                            G_CALLBACK (gtk_widget_destroy),
+                            window);
+  gtk_box_pack_end (GTK_BOX (vbox), button, FALSE, FALSE, 0);
   
   /* and its background color */
 
