@@ -128,6 +128,17 @@ gtk_clutter_realize (GtkWidget *widget)
                                      GDK_WINDOW_XID (widget->window));
 }
 
+static gboolean
+gtk_clutter_expose_event (GtkWidget      *widget,
+                          GdkEventExpose *expose)
+{
+  GtkClutterPrivate *priv = GTK_CLUTTER (widget)->priv;
+
+  clutter_stage_swap_buffers (CLUTTER_STAGE (priv->stage));
+
+  return TRUE;
+}
+
 static void
 gtk_clutter_class_init (GtkClutterClass *klass)
 {
@@ -140,6 +151,7 @@ gtk_clutter_class_init (GtkClutterClass *klass)
   widget_class->size_request = gtk_clutter_size_request;
   widget_class->size_allocate = gtk_clutter_size_allocate;
   widget_class->realize = gtk_clutter_realize;
+  widget_class->expose_event = gtk_clutter_expose_event;
 
   g_type_class_add_private (gobject_class, sizeof (GtkClutterPrivate));
 }
