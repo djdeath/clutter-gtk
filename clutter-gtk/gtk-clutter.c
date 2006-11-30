@@ -134,7 +134,7 @@ gtk_clutter_expose_event (GtkWidget      *widget,
 {
   GtkClutterPrivate *priv = GTK_CLUTTER (widget)->priv;
 
-  clutter_stage_swap_buffers (CLUTTER_STAGE (priv->stage));
+  clutter_actor_queue_redraw (priv->stage);
 
   return TRUE;
 }
