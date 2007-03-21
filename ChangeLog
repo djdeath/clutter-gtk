@@ -5,6 +5,7 @@
 	Redo to subclass GtkSocket and use XEMBED to embed clutter stage.
 	Needs at least clutter 0.2.2. Avoids previous issues with
 	white textures when painting onto a GtkWindow.
+	(Thanks to Iain for doing all the hardwork here)
 
 	* examples/gtk-clutter-test.c: (main):
 	Update.
