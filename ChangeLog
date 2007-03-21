@@ -1,5 +1,10 @@
 2007-03-21  Matthew Allum  <mallum@openedhand.com>
 
+	* doc/reference/Makefile.am:
+	Fix lib path so docs build again.
+
+2007-03-21  Matthew Allum  <mallum@openedhand.com>
+
 	* clutter-gtk/gtk-clutter.c:
 	* clutter-gtk/gtk-clutter.h:
 	Redo to subclass GtkSocket and use XEMBED to embed clutter stage.
