@@ -1,5 +1,11 @@
 2007-03-21  Matthew Allum  <mallum@openedhand.com>
 
+	* clutter-gtk.pc.in:
+	* clutter-gtk/Makefile.am:
+	More version fixes.
+
+2007-03-21  Matthew Allum  <mallum@openedhand.com>
+
 	* doc/reference/Makefile.am:
 	Fix lib path so docs build again.
 
