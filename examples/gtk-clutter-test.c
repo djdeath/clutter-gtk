@@ -111,7 +111,7 @@ main (int argc, char *argv[])
   ClutterTimeline *timeline;
   ClutterActor  *stage;
   ClutterColor     stage_color = { 0x61, 0x64, 0x8c, 0xff };
-  GtkWidget       *window, *clutter;
+  GtkWidget       *window, *clutter, *socket_box;
   GtkWidget       *label, *button, *vbox;
   GdkPixbuf       *pixbuf;
   SuperOH         *oh;
@@ -119,7 +119,6 @@ main (int argc, char *argv[])
 
   clutter_init (&argc, &argv);
   gtk_init (&argc, &argv);
-
 
   pixbuf = gdk_pixbuf_new_from_file ("redhand.png", NULL);
 
@@ -134,12 +133,10 @@ main (int argc, char *argv[])
   gtk_container_add (GTK_CONTAINER (window), vbox);
 
   clutter = gtk_clutter_new ();
-  stage = gtk_clutter_get_stage (GTK_CLUTTER (clutter));
-  
+
   gtk_container_add (GTK_CONTAINER (vbox), clutter);
 
-  /* Set our stage size */
-/*   clutter_actor_set_size (stage, WINWIDTH, WINHEIGHT); */
+  stage = gtk_clutter_get_stage (GTK_CLUTTER (clutter));
 
   label = gtk_label_new ("This is a label");
   gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 0);

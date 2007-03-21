@@ -1,3 +1,18 @@
+2007-03-21  Matthew Allum  <mallum@openedhand.com>
+
+	* clutter-gtk/gtk-clutter.c:
+	* clutter-gtk/gtk-clutter.h:
+	Redo to subclass GtkSocket and use XEMBED to embed clutter stage.
+	Needs at least clutter 0.2.2. Avoids previous issues with
+	white textures when painting onto a GtkWindow.
+
+	* examples/gtk-clutter-test.c: (main):
+	Update.
+
+	* configure.ac:
+	* clutter-gtk.pc.in:
+	Fixups to require clutter-0.2.2
+
 2006-11-30  Matthew Allum  <mallum@openedhand.com>
 
 	* clutter-gtk.doap:

@@ -27,7 +27,7 @@
  * SECTION:gtk-clutter
  * @short_description: GTK+ widget displaying a #ClutterStage.
  *
- * #GtkClutter is a GTK+ widget, derived from #GtkDrawingArea that contains a
+ * #GtkClutter is a GTK+ widget, derived from #GtkSocket that contains a
  * #ClutterStage, allowing it to be used in a GTK+ based program like any 
  * normal GTK+ widget.
  */
@@ -38,7 +38,6 @@
 
 #include <gdk/gdkx.h>
 
-#include <gtk/gtkdrawingarea.h>
 #include <gtk/gtkwidget.h>
 
 #include <clutter/clutter-main.h>
@@ -52,9 +51,10 @@
 struct _GtkClutterPrivate
 {
   ClutterActor *stage;
+  gboolean embedded;
 };
 
-G_DEFINE_TYPE (GtkClutter, gtk_clutter, GTK_TYPE_DRAWING_AREA);
+G_DEFINE_TYPE (GtkClutter, gtk_clutter, GTK_TYPE_SOCKET);
 
 static void
 gtk_clutter_destroy (GtkObject *object)
@@ -84,6 +84,9 @@ gtk_clutter_size_allocate (GtkWidget     *widget,
 
   if (CLUTTER_ACTOR_IS_VISIBLE (priv->stage))
     clutter_actor_queue_redraw (priv->stage);
+
+  GTK_WIDGET_CLASS (gtk_clutter_parent_class)->size_allocate (widget, 
+							      allocation);
 }
 
 static void
@@ -99,44 +102,19 @@ gtk_clutter_size_request (GtkWidget      *widget,
 }
 
 static void
-gtk_clutter_realize (GtkWidget *widget)
+gtk_clutter_map (GtkWidget *widget)
 {
   GtkClutterPrivate *priv;
-  const XVisualInfo *xvinfo;
-  GdkVisual *visual;
-  GdkColormap *colormap;
 
   priv = GTK_CLUTTER (widget)->priv;
 
-  /* We need to use the colormap from the Clutter visual */
-  xvinfo = clutter_stage_get_xvisual (CLUTTER_STAGE (priv->stage));
-  visual = gdk_x11_screen_lookup_visual (gdk_screen_get_default (),
-                                         xvinfo->visualid);
-  colormap = gdk_colormap_new (visual, FALSE);
-  gtk_widget_set_colormap (widget, colormap);
+  if (priv->embedded == FALSE) {
+    gtk_socket_add_id (GTK_SOCKET (widget), 
+		       clutter_stage_get_xwindow (CLUTTER_STAGE(priv->stage)));
+    priv->embedded = TRUE;
+  }
 
-  /* And turn off double buffering, cos GL doesn't like it */
-  gtk_widget_set_double_buffered (widget, FALSE);
-
-  GTK_WIDGET_CLASS (gtk_clutter_parent_class)->realize (widget);
-
-  gdk_window_set_back_pixmap (widget->window, NULL, FALSE);
-
-  priv = GTK_CLUTTER (widget)->priv;
-
-  clutter_stage_set_xwindow_foreign (CLUTTER_STAGE (priv->stage), 
-                                     GDK_WINDOW_XID (widget->window));
-}
-
-static gboolean
-gtk_clutter_expose_event (GtkWidget      *widget,
-                          GdkEventExpose *expose)
-{
-  GtkClutterPrivate *priv = GTK_CLUTTER (widget)->priv;
-
-  clutter_actor_queue_redraw (priv->stage);
-
-  return TRUE;
+  GTK_WIDGET_CLASS (gtk_clutter_parent_class)->map (widget);
 }
 
 static void
@@ -150,8 +128,7 @@ gtk_clutter_class_init (GtkClutterClass *klass)
 
   widget_class->size_request = gtk_clutter_size_request;
   widget_class->size_allocate = gtk_clutter_size_allocate;
-  widget_class->realize = gtk_clutter_realize;
-  widget_class->expose_event = gtk_clutter_expose_event;
+  widget_class->map = gtk_clutter_map;
 
   g_type_class_add_private (gobject_class, sizeof (GtkClutterPrivate));
 }
@@ -166,6 +143,7 @@ gtk_clutter_init (GtkClutter *clutter)
   gtk_widget_set_double_buffered (GTK_WIDGET (clutter), FALSE);
 
   priv->stage = clutter_stage_get_default ();
+  priv->embedded = FALSE;
 }
 
 /**

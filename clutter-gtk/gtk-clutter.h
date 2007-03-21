@@ -26,7 +26,7 @@
 #ifndef __GTK_CLUTTER_H__
 #define __GTK_CLUTTER_H__
 
-#include <gtk/gtkdrawingarea.h>
+#include <gtk/gtksocket.h>
 #include <clutter/clutter-actor.h>
 
 G_BEGIN_DECLS
@@ -59,7 +59,7 @@ typedef struct _GtkClutterPrivate       GtkClutterPrivate;
 
 struct _GtkClutter 
 {
-  GtkDrawingArea parent;
+  GtkSocket parent;
 
   /*< private >*/
   GtkClutterPrivate *priv;
@@ -67,7 +67,7 @@ struct _GtkClutter
 
 struct _GtkClutterClass
 {
-  GtkDrawingAreaClass parent_class;
+  GtkSocketClass parent_class;
 
   void (*_gtk_clutter_1) (void);
   void (*_gtk_clutter_2) (void);
