@@ -1,5 +1,12 @@
 2007-03-22  Matthew Allum  <mallum@openedhand.com>
 
+	* NEWS:
+	Update for 0.1 release
+	* doc/reference/clutter-gtk.types:
+	Rename fix.
+
+2007-03-22  Matthew Allum  <mallum@openedhand.com>
+
 	* clutter-gtk/Makefile.am:
 	* clutter-gtk/clutter-gtk.c:
 	* clutter-gtk/gtk-clutter.c:

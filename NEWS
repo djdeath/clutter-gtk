@@ -1,0 +1,5 @@
+Clutter-GTK 0.1 22/03/2007
+==========================
+
+ - Initial release. 
+   o Basic clutter GTK widget using XEMBED.
