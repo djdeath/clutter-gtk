@@ -1,3 +1,13 @@
+2007-03-22  Matthew Allum  <mallum@openedhand.com>
+
+	* clutter-gtk/Makefile.am:
+	* clutter-gtk/clutter-gtk.c:
+	* clutter-gtk/gtk-clutter.c:
+	* clutter-gtk/gtk-clutter.h:
+	* configure.ac:
+	* examples/gtk-clutter-test.c:
+	Various naming fixups. 
+
 2007-03-21  Matthew Allum  <mallum@openedhand.com>
 
 	* clutter-gtk.pc.in:

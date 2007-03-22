@@ -2,7 +2,7 @@
 #include <clutter/clutter.h>
 #include <math.h>
 
-#include <clutter-gtk/gtk-clutter.h>
+#include <clutter-gtk/clutter-gtk.h>
 
 #define TRAILS 0
 #define NHANDS  2
@@ -30,9 +30,6 @@ input_cb (ClutterStage *stage,
     {
       ClutterButtonEvent *bev = (ClutterButtonEvent *) event;
       ClutterActor *e;
-
-      g_print ("*** button press event (button:%d) ***\n",
-	       bev->button);
 
       e = clutter_stage_get_actor_at_pos (stage, 
 		                            clutter_button_event_x (bev),

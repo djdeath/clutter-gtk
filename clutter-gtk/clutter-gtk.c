@@ -1,5 +1,5 @@
 /*
- * GTK-Clutter.
+ * Clutter-Gtk
  *
  * GTK+ widget for Clutter.
  *
@@ -43,7 +43,7 @@
 #include <clutter/clutter-main.h>
 #include <clutter/clutter-stage.h>
 
-#include "gtk-clutter.h"
+#include "clutter-gtk.h"
 
 #define GTK_CLUTTER_GET_PRIVATE(obj) \
 (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GTK_TYPE_CLUTTER, GtkClutterPrivate))

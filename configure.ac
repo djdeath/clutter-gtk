@@ -21,7 +21,7 @@ AC_PREREQ(2.53)
 AC_INIT([clutter-gtk],
         [clutter_version],
         [http://bugzilla.o-hand.com/enter_bug.cgi?product=Clutter])
-AC_CONFIG_SRCDIR([clutter-gtk/gtk-clutter.h])
+AC_CONFIG_SRCDIR([clutter-gtk/clutter-gtk.h])
 AM_CONFIG_HEADER([config.h])
 
 AM_INIT_AUTOMAKE([1.7])
