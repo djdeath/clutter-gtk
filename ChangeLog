@@ -1,3 +1,8 @@
+2007-03-23  Ross Burton  <ross@openedhand.com>
+
+	* examples/Makefile.am:
+	Dist the PNG.
+
 ================= 2007-03-22 0.1 Release ========================
 
 2007-03-22  Matthew Allum  <mallum@openedhand.com>

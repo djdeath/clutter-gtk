@@ -12,3 +12,5 @@ gtk_clutter_test_LDADD = \
 	$(top_srcdir)/clutter-gtk/libcluttergtk-1.0.la \
 	$(CLUTTER_LIBS)	\
 	$(GTK_LIBS)
+
+EXTRA_DIST = redhand.png
