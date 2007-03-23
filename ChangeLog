@@ -1,5 +1,10 @@
 2007-03-23  Ross Burton  <ross@openedhand.com>
 
+	* configure.ac:
+	Don't require any particular GTK+ version.
+
+2007-03-23  Ross Burton  <ross@openedhand.com>
+
 	* examples/Makefile.am:
 	Dist the PNG.
 
