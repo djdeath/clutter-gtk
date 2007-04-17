@@ -42,6 +42,7 @@
 
 #include <clutter/clutter-main.h>
 #include <clutter/clutter-stage.h>
+#include <clutter/clutter-glx.h>
 
 #include "clutter-gtk.h"
 
@@ -51,7 +52,15 @@
 struct _GtkClutterPrivate
 {
   ClutterActor *stage;
-  gboolean embedded;
+
+  guint is_embedded : 1;
+};
+
+enum
+{
+  PROP_0,
+
+  PROP_EMBEDDED
 };
 
 G_DEFINE_TYPE (GtkClutter, gtk_clutter, GTK_TYPE_SOCKET);
@@ -104,17 +113,41 @@ gtk_clutter_size_request (GtkWidget      *widget,
 static void
 gtk_clutter_map (GtkWidget *widget)
 {
-  GtkClutterPrivate *priv;
+  GtkSocket *socket = GTK_SOCKET (widget);
+  GtkClutterPrivate *priv = GTK_CLUTTER (widget)->priv;
+  ClutterStage *stage = CLUTTER_STAGE (priv->stage);
 
-  priv = GTK_CLUTTER (widget)->priv;
+  if (!priv->is_embedded)
+    {
+      g_object_ref (widget);
 
-  if (priv->embedded == FALSE) {
-    gtk_socket_add_id (GTK_SOCKET (widget), 
-		       clutter_stage_get_xwindow (CLUTTER_STAGE(priv->stage)));
-    priv->embedded = TRUE;
-  }
+      gtk_socket_add_id (socket, clutter_glx_get_stage_window (stage)); 
+      priv->is_embedded = TRUE;
+
+      g_object_notify (G_OBJECT (widget), "embedded");
+      g_object_unref (widget);
+    }
 
   GTK_WIDGET_CLASS (gtk_clutter_parent_class)->map (widget);
+}
+
+static void
+gtk_clutter_get_property (GObject    *gobject,
+                          guint       prop_id,
+                          GValue     *value,
+                          GParamSpec *pspec)
+{
+  GtkClutter *gtk_clutter = GTK_CLUTTER (gobject);
+
+  switch (prop_id)
+    {
+    case PROP_EMBEDDED:
+      g_value_set_boolean (value, gtk_clutter->priv->is_embedded);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
+      break;
+    }
 }
 
 static void
@@ -124,11 +157,21 @@ gtk_clutter_class_init (GtkClutterClass *klass)
   GtkObjectClass *object_class = GTK_OBJECT_CLASS (klass);
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
 
+  gobject_class->get_property = gtk_clutter_get_property;
+
   object_class->destroy = gtk_clutter_destroy;
 
   widget_class->size_request = gtk_clutter_size_request;
   widget_class->size_allocate = gtk_clutter_size_allocate;
   widget_class->map = gtk_clutter_map;
+
+  g_object_class_install_property (gobject_class,
+                                   PROP_EMBEDDED,
+                                   g_param_spec_boolean ("embedded",
+                                                         "Embedded",
+                                                         "Whether the stage has been successfully embedded",
+                                                         FALSE,
+                                                         G_PARAM_READABLE));
 
   g_type_class_add_private (gobject_class, sizeof (GtkClutterPrivate));
 }
@@ -143,7 +186,7 @@ gtk_clutter_init (GtkClutter *clutter)
   gtk_widget_set_double_buffered (GTK_WIDGET (clutter), FALSE);
 
   priv->stage = clutter_stage_get_default ();
-  priv->embedded = FALSE;
+  priv->is_embedded = FALSE;
 }
 
 /**

@@ -28,15 +28,14 @@ input_cb (ClutterStage *stage,
 {
   if (event->type == CLUTTER_BUTTON_PRESS)
     {
-      ClutterButtonEvent *bev = (ClutterButtonEvent *) event;
-      ClutterActor *e;
+      ClutterActor *actor;
+      gint x, y;
 
-      e = clutter_stage_get_actor_at_pos (stage, 
-		                            clutter_button_event_x (bev),
-					    clutter_button_event_y (bev));
+      clutter_event_get_coords (event, &x, &y);
 
-      if (e)
-	clutter_actor_hide(e);
+      actor = clutter_stage_get_actor_at_pos (stage, x, y);
+      if (actor)
+	clutter_actor_hide (actor);
     }
   else if (event->type == CLUTTER_KEY_PRESS)
     {

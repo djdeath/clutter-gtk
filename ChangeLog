@@ -1,3 +1,15 @@
+2007-04-17  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* configure.ac: Branch for development; bump to 0.3.0, to
+	match Clutter core version; require clutter-glx backend.
+
+	* clutter-gtk/clutter-gtk.c: Include the GLX backend specific
+	functions; add an "embedded" read-only property, which signals
+	whether the widget has successfully embedded the stage window;
+	use the new clutter_glx_get_stage_window() function.
+
+	* examples/gtk-clutter-test.c: Port to the new event API.
+
 2007-03-23  Ross Burton  <ross@openedhand.com>
 
 	* configure.ac:
