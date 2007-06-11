@@ -197,7 +197,7 @@ main (int argc, char *argv[])
   clutter_group_add (CLUTTER_GROUP (stage), CLUTTER_ACTOR(oh->group));
 
   /* Show everying ( and map window ) */
-  clutter_group_show_all (oh->group);
+  clutter_actor_show_all (CLUTTER_ACTOR (oh->group));
 
   g_signal_connect (stage, "button-press-event",
 		    G_CALLBACK (input_cb), 

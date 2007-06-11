@@ -1,4 +1,4 @@
-noinst_PROGRAMS = gtk-clutter-test
+noinst_PROGRAMS = gtk-clutter-test gtk-clutter-events
 
 INCLUDES = \
 	-I$(srcdir) \
@@ -9,6 +9,13 @@ INCLUDES = \
 gtk_clutter_test_DEPENDENCIES = $(top_srcdir)/clutter-gtk/libcluttergtk-1.0.la
 gtk_clutter_test_SOURCES = gtk-clutter-test.c
 gtk_clutter_test_LDADD = \
+	$(top_srcdir)/clutter-gtk/libcluttergtk-1.0.la \
+	$(CLUTTER_LIBS)	\
+	$(GTK_LIBS)
+
+gtk_clutter_events_DEPENDENCIES = $(top_srcdir)/clutter-gtk/libcluttergtk-1.0.la
+gtk_clutter_events_SOURCES = gtk-clutter-events.c
+gtk_clutter_events_LDADD = \
 	$(top_srcdir)/clutter-gtk/libcluttergtk-1.0.la \
 	$(CLUTTER_LIBS)	\
 	$(GTK_LIBS)
