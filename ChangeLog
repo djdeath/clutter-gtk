@@ -1,3 +1,21 @@
+2007-06-11  Neil Jagdish Patel  <njp@f7>
+
+	* examples/gtk-clutter-events.c: (create_colors):
+	Removed stray g_print
+
+2007-06-11  Neil Jagdish Patel  <njp@o-hand.com>
+
+	* examples/Makefile.am:
+	* examples/gtk-clutter-events.c: (on_gtk_entry_changed),
+	(on_x_changed), (on_y_changed), (on_z_changed),
+	(on_opacity_changed), (create_colors), (main):
+	Added another example whihc shows some interaction between gtk and
+	the stage.
+
+	* examples/gtk-clutter-test.c: (main):
+	Updated to work with clutter-0.3
+
+
 2007-04-17  Emmanuele Bassi  <ebassi@openedhand.com>
 
 	* configure.ac: Branch for development; bump to 0.3.0, to

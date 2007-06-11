@@ -68,8 +68,7 @@ create_colors (EventApp *app, ClutterColor *stage, ClutterColor *text)
   stage->red = (guint8) ((color.red/65535.0) * 255);
   stage->green = (guint8) ((color.green/65535.0) * 255);
   stage->blue  = (guint8) ((color.blue/65535.0) * 255);
-  g_print ("%d %d %d\n", stage->red, stage->green, stage->blue);
-
+  
   /* Now the text color */
   color = style->text[GTK_STATE_NORMAL];
   text->red =(guint8) ((color.red/65535.0) * 255);
