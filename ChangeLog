@@ -1,3 +1,8 @@
+2007-07-06  Matthew Allum  <mallum@openedhand.com>
+
+	* clutter-gtk.pc.in:
+	Fix to require 0.3 clutter.
+
 2007-06-11  Neil Jagdish Patel  <njp@f7>
 
 	* examples/gtk-clutter-events.c: (create_colors):
