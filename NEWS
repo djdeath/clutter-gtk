@@ -1,3 +1,14 @@
+Clutter-GTK 0.3.1 06/07/2007
+==========================
+
+ - Fix PC file requirements
+
+Clutter-GTK 0.3 29/06/2007
+==========================
+
+ - Update for new Clutter 0.3 API
+ - Add a new example
+
 Clutter-GTK 0.1 22/03/2007
 ==========================
 
