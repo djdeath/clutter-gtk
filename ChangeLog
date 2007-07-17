@@ -1,5 +1,12 @@
 2007-07-17  Emmanuele Bassi  <ebassi@openedhand.com>
 
+	* examples/gtk-clutter-events.c: Remove wrong casting around
+	the g_signal_connect() argument; this masked a weird memory
+	corruption bug happening when compiling outside the sources
+	directory.
+
+2007-07-17  Emmanuele Bassi  <ebassi@openedhand.com>
+
 	* clutter-gtk/Makefile.am:
 	* clutter-gtk.pc.in: Install (and use) a versioned library, to
 	match the behaviour of clutter-core and the other integration
