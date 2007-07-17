@@ -1,5 +1,12 @@
 2007-07-17  Emmanuele Bassi  <ebassi@openedhand.com>
 
+	* clutter-gtk/Makefile.am:
+	* clutter-gtk.pc.in: Install (and use) a versioned library, to
+	match the behaviour of clutter-core and the other integration
+	libraries.
+
+2007-07-17  Emmanuele Bassi  <ebassi@openedhand.com>
+
 	* clutter-gtk.pc.in: Depend on the right clutter pkgconfig file
 
 	* Makefile.am: Install a versioned clutter-gtk pkgconfig file

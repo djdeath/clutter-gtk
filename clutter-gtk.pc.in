@@ -6,6 +6,6 @@ includedir=${prefix}/include
 Name: clutter-gtk
 Description: GTK+ widget for Clutter
 Version: @VERSION@
-Libs: -L${libdir} -lclutter-gtk
+Libs: -L${libdir} -lclutter-gtk-0.3
 Cflags: -I${includedir}/clutter-0.3/clutter-gtk
 Requires: clutter-0.3 gtk+-2.0
