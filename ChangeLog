@@ -1,3 +1,9 @@
+2007-07-17  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* clutter-gtk.pc.in: Depend on the right clutter pkgconfig file
+
+	* Makefile.am: Install a versioned clutter-gtk pkgconfig file
+
 2007-07-06  Matthew Allum  <mallum@openedhand.com>
 
 	* NEWS:
