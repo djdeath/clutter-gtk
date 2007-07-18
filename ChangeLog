@@ -1,3 +1,8 @@
+2007-07-18  Neil J. Patel  <njp@o-hand.com>
+
+	* examples/Makefile.am:
+	Point to new clutter-gtk library name.
+
 2007-07-17  Emmanuele Bassi  <ebassi@openedhand.com>
 
 	* examples/gtk-clutter-events.c: Remove wrong casting around
