@@ -69,7 +69,7 @@ expand_content_files=
 # e.g. GTKDOC_LIBS=$(top_builddir)/gtk/$(gtktargetlib)
 
 INCLUDES=-I$(top_srcdir) $(CLUTTER_CFLAGS) $(GTK_CFLAGS)
-GTKDOC_LIBS=$(top_builddir)/clutter-gtk/libcluttergtk-1.0.la $(CLUTTER_LIBS) $(GTK_LIBS)
+GTKDOC_LIBS=$(top_builddir)/clutter-gtk/libclutter-gtk-$(CLUTTER_GTK_MAJOR_VERSION).$(CLUTTER_GTK_MINOR_VERSION).la $(CLUTTER_LIBS) $(GTK_LIBS)
 
 # This includes the standard gtk-doc make rules, copied by gtkdocize.
 include $(top_srcdir)/gtk-doc.make

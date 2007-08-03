@@ -1,3 +1,8 @@
+2007-08-03  Chris Lord,,,  <chris@openedhand.com>
+
+	* doc/reference/Makefile.am:
+	Fix documentation building
+
 2007-07-18  Neil J. Patel  <njp@o-hand.com>
 
 	* examples/Makefile.am:
