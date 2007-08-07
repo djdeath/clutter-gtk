@@ -11,3 +11,5 @@ CLEANFILES = clutter-gtk-0.4.pc
 DISTCLEANFILES = clutter-gtk.pc
 
 EXTRA_DIST = clutter-gtk.pc.in
+
+DISTCHECK_CONFIGURE_FLAGS = --enable-gtk-doc
