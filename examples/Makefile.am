@@ -6,17 +6,17 @@ INCLUDES = \
 	$(CLUTTER_CFLAGS) \
 	$(GTK_CFLAGS)
 
-gtk_clutter_test_DEPENDENCIES = $(top_srcdir)/clutter-gtk/libclutter-gtk-0.3.la
+gtk_clutter_test_DEPENDENCIES = $(top_srcdir)/clutter-gtk/libclutter-gtk-0.4.la
 gtk_clutter_test_SOURCES = gtk-clutter-test.c
 gtk_clutter_test_LDADD = \
-	$(top_srcdir)/clutter-gtk/libclutter-gtk-0.3.la \
+	$(top_srcdir)/clutter-gtk/libclutter-gtk-0.4.la \
 	$(CLUTTER_LIBS)	\
 	$(GTK_LIBS)
 
-gtk_clutter_events_DEPENDENCIES = $(top_srcdir)/clutter-gtk/libclutter-gtk-0.3.la
+gtk_clutter_events_DEPENDENCIES = $(top_srcdir)/clutter-gtk/libclutter-gtk-0.4.la
 gtk_clutter_events_SOURCES = gtk-clutter-events.c
 gtk_clutter_events_LDADD = \
-	$(top_srcdir)/clutter-gtk/libclutter-gtk-0.3.la \
+	$(top_srcdir)/clutter-gtk/libclutter-gtk-0.4.la \
 	$(CLUTTER_LIBS)	\
 	$(GTK_LIBS)
 
