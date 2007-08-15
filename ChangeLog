@@ -1,3 +1,11 @@
+2007-08-15  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* configure.ac:
+	* clutter-gtk.pc.in:
+	* Makefile.am:
+	* clutter-gtk/Makefile.am: Bump up to 0.5.0 and require
+	clutter-gtk-0.5 as well.
+
 2007-08-07  Emmanuele Bassi  <ebassi@openedhand.com>
 
 	* configure.ac: Bump up to 0.4.0; require clutter-glx-0.4.
