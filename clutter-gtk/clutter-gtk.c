@@ -27,7 +27,7 @@
  * SECTION:gtk-clutter
  * @short_description: GTK+ widget displaying a #ClutterStage.
  *
- * #GtkClutter is a GTK+ widget, derived from #GtkSocket that contains a
+ * #GtkClutter is a GTK+ widget, derived from #GtkSocket, that contains a
  * #ClutterStage, allowing it to be used in a GTK+ based program like any 
  * normal GTK+ widget.
  */
@@ -195,7 +195,7 @@ gtk_clutter_init (GtkClutter *clutter)
  *
  * Obtains the #ClutterStage associated with this object.
  *
- * Return value: A #ClutterActor.
+ * Return value: the main stage
  */
 ClutterActor *
 gtk_clutter_get_stage (GtkClutter *clutter)
@@ -205,6 +205,18 @@ gtk_clutter_get_stage (GtkClutter *clutter)
   return clutter->priv->stage;
 }
 
+/**
+ * gtk_clutter_new:
+ * 
+ * Creates a new #GtkClutter widget. You can use this widget inside
+ * any GTK+ application. Once you added it to a container you should
+ * call gtk_clutter_get_stage() to obtain the #ClutterStage and add
+ * Clutter actors to it.
+ *
+ * All the mouse events will be forwarded to the stage.
+ *
+ * Return value: the newly created #GtkClutter widget
+ */
 GtkWidget *
 gtk_clutter_new (void)
 {

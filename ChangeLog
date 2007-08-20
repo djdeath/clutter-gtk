@@ -1,3 +1,11 @@
+2007-08-20  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* doc/reference/clutter-gtk-sections.txt:
+	* doc/reference/clutter-gtk-docs.sgml:
+	* clutter-gtk/clutter-gtk.[ch]: Fix API reference.
+
+	* examples/Makefile.am: Fix compilation of the examples
+
 2007-08-15  Emmanuele Bassi  <ebassi@openedhand.com>
 
 	* configure.ac:

@@ -59,14 +59,15 @@ typedef struct _GtkClutterPrivate       GtkClutterPrivate;
 
 struct _GtkClutter 
 {
-  GtkSocket parent;
-
   /*< private >*/
+  GtkSocket parent;
+  
   GtkClutterPrivate *priv;
 };
 
 struct _GtkClutterClass
 {
+  /*< private >*/
   GtkSocketClass parent_class;
 
   void (*_gtk_clutter_1) (void);
@@ -79,7 +80,7 @@ struct _GtkClutterClass
 
 GType gtk_clutter_get_type (void) G_GNUC_CONST;
 
-GtkWidget    *gtk_clutter_new       (void);
+GtkWidget *   gtk_clutter_new       (void);
 ClutterActor *gtk_clutter_get_stage (GtkClutter *clutter);
 
 G_END_DECLS
