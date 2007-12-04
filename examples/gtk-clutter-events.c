@@ -26,28 +26,31 @@ on_gtk_entry_changed (GtkEditable *editable, EventApp *app)
 static void
 on_x_changed (GtkSpinButton *button, EventApp *app)
 {
-  clutter_actor_rotate_x (app->hand, 
-                          gtk_spin_button_get_value (button),
-                          clutter_actor_get_height (app->hand),
-                          0);
+  clutter_actor_set_rotation (app->hand, CLUTTER_X_AXIS,
+                              gtk_spin_button_get_value (button),
+                              0,
+                              clutter_actor_get_height (app->hand) / 2,
+                              0);
 }
 
 static void
 on_y_changed (GtkSpinButton *button, EventApp *app)
 {
-  clutter_actor_rotate_y (app->hand, 
-                          gtk_spin_button_get_value (button),
-                          clutter_actor_get_width (app->hand) /2,
-                          0);
+  clutter_actor_set_rotation (app->hand, CLUTTER_Y_AXIS,
+                              gtk_spin_button_get_value (button),
+                              clutter_actor_get_width (app->hand) / 2,
+                              0,
+                              0);
 }
 
 static void
 on_z_changed (GtkSpinButton *button, EventApp *app)
 {
-  clutter_actor_rotate_z (app->hand, 
-                          gtk_spin_button_get_value (button),
-                          clutter_actor_get_width (app->hand) /2,
-                          clutter_actor_get_height (app->hand)/2);
+  clutter_actor_set_rotation (app->hand, CLUTTER_Z_AXIS,
+                              gtk_spin_button_get_value (button),
+                              clutter_actor_get_width (app->hand) / 2,
+                              clutter_actor_get_height (app->hand) / 2,
+                              0);
 }
 
 static void

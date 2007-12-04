@@ -70,23 +70,24 @@ frame_cb (ClutterTimeline *timeline,
 #endif
 
   /* Rotate everything clockwise about stage center*/
-  clutter_actor_rotate_z (CLUTTER_ACTOR(oh->group),
-			    frame_num,
-			    WINWIDTH/2,
-			    WINHEIGHT/2);
+  clutter_actor_set_rotation (CLUTTER_ACTOR (oh->group),
+                              CLUTTER_Z_AXIS,
+                              frame_num,
+                              WINWIDTH / 2, WINHEIGHT / 2, 0);
+
   for (i = 0; i < NHANDS; i++)
     {
       /* rotate each hand around there centers */
-      clutter_actor_rotate_z (oh->hand[i],
-				- 6.0 * frame_num,
-				clutter_actor_get_width (oh->hand[i])/2,
-				clutter_actor_get_height (oh->hand[i])/2);
-      if (fade == TRUE) {
-              clutter_actor_set_opacity (oh->hand[i], (255 - (frame_num % 255)));
-      }
+      clutter_actor_set_rotation (oh->hand[i],
+                                  CLUTTER_Z_AXIS,
+                                  - 6.0 * frame_num,
+                                  clutter_actor_get_width (oh->hand[i]) / 2,
+                                  clutter_actor_get_height (oh->hand[i]) / 2,
+                                  0);
+      if (fade == TRUE)
+        clutter_actor_set_opacity (oh->hand[i], (255 - (frame_num % 255)));
     }
 
-          
   /*
   clutter_actor_rotate_x (CLUTTER_ACTOR(oh->group),
 			    75.0,
@@ -105,7 +106,7 @@ int
 main (int argc, char *argv[])
 {
   ClutterTimeline *timeline;
-  ClutterActor  *stage;
+  ClutterActor    *stage;
   ClutterColor     stage_color = { 0x61, 0x64, 0x8c, 0xff };
   GtkWidget       *window, *clutter, *socket_box;
   GtkWidget       *label, *button, *vbox;

@@ -1,3 +1,23 @@
+2007-12-04  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	Update after the API changes in Clutter core
+
+	* clutter-gtk/clutter-gtk.c:
+	(gtk_clutter_destroy): Do not call clutter_actor_destroy()
+	on the stage.
+
+	(gtk_clutter_map): Use the new X11 API for retrieving the
+	XID of the stage window.
+	
+	(gtk_clutter_init): Set the widget as paintable and the stage
+	as resizable.
+	
+	* examples/gtk-clutter-events.c:
+	(on_x_changed), (on_y_changed),	(on_z_changed): Use the new
+	clutter_actor_set_rotation() API.
+
+	* examples/gtk-clutter-test.c (frame_cb): Ditto as above.
+
 2007-08-20  Emmanuele Bassi  <ebassi@openedhand.com>
 
 	* doc/reference/clutter-gtk-sections.txt:

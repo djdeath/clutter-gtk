@@ -42,7 +42,7 @@
 
 #include <clutter/clutter-main.h>
 #include <clutter/clutter-stage.h>
-#include <clutter/clutter-glx.h>
+#include <clutter/clutter-x11.h>
 
 #include "clutter-gtk.h"
 
@@ -72,11 +72,11 @@ gtk_clutter_destroy (GtkObject *object)
 
   priv = GTK_CLUTTER (object)->priv;
 
+  /* XXX - there's no clutter main loop running, so we cannot
+   * release the resources we create when we initialise clutter.
+   */
   if (priv->stage)
-    {
-      clutter_actor_destroy (priv->stage);
-      priv->stage = NULL;
-    }
+    priv->stage = NULL;
 
   GTK_OBJECT_CLASS (gtk_clutter_parent_class)->destroy (object);
 }
@@ -121,7 +121,7 @@ gtk_clutter_map (GtkWidget *widget)
     {
       g_object_ref (widget);
 
-      gtk_socket_add_id (socket, clutter_glx_get_stage_window (stage)); 
+      gtk_socket_add_id (socket, clutter_x11_get_stage_window (stage)); 
       priv->is_embedded = TRUE;
 
       g_object_notify (G_OBJECT (widget), "embedded");
@@ -184,8 +184,11 @@ gtk_clutter_init (GtkClutter *clutter)
   clutter->priv = priv = GTK_CLUTTER_GET_PRIVATE (clutter);
 
   gtk_widget_set_double_buffered (GTK_WIDGET (clutter), FALSE);
+  gtk_widget_set_app_paintable (GTK_WIDGET (clutter), TRUE);
 
   priv->stage = clutter_stage_get_default ();
+  clutter_stage_set_user_resizable (CLUTTER_STAGE (priv->stage), TRUE);
+
   priv->is_embedded = FALSE;
 }
 
