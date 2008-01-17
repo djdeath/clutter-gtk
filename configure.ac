@@ -24,7 +24,7 @@ AC_INIT([clutter-gtk],
 AC_CONFIG_SRCDIR([clutter-gtk/clutter-gtk.h])
 AM_CONFIG_HEADER([config.h])
 
-AM_INIT_AUTOMAKE([1.7])
+AM_INIT_AUTOMAKE([1.9])
 
 CLUTTER_GTK_MAJOR_VERSION=clutter_major_version
 CLUTTER_GTK_MINOR_VERSION=clutter_minor_version
@@ -67,7 +67,7 @@ AC_FUNC_MALLOC
 AC_FUNC_MMAP
 AC_CHECK_FUNCS([memset munmap strcasecmp strdup])
 
-CLUTTER_REQUIRED=0.5.0
+CLUTTER_REQUIRED=0.5.2
 
 PKG_CHECK_MODULES(CLUTTER, clutter-glx-0.5 >= $CLUTTER_REQUIRED)
 AC_SUBST(CLUTTER_CFLAGS)
