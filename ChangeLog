@@ -1,5 +1,9 @@
 2008-01-23  Emmanuele Bassi  <ebassi@openedhand.com>
 
+	* configure.ac: Fix srcdir detection.
+
+2008-01-23  Emmanuele Bassi  <ebassi@openedhand.com>
+
 	* configure.ac: Bump up to 0.5.1 and require Clutter 0.5.3
 	using clutter-x11.
 
