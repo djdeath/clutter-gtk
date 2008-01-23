@@ -2,7 +2,7 @@
 #include <clutter/clutter.h>
 #include <math.h>
 
-#include <clutter-gtk/clutter-gtk.h>
+#include <clutter-gtk/gtk-clutter-embed.h>
 
 #define TRAILS 0
 #define NHANDS  2
@@ -129,11 +129,11 @@ main (int argc, char *argv[])
   vbox = gtk_vbox_new (FALSE, 6);
   gtk_container_add (GTK_CONTAINER (window), vbox);
 
-  clutter = gtk_clutter_new ();
+  clutter = gtk_clutter_embed_new ();
 
   gtk_container_add (GTK_CONTAINER (vbox), clutter);
 
-  stage = gtk_clutter_get_stage (GTK_CLUTTER (clutter));
+  stage = gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (clutter));
 
   label = gtk_label_new ("This is a label");
   gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 0);

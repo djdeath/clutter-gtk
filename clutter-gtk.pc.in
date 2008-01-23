@@ -8,4 +8,4 @@ Description: GTK+ widget for Clutter
 Version: @VERSION@
 Libs: -L${libdir} -lclutter-gtk-0.5
 Cflags: -I${includedir}/clutter-0.5/clutter-gtk
-Requires: clutter-0.5 gtk+-2.0
+Requires: clutter-x11-0.5 gtk+-2.0

@@ -1,7 +1,7 @@
 #include <gtk/gtk.h>
 #include <clutter/clutter.h>
 
-#include <clutter-gtk/clutter-gtk.h>
+#include <clutter-gtk/gtk-clutter-embed.h>
 
 typedef struct {
 
@@ -78,7 +78,35 @@ create_colors (EventApp *app, ClutterColor *stage, ClutterColor *text)
   text->green = (guint8) ((color.green/65535.0) * 255);
   text->blue = (guint8) ((color.blue/65535.0) * 255);
 }
-  
+
+static gboolean
+on_stage_capture (ClutterActor *actor,
+                  ClutterEvent *event,
+                  gpointer      dummy)
+{
+  if (event->type == CLUTTER_BUTTON_RELEASE)
+    {
+      gint x, y;
+
+      clutter_event_get_coords (event, &x, &y);
+
+      g_print ("Event captured at (%d, %d)\n", x, y);
+    }
+
+  return FALSE;
+}
+
+static gboolean
+on_hand_button_press (ClutterActor       *actor,
+                      ClutterButtonEvent *event,
+                      gpointer            dummy)
+{
+  g_print ("Button press on hand ('%s')\n",
+           g_type_name (G_OBJECT_TYPE (actor)));
+
+  return FALSE;
+}
+
 gint
 main (gint argc, gchar **argv)
 {
@@ -118,10 +146,14 @@ main (gint argc, gchar **argv)
   
   /* Set up clutter & create our stage */
   create_colors (app, &stage_color, &text_color);
-  widget = gtk_clutter_new ();
+  widget = gtk_clutter_embed_new ();
   gtk_box_pack_start (GTK_BOX (hbox), widget, TRUE, TRUE, 0);
-  app->stage = gtk_clutter_get_stage (GTK_CLUTTER (widget));
+  app->stage = gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (widget));
   clutter_stage_set_color (CLUTTER_STAGE (app->stage), &stage_color);
+  gtk_widget_set_size_request (widget, 640, 480);
+  g_signal_connect (app->stage, "captured-event",
+                    G_CALLBACK (on_stage_capture),
+                    NULL);
 
   /* Create the main texture that the spin buttons manipulate */
   pixbuf = gdk_pixbuf_new_from_file ("redhand.png", NULL);
@@ -135,6 +167,10 @@ main (gint argc, gchar **argv)
   clutter_actor_set_position (actor,
                               (CLUTTER_STAGE_WIDTH ()/2) - (width/2),
                               (CLUTTER_STAGE_HEIGHT ()/2) - (height/2));
+  clutter_actor_set_reactive (actor, TRUE);
+  g_signal_connect (actor, "button-press-event",
+                    G_CALLBACK (on_hand_button_press),
+                    NULL);
 
   /* Setup the clutter entry */
   actor = clutter_entry_new_full ("Sans 10", "", &text_color);

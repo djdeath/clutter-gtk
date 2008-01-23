@@ -11,9 +11,9 @@ INCLUDES = \
 
 lib_LTLIBRARIES = libclutter-gtk-0.5.la
 
-libclutter_gtk_0_5_la_SOURCES = clutter-gtk.c
+libclutter_gtk_0_5_la_SOURCES = gtk-clutter-embed.c
 libclutter_gtk_0_5_la_LIBADD = $(CLUTTER_LIBS) $(GTK_LIBS)
 libclutter_gtk_0_5_la_LDFLAGS = $(CLUTTER_LT_LDFLAGS)
 
 cluttergtkheadersdir = $(includedir)/clutter-0.5/clutter-gtk
-cluttergtkheaders_HEADERS = clutter-gtk.h
+cluttergtkheaders_HEADERS = gtk-clutter-embed.h

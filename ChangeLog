@@ -1,3 +1,23 @@
+2008-01-23  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* configure.ac: Bump up to 0.5.1 and require Clutter 0.5.3
+	using clutter-x11.
+
+	* clutter-gtk.pc.in: Require clutter-x11-0.5.
+
+	* clutter-gtk/Makefile.am:
+	* clutter-gtk/gtk-clutter-embed.[ch]: Add the new GtkClutterEmbed
+	widget; this widget reverts back to the old, pre-XEMBED implementation
+	of an embeddable stage, by letting Clutter draw directly onto a
+	child GdkWindow, thanks to the fixes that went into Clutter
+	core. (#716, #717, #718, based on a patch by Havoc Pennington)
+
+	* clutter-gtk/clutter-gtk.[ch]: Remove the XEMBED based embeddable
+	widget.
+
+	* examples/gtk-clutter-events.c:
+	* examples/gtk-clutter-test.c: Update the tests for the new API.
+
 2008-01-17  Emmanuele Bassi  <ebassi@openedhand.com>
 
 	* NEWS:
