@@ -6,9 +6,9 @@
 
 #define TRAILS 0
 #define NHANDS  2
-#define WINWIDTH   800
-#define WINHEIGHT  800
-#define RADIUS     250
+#define WINWIDTH   400
+#define WINHEIGHT  400
+#define RADIUS     150
 
 typedef struct SuperOH
 {
@@ -130,6 +130,7 @@ main (int argc, char *argv[])
   gtk_container_add (GTK_CONTAINER (window), vbox);
 
   clutter = gtk_clutter_embed_new ();
+  gtk_widget_set_size_request (clutter, WINWIDTH, WINHEIGHT);
 
   gtk_container_add (GTK_CONTAINER (vbox), clutter);
 

@@ -1,3 +1,12 @@
+2008-01-24  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* doc/reference/clutter-gtk-docs.sgml:
+	* doc/reference/clutter-gtk.types: Update with the widget name
+	change.
+
+	* examples/gtk-clutter-test.c: Set a default size on the
+	widget to avoid the 0, 0 initial size.
+
 2008-01-23  Emmanuele Bassi  <ebassi@openedhand.com>
 
 	* configure.ac: Fix srcdir detection.

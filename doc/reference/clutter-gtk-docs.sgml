@@ -47,7 +47,7 @@
   </chapter>    
   <chapter>
     <title>Clutter-Gtk Widgets</title>
-    <xi:include href="xml/gtk-clutter.xml"/>
+    <xi:include href="xml/gtk-clutter-embed.xml"/>
   </chapter>
 
   <appendix id="license">
