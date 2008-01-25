@@ -1,3 +1,14 @@
+Clutter-GTK 0.5.2 21/01/2008
+============================
+
+ - Require clutter-x11 0.5.4
+ - Using the X11 pkg-config file it should now be possible to build against
+   Clutter EGLX backend
+ - Complete reimplementation of the embeddable widget, letting Clutter draw
+   directly onto a GtkWidget window. [Iain Holmes, Matthew Allum, Havoc
+   Pennington]
+ - Renamed the widget to GtkClutterEmbed
+
 Clutter-GTK 0.5.0 17/01/2008
 ============================
 

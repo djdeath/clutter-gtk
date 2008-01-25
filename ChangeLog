@@ -1,3 +1,10 @@
+2008-01-25  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* README:
+	* NEWS: Release 0.5.2
+
+	* configure.ac: Post release bump to 0.5.3
+
 2008-01-24  Emmanuele Bassi  <ebassi@openedhand.com>
 
 	* doc/reference/clutter-gtk-docs.sgml:

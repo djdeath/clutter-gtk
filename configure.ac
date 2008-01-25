@@ -3,7 +3,7 @@
 # An even micro number indicates a released version.
 m4_define([clutter_major_version], [0])
 m4_define([clutter_minor_version], [5])
-m4_define([clutter_micro_version], [1])
+m4_define([clutter_micro_version], [3])
 
 m4_define([clutter_version],
           [clutter_major_version.clutter_minor_version.clutter_micro_version])
@@ -67,7 +67,7 @@ AC_FUNC_MALLOC
 AC_FUNC_MMAP
 AC_CHECK_FUNCS([memset munmap strcasecmp strdup])
 
-CLUTTER_REQUIRED=0.5.3
+CLUTTER_REQUIRED=0.5.4
 
 PKG_CHECK_MODULES(CLUTTER, clutter-x11-0.5 >= $CLUTTER_REQUIRED)
 AC_SUBST(CLUTTER_CFLAGS)
