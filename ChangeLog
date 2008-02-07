@@ -1,3 +1,10 @@
+2008-02-07  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* clutter-gtk/gtk-clutter-embed.c: Explicitly note that you should
+	never call clutter_actor_set_size() on the embedded stage, but
+	call gtk_widget_set_size_request() on the widget itself to
+	resize the stage.
+
 2008-01-25  Emmanuele Bassi  <ebassi@openedhand.com>
 
 	* README:

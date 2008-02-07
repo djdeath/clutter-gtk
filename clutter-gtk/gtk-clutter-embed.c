@@ -28,6 +28,10 @@
  * a #GtkClutterEmbed widget is possible to build, show and interact with
  * a scene built using Clutter inside a GTK+ application.
  *
+ * <note>You should never resize the #ClutterStage embedded into the
+ * #GtkClutterEmbed widget. Instead, resize the widget using
+ * gtk_widget_set_size_request().</note>
+ *
  * Since: 0.6
  */
 
