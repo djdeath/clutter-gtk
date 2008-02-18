@@ -1,3 +1,8 @@
+2008-02-18  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* README:
+	* NEWS: Release 0.6.0
+
 2008-02-07  Emmanuele Bassi  <ebassi@openedhand.com>
 
 	* clutter-gtk/gtk-clutter-embed.c: Explicitly note that you should
