@@ -1,3 +1,12 @@
+2008-02-21  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* clutter-gtk/gtk-clutter-embed.c:
+	(gtk_clutter_embed_send_configure): Emit a Configure event
+	with the coordinates for the widget area.
+	
+	(gtk_clutter_embed_realize),
+	(gtk_clutter_embed_size_allocate): Send the configure event.
+
 2008-02-18  Emmanuele Bassi  <ebassi@openedhand.com>
 
 	* README:

@@ -60,6 +60,25 @@ struct _GtkClutterEmbedPrivate
 };
 
 static void
+gtk_clutter_embed_send_configure (GtkClutterEmbed *embed)
+{
+  GtkWidget *widget;
+  GdkEvent *event = gdk_event_new (GDK_CONFIGURE);
+
+  widget = GTK_WIDGET (embed);
+
+  event->configure.window = g_object_ref (widget->window);
+  event->configure.send_event = TRUE;
+  event->configure.x = widget->allocation.x;
+  event->configure.y = widget->allocation.y;
+  event->configure.width = widget->allocation.width;
+  event->configure.height = widget->allocation.height;
+  
+  gtk_widget_event (widget, event);
+  gdk_event_free (event);
+}
+
+static void
 gtk_clutter_embed_dispose (GObject *gobject)
 {
   G_OBJECT_CLASS (gtk_clutter_embed_parent_class)->dispose (gobject);
@@ -101,6 +120,8 @@ gtk_clutter_embed_realize (GtkWidget *widget)
 
   /* allow a redraw here */
   clutter_actor_queue_redraw (priv->stage);
+
+  gtk_clutter_embed_send_configure (GTK_CLUTTER_EMBED (widget));
 }
 
 static void
@@ -109,14 +130,23 @@ gtk_clutter_embed_size_allocate (GtkWidget     *widget,
 {
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
 
+  widget->allocation = *allocation;
+
+  if (GTK_WIDGET_REALIZED (widget))
+    {
+      gdk_window_move_resize (widget->window,
+                              allocation->x, allocation->y,
+                              allocation->width, allocation->height);
+
+      gtk_clutter_embed_send_configure (GTK_CLUTTER_EMBED (widget));
+    }
+
   clutter_actor_set_size (priv->stage,
                           allocation->width,
                           allocation->height);
 
   if (CLUTTER_ACTOR_IS_VISIBLE (priv->stage))
     clutter_actor_queue_redraw (priv->stage);
-
-  GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->size_allocate (widget, allocation);
 }
 
 static gboolean
