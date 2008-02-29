@@ -28,15 +28,14 @@
  * a #GtkClutterEmbed widget is possible to build, show and interact with
  * a scene built using Clutter inside a GTK+ application.
  *
- * <note>You should never resize the #ClutterStage embedded into the
- * #GtkClutterEmbed widget. Instead, resize the widget using
- * gtk_widget_set_size_request().</note>
+ * There can be as many #GtkClutterEmbed widgets per application, but
+ * they will embed and show the same #ClutterStage as a general limitation
+ * of Clutter.
  *
- * <note>You should only call #clutter_actor_show_all() after the
- * widget itself has been shown</note>
- *
- * <note>Only a single #GtkClutterEmbed instace per application is
- * currently supported</note>
+ * <note>To avoid flickering on show, you should call gtk_widget_show()
+ * or gtk_widget_realize() before calling clutter_actor_show() on the
+ * embedded #ClutterStage actor. This is needed for Clutter to be able
+ * to paint on the #GtkClutterEmbed widget.</note>
  *
  * Since: 0.6
  */
@@ -96,7 +95,7 @@ gtk_clutter_embed_show (GtkWidget *widget)
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
 
   /* Make sure the widget is realised before we show */
-  gtk_widget_realize(widget);
+  gtk_widget_realize (widget);
 
   GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->show (widget);
 
@@ -305,7 +304,8 @@ gtk_clutter_embed_init (GtkClutterEmbed *embed)
  * This function should be called instead of #clutter_init() and after
  * #gtk_init()
  *
- * Return value: 1 on success, < 0 on failure.
+ * Return value: %CLUTTER_INIT_SUCCESS on success, a negative integer
+ *   on failure.
  *
  * Since: 0.8
  */
@@ -323,7 +323,8 @@ gtk_clutter_init (int *argc, char ***argv)
 /**
  * gtk_clutter_embed_new:
  *
- * Creates a new embedded Clutter widget.
+ * Creates a new #GtkClutterEmbed widget. This widget can be
+ * used to build a scene using Clutter API into a GTK+ application.
  *
  * Return value: the newly created #GtkClutterEmbed
  *

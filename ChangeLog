@@ -1,3 +1,11 @@
+2008-02-29  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* Makefile.am:
+	* clutter-gtk/Makefile.am:
+	* examples/Makefile.am: Post-release bump build fixes
+
+	* clutter-gtk/gtk-clutter-embed.c: Extend documentation.
+
 2008-02-29  Matthew Allum  <mallum@openedhand.com>
 
 	* clutter-gtk.pc.in:

@@ -9,11 +9,11 @@ INCLUDES = \
 	$(CLUTTER_CFLAGS) 			\
 	$(GTK_CFLAGS)
 
-lib_LTLIBRARIES = libclutter-gtk-0.6.la
+lib_LTLIBRARIES = libclutter-gtk-0.7.la
 
-libclutter_gtk_0_6_la_SOURCES = gtk-clutter-embed.c
-libclutter_gtk_0_6_la_LIBADD = $(CLUTTER_LIBS) $(GTK_LIBS)
-libclutter_gtk_0_6_la_LDFLAGS = $(CLUTTER_LT_LDFLAGS)
+libclutter_gtk_0_7_la_SOURCES = gtk-clutter-embed.c
+libclutter_gtk_0_7_la_LIBADD = $(CLUTTER_LIBS) $(GTK_LIBS)
+libclutter_gtk_0_7_la_LDFLAGS = $(CLUTTER_LT_LDFLAGS)
 
-cluttergtkheadersdir = $(includedir)/clutter-0.6/clutter-gtk
+cluttergtkheadersdir = $(includedir)/clutter-0.7/clutter-gtk
 cluttergtkheaders_HEADERS = gtk-clutter-embed.h

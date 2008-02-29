@@ -24,6 +24,7 @@
 #define __GTK_CLUTTER_EMBED_H__
 
 #include <gtk/gtkwidget.h>
+#include <clutter/clutter-main.h>
 #include <clutter/clutter-actor.h>
 
 G_BEGIN_DECLS
@@ -79,7 +80,8 @@ GType         gtk_clutter_embed_get_type  (void) G_GNUC_CONST;
 GtkWidget *   gtk_clutter_embed_new       (void);
 ClutterActor *gtk_clutter_embed_get_stage (GtkClutterEmbed *embed);
 
-ClutterInitError gtk_clutter_init (int *argc, char ***argv);
+ClutterInitError gtk_clutter_init (gint    *argc,
+                                   gchar ***argv);
 
 G_END_DECLS
 
