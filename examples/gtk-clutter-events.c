@@ -118,9 +118,8 @@ main (gint argc, gchar **argv)
   ClutterColor   stage_color = {255, 255, 255, 255};
   ClutterColor   text_color = {0, 0, 0, 255};
 
-  clutter_init (&argc, &argv);
-  
   gtk_init (&argc, &argv);
+  gtk_clutter_init (&argc, &argv);
 
   /* Create the inital gtk window and widgets, just like normal */
   widget = gtk_window_new (GTK_WINDOW_TOPLEVEL);
@@ -216,8 +215,12 @@ main (gint argc, gchar **argv)
   gtk_box_pack_start (GTK_BOX (box), button, TRUE, TRUE, 0);
   g_signal_connect (button, "value-changed", G_CALLBACK (on_opacity_changed), app);
 
-  clutter_actor_show_all (app->stage);
   gtk_widget_show_all (app->window);
+
+  /* Only show/show_all the stage after parent show. widget_show will call
+   * show on the stage.
+  */
+  clutter_actor_show_all (app->stage);
 
   gtk_main ();
   

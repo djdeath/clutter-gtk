@@ -28,14 +28,14 @@ input_cb (ClutterStage *stage,
 {
   if (event->type == CLUTTER_BUTTON_PRESS)
     {
-      ClutterActor *actor;
+      ClutterActor *a;
       gint x, y;
 
       clutter_event_get_coords (event, &x, &y);
 
-      actor = clutter_stage_get_actor_at_pos (stage, x, y);
-      if (actor)
-	clutter_actor_hide (actor);
+      a = clutter_stage_get_actor_at_pos (stage, x, y);
+      if (a && (CLUTTER_IS_TEXTURE (a) || CLUTTER_IS_CLONE_TEXTURE (a)))
+	clutter_actor_hide (a);
     }
   else if (event->type == CLUTTER_KEY_PRESS)
     {
@@ -114,8 +114,8 @@ main (int argc, char *argv[])
   SuperOH         *oh;
   gint             i;
 
-  clutter_init (&argc, &argv);
   gtk_init (&argc, &argv);
+  gtk_clutter_init (&argc, &argv);
 
   pixbuf = gdk_pixbuf_new_from_file ("redhand.png", NULL);
 
@@ -198,7 +198,7 @@ main (int argc, char *argv[])
   /* Add the group to the stage */
   clutter_group_add (CLUTTER_GROUP (stage), CLUTTER_ACTOR(oh->group));
 
-  /* Show everying ( and map window ) */
+  /* Show our group, widget show will show the stage */
   clutter_actor_show_all (CLUTTER_ACTOR (oh->group));
 
   g_signal_connect (stage, "button-press-event",

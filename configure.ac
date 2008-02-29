@@ -2,7 +2,7 @@
 # An odd micro number indicates in-progress development, (eg. from CVS)
 # An even micro number indicates a released version.
 m4_define([clutter_major_version], [0])
-m4_define([clutter_minor_version], [6])
+m4_define([clutter_minor_version], [7])
 m4_define([clutter_micro_version], [0])
 
 m4_define([clutter_version],
@@ -67,9 +67,9 @@ AC_FUNC_MALLOC
 AC_FUNC_MMAP
 AC_CHECK_FUNCS([memset munmap strcasecmp strdup])
 
-CLUTTER_REQUIRED=0.6.0
+CLUTTER_REQUIRED=0.7.0
 
-PKG_CHECK_MODULES(CLUTTER, clutter-x11-0.6 >= $CLUTTER_REQUIRED)
+PKG_CHECK_MODULES(CLUTTER, clutter-x11-0.7 >= $CLUTTER_REQUIRED)
 AC_SUBST(CLUTTER_CFLAGS)
 AC_SUBST(CLUTTER_LIBS)
 

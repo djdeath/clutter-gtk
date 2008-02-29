@@ -1,3 +1,25 @@
+2008-02-29  Matthew Allum  <mallum@openedhand.com>
+
+	* clutter-gtk.pc.in:
+	* configure.ac:
+        Bump up to unstable 0.7 version and clutter req.
+
+	* clutter-gtk/gtk-clutter-embed.c:
+	* clutter-gtk/gtk-clutter-embed.h:
+        Add clutter_gtk_init(), as to use new API to share DISPLAY and
+        turn off Clutter 'automatic' event collection. 
+        Add methods for;
+          expose    - Queue a Clutter redraw.
+          map       - set Actor mapped flag.
+          show/hide - Forward to stage also. 
+        Minor doc additions.
+          
+	* examples/gtk-clutter-events.c:
+        Add some minor comments re when to call show_all().        
+
+	* examples/gtk-clutter-test.c:
+        Fix event->actor mapping. 
+
 2008-02-21  Emmanuele Bassi  <ebassi@openedhand.com>
 
 	* clutter-gtk/gtk-clutter-embed.c:

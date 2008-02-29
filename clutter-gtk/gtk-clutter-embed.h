@@ -79,6 +79,8 @@ GType         gtk_clutter_embed_get_type  (void) G_GNUC_CONST;
 GtkWidget *   gtk_clutter_embed_new       (void);
 ClutterActor *gtk_clutter_embed_get_stage (GtkClutterEmbed *embed);
 
+ClutterInitError gtk_clutter_init (int *argc, char ***argv);
+
 G_END_DECLS
 
 #endif /* __GTK_CLUTTER_EMBED_H__ */

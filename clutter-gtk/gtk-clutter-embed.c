@@ -32,6 +32,12 @@
  * #GtkClutterEmbed widget. Instead, resize the widget using
  * gtk_widget_set_size_request().</note>
  *
+ * <note>You should only call #clutter_actor_show_all() after the
+ * widget itself has been shown</note>
+ *
+ * <note>Only a single #GtkClutterEmbed instace per application is
+ * currently supported</note>
+ *
  * Since: 0.6
  */
 
@@ -85,6 +91,29 @@ gtk_clutter_embed_dispose (GObject *gobject)
 }
 
 static void
+gtk_clutter_embed_show (GtkWidget *widget)
+{
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
+
+  /* Make sure the widget is realised before we show */
+  gtk_widget_realize(widget);
+
+  GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->show (widget);
+
+  clutter_actor_show (priv->stage);
+}
+
+static void
+gtk_clutter_embed_hide (GtkWidget *widget)
+{
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
+
+  GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->hide (widget);
+
+  clutter_actor_hide (priv->stage);
+}
+
+static void
 gtk_clutter_embed_realize (GtkWidget *widget)
 {
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv; 
@@ -117,9 +146,7 @@ gtk_clutter_embed_realize (GtkWidget *widget)
 
   clutter_x11_set_stage_foreign (CLUTTER_STAGE (priv->stage), 
                                  GDK_WINDOW_XID (widget->window));
-
-  /* allow a redraw here */
-  clutter_actor_queue_redraw (priv->stage);
+  clutter_redraw ();
 
   gtk_clutter_embed_send_configure (GTK_CLUTTER_EMBED (widget));
 }
@@ -202,6 +229,31 @@ gtk_clutter_embed_key_event (GtkWidget   *widget,
   return TRUE;
 }
 
+static gboolean
+gtk_clutter_embed_expose_event (GtkWidget *widget, GdkEventExpose *event)
+{
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
+
+  if (CLUTTER_ACTOR_IS_VISIBLE (priv->stage))
+    clutter_actor_queue_redraw (priv->stage);
+
+  return TRUE;
+}
+
+static gboolean
+gtk_clutter_embed_map_event (GtkWidget	     *widget,
+                             GdkEventAny     *event)
+{
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
+
+  /* The backend wont get the XEvent as we go strait to do_event().
+   * So we have to make sure we set the event here.
+  */
+  CLUTTER_ACTOR_SET_FLAGS (priv->stage, CLUTTER_ACTOR_MAPPED);
+
+  return TRUE;
+}
+
 static void
 gtk_clutter_embed_class_init (GtkClutterEmbedClass *klass)
 {
@@ -214,10 +266,14 @@ gtk_clutter_embed_class_init (GtkClutterEmbedClass *klass)
 
   widget_class->size_allocate = gtk_clutter_embed_size_allocate;
   widget_class->realize = gtk_clutter_embed_realize;
+  widget_class->show = gtk_clutter_embed_show;
+  widget_class->hide = gtk_clutter_embed_hide;
   widget_class->button_press_event = gtk_clutter_embed_button_event;
   widget_class->button_release_event = gtk_clutter_embed_button_event;
   widget_class->key_press_event = gtk_clutter_embed_key_event;
   widget_class->key_release_event = gtk_clutter_embed_key_event;
+  widget_class->expose_event = gtk_clutter_embed_expose_event;
+  widget_class->map_event = gtk_clutter_embed_map_event;
 }
 
 static void
@@ -244,9 +300,30 @@ gtk_clutter_embed_init (GtkClutterEmbed *embed)
 }
 
 /**
+ * gtk_clutter_init:
+ *
+ * This function should be called instead of #clutter_init() and after
+ * #gtk_init()
+ *
+ * Return value: 1 on success, < 0 on failure.
+ *
+ * Since: 0.8
+ */
+ClutterInitError
+gtk_clutter_init (int *argc, char ***argv)
+{
+  clutter_x11_set_display (GDK_DISPLAY());
+  clutter_x11_disable_event_retrieval ();
+
+  /* FIXME: call gtk_init() here? */
+
+  return clutter_init (argc, argv);
+}
+
+/**
  * gtk_clutter_embed_new:
  *
- * FIXME
+ * Creates a new embedded Clutter widget.
  *
  * Return value: the newly created #GtkClutterEmbed
  *
