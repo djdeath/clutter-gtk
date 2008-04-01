@@ -1,3 +1,9 @@
+2008-04-01  Matthew Allum  <mallum@openedhand.com>
+
+	* examples/Makefile.am:
+	* examples/gtk-clutter-multistage.c:
+        Add a *very* simple multiple stage example.
+
 2008-04-01  Neil Roberts  <neil@o-hand.com>
 
 	* examples/gtk-clutter-test.c (main): Moved the

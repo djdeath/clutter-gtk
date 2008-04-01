@@ -1,4 +1,4 @@
-noinst_PROGRAMS = gtk-clutter-test gtk-clutter-events
+noinst_PROGRAMS = gtk-clutter-test gtk-clutter-events gtk-clutter-multistage
 
 INCLUDES = \
 	-I$(srcdir) \
@@ -18,6 +18,14 @@ gtk_clutter_events_DEPENDENCIES = \
 	$(top_builddir)/clutter-gtk/libclutter-gtk-0.7.la
 gtk_clutter_events_SOURCES = gtk-clutter-events.c
 gtk_clutter_events_LDADD = \
+	$(top_builddir)/clutter-gtk/libclutter-gtk-0.7.la \
+	$(CLUTTER_LIBS)	\
+	$(GTK_LIBS)
+
+gtk_clutter_multistage_DEPENDENCIES = \
+	$(top_builddir)/clutter-gtk/libclutter-gtk-0.7.la
+gtk_clutter_multistage_SOURCES = gtk-clutter-multistage.c
+gtk_clutter_multistage_LDADD = \
 	$(top_builddir)/clutter-gtk/libclutter-gtk-0.7.la \
 	$(CLUTTER_LIBS)	\
 	$(GTK_LIBS)
