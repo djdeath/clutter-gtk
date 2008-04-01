@@ -28,10 +28,6 @@
  * a #GtkClutterEmbed widget is possible to build, show and interact with
  * a scene built using Clutter inside a GTK+ application.
  *
- * There can be as many #GtkClutterEmbed widgets per application, but
- * they will embed and show the same #ClutterStage as a general limitation
- * of Clutter.
- *
  * <note>To avoid flickering on show, you should call gtk_widget_show()
  * or gtk_widget_realize() before calling clutter_actor_show() on the
  * embedded #ClutterStage actor. This is needed for Clutter to be able
@@ -145,7 +141,7 @@ gtk_clutter_embed_realize (GtkWidget *widget)
 
   clutter_x11_set_stage_foreign (CLUTTER_STAGE (priv->stage), 
                                  GDK_WINDOW_XID (widget->window));
-  clutter_redraw ();
+  clutter_redraw (CLUTTER_STAGE(priv->stage));
 
   gtk_clutter_embed_send_configure (GTK_CLUTTER_EMBED (widget));
 }
@@ -288,7 +284,9 @@ gtk_clutter_embed_init (GtkClutterEmbed *embed)
   gtk_widget_set_double_buffered (GTK_WIDGET (embed), FALSE);
 
   /* note we never ref or unref this */
-  priv->stage = clutter_stage_get_default ();
+  priv->stage = clutter_stage_create_new (); 
+  /* we always create new stages rather than use the default */
+  /* priv->stage = clutter_stage_get_default (); */
 
   /* We need to use the colormap from the Clutter visual */
   xvinfo = clutter_x11_get_stage_visual (CLUTTER_STAGE (priv->stage));
