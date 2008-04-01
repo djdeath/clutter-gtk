@@ -1,3 +1,10 @@
+2008-04-01  Neil Roberts  <neil@o-hand.com>
+
+	* examples/gtk-clutter-test.c (main): Moved the
+	clutter_actor_show_all call to after the parent widget is
+	shown. Otherwise all of the actors get unrealized when
+	clutter_x11_set_stage_foreign is called and nothing is displayed.
+
 2008-04-01  Matthew Allum  <mallum@openedhand.com>
 
 	* clutter-gtk/gtk-clutter-embed.c:

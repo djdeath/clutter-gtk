@@ -198,9 +198,6 @@ main (int argc, char *argv[])
   /* Add the group to the stage */
   clutter_group_add (CLUTTER_GROUP (stage), CLUTTER_ACTOR(oh->group));
 
-  /* Show our group, widget show will show the stage */
-  clutter_actor_show_all (CLUTTER_ACTOR (oh->group));
-
   g_signal_connect (stage, "button-press-event",
 		    G_CALLBACK (input_cb), 
 		    oh);
@@ -209,6 +206,12 @@ main (int argc, char *argv[])
 		    oh);
 
   gtk_widget_show_all (window);
+
+  /* Only show the actors after parent show otherwise it will just be
+   * unrealized when the clutter foreign window is set. widget_show
+   * will call show on the stage.
+   */
+  clutter_actor_show_all (CLUTTER_ACTOR (oh->group));
 
   /* Create a timeline to manage animation */
   timeline = clutter_timeline_new (360, 60); /* num frames, fps */
