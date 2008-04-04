@@ -284,7 +284,7 @@ gtk_clutter_embed_init (GtkClutterEmbed *embed)
   gtk_widget_set_double_buffered (GTK_WIDGET (embed), FALSE);
 
   /* note we never ref or unref this */
-  priv->stage = clutter_stage_create_new (); 
+  priv->stage = clutter_stage_new (); 
   /* we always create new stages rather than use the default */
   /* priv->stage = clutter_stage_get_default (); */
 
