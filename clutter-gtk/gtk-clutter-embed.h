@@ -41,6 +41,22 @@ typedef struct _GtkClutterEmbedPrivate  GtkClutterEmbedPrivate;
 typedef struct _GtkClutterEmbedClass    GtkClutterEmbedClass;
 
 /**
+ * ClutterGtkInitError:
+ * @CLUTTER_INIT_ERROR_LAST: Placeholder
+ * @CLUTTER_INIT_ERROR_GTK: Unable to initialize GTK+
+ *
+ * Extension of the #ClutterInitError enumeration for the integration
+ * with GTK+
+ *
+ * Since: 0.8
+ */
+typedef enum {
+  CLUTTER_INIT_ERROR_LAST = CLUTTER_INIT_ERROR_INTERNAL,
+
+  CLUTTER_INIT_ERROR_GTK  = (CLUTTER_INIT_ERROR_LAST - 1)
+} ClutterGtkInitError;
+
+/**
  * GtkClutterEmbed:
  *
  * A #GtkWidget containing the default Clutter stage.

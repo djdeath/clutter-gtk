@@ -118,8 +118,8 @@ main (gint argc, gchar **argv)
   ClutterColor   stage_color = {255, 255, 255, 255};
   ClutterColor   text_color = {0, 0, 0, 255};
 
-  gtk_init (&argc, &argv);
-  gtk_clutter_init (&argc, &argv);
+  if (gtk_clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
+    g_error ("Unable to initialize GtkClutter");
 
   /* Create the inital gtk window and widgets, just like normal */
   widget = gtk_window_new (GTK_WINDOW_TOPLEVEL);

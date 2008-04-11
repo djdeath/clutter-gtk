@@ -15,8 +15,8 @@ main (int argc, char *argv[])
   ClutterColor     col1 = { 0xff, 0xff, 0xff, 0xff };
   ClutterColor     col2 = { 0, 0, 0, 0xff };
 
-  gtk_init (&argc, &argv);
-  gtk_clutter_init (&argc, &argv);
+  if (gtk_clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
+    g_error ("Unable to initialize GtkClutter");
 
   pixbuf = gdk_pixbuf_new_from_file ("redhand.png", NULL);
 

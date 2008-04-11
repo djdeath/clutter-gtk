@@ -47,6 +47,7 @@
 
 #include <gdk/gdk.h>
 #include <gdk/gdkx.h>
+#include <gtk/gtkmain.h>
 #include <clutter/clutter-x11.h>
 
 #include "gtk-clutter-embed.h"
@@ -299,8 +300,8 @@ gtk_clutter_embed_init (GtkClutterEmbed *embed)
 /**
  * gtk_clutter_init:
  *
- * This function should be called instead of #clutter_init() and after
- * #gtk_init()
+ * This function should be called instead of clutter_init() and
+ * gtk_init().
  *
  * Return value: %CLUTTER_INIT_SUCCESS on success, a negative integer
  *   on failure.
@@ -310,10 +311,11 @@ gtk_clutter_embed_init (GtkClutterEmbed *embed)
 ClutterInitError
 gtk_clutter_init (int *argc, char ***argv)
 {
-  clutter_x11_set_display (GDK_DISPLAY());
-  clutter_x11_disable_event_retrieval ();
+  if (!gtk_init_check (argc, argv))
+    return CLUTTER_INIT_ERROR_GTK;
 
-  /* FIXME: call gtk_init() here? */
+  clutter_x11_set_display (GDK_DISPLAY ());
+  clutter_x11_disable_event_retrieval ();
 
   return clutter_init (argc, argv);
 }
