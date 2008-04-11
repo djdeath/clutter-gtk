@@ -165,7 +165,7 @@ main (int argc, char *argv[])
 #endif
 
   /* create a new group to hold multiple actors in a group */
-  oh->group = CLUTTER_GROUP (clutter_group_new());
+  oh->group = CLUTTER_GROUP (clutter_group_new ());
   
   for (i = 0; i < NHANDS; i++)
     {
@@ -175,7 +175,7 @@ main (int argc, char *argv[])
       if (i == 0)
        oh->hand[i] = clutter_texture_new_from_pixbuf (pixbuf);
      else
-       oh->hand[i] = clutter_clone_texture_new (CLUTTER_TEXTURE(oh->hand[0]));
+       oh->hand[i] = clutter_clone_texture_new (CLUTTER_TEXTURE (oh->hand[0]));
 #else
       ClutterColor colour = { 255, 0, 0, 255 };
 
@@ -196,7 +196,8 @@ main (int argc, char *argv[])
     }
 
   /* Add the group to the stage */
-  clutter_group_add (CLUTTER_GROUP (stage), CLUTTER_ACTOR(oh->group));
+  clutter_container_add_actor (CLUTTER_CONTAINER (clutter),
+                               CLUTTER_ACTOR (oh->group));
 
   g_signal_connect (stage, "button-press-event",
 		    G_CALLBACK (input_cb), 

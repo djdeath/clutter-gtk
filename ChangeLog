@@ -1,6 +1,17 @@
 2008-04-11  Emmanuele Bassi  <ebassi@openedhand.com>
 
 	* clutter-gtk/gtk-clutter-embed.c:
+	(clutter_container_iface_init): Make GtkClutterEmbed implement
+	ClutterContainer, and proxy all virtual functions to the
+	embedded Stage.
+
+	* examples/gtk-clutter-test.c: (main): Add the group straight
+	to the GtkClutterEmbed widget to test the Container interface
+	implementation.
+
+2008-04-11  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* clutter-gtk/gtk-clutter-embed.c:
 	(gtk_clutter_init): Call gtk_init_check(); this is safe, because
 	multiple calls to gtk_init() are safe.
 

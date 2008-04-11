@@ -42,17 +42,25 @@
 
 #include <glib-object.h>
 
-#include <clutter/clutter-main.h>
-#include <clutter/clutter-stage.h>
-
 #include <gdk/gdk.h>
 #include <gdk/gdkx.h>
 #include <gtk/gtkmain.h>
+
+#include <clutter/clutter-main.h>
+#include <clutter/clutter-stage.h>
+#include <clutter/clutter-container.h>
+
 #include <clutter/clutter-x11.h>
 
 #include "gtk-clutter-embed.h"
 
-G_DEFINE_TYPE (GtkClutterEmbed, gtk_clutter_embed, GTK_TYPE_WIDGET);
+static void clutter_container_iface_init (ClutterContainerIface *iface);
+
+G_DEFINE_TYPE_WITH_CODE (GtkClutterEmbed,
+                         gtk_clutter_embed,
+                         GTK_TYPE_WIDGET,
+                         G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_CONTAINER,
+                                                clutter_container_iface_init));
 
 #define GTK_CLUTTER_EMBED_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), GTK_TYPE_CLUTTER_EMBED, GtkClutterEmbedPrivate))
 
@@ -248,6 +256,85 @@ gtk_clutter_embed_map_event (GtkWidget	     *widget,
   CLUTTER_ACTOR_SET_FLAGS (priv->stage, CLUTTER_ACTOR_MAPPED);
 
   return TRUE;
+}
+
+static void
+gtk_clutter_embed_add (ClutterContainer *container,
+                       ClutterActor     *actor)
+{
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (container)->priv;
+  ClutterContainer *stage = CLUTTER_CONTAINER (priv->stage);
+
+  clutter_container_add_actor (stage, actor);
+  g_signal_emit_by_name (container, "actor-added", actor);
+}
+
+static void
+gtk_clutter_embed_remove (ClutterContainer *container,
+                          ClutterActor     *actor)
+{
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (container)->priv;
+  ClutterContainer *stage = CLUTTER_CONTAINER (priv->stage);
+
+  g_object_ref (actor);
+
+  clutter_container_remove_actor (stage, actor);
+  g_signal_emit_by_name (container, "actor-removed", actor);
+
+  g_object_unref (actor);
+}
+
+static void
+gtk_clutter_embed_foreach (ClutterContainer *container,
+                           ClutterCallback   callback,
+                           gpointer          callback_data)
+{
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (container)->priv;
+  ClutterContainer *stage = CLUTTER_CONTAINER (priv->stage);
+
+  clutter_container_foreach (stage, callback, callback_data);
+}
+
+static void
+gtk_clutter_embed_raise (ClutterContainer *container,
+                         ClutterActor     *child,
+                         ClutterActor     *sibling)
+{
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (container)->priv;
+  ClutterContainer *stage = CLUTTER_CONTAINER (priv->stage);
+
+  clutter_container_raise_child (stage, child, sibling);
+}
+
+static void
+gtk_clutter_embed_lower (ClutterContainer *container,
+                         ClutterActor     *child,
+                         ClutterActor     *sibling)
+{
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (container)->priv;
+  ClutterContainer *stage = CLUTTER_CONTAINER (priv->stage);
+
+  clutter_container_lower_child (stage, child, sibling);
+}
+
+static void
+gtk_clutter_embed_sort_depth_order (ClutterContainer *container)
+{
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (container)->priv;
+  ClutterContainer *stage = CLUTTER_CONTAINER (priv->stage);
+
+  clutter_container_sort_depth_order (stage);
+}
+
+static void
+clutter_container_iface_init (ClutterContainerIface *iface)
+{
+  iface->add = gtk_clutter_embed_add;
+  iface->remove = gtk_clutter_embed_remove;
+  iface->foreach = gtk_clutter_embed_foreach;
+  iface->raise = gtk_clutter_embed_raise;
+  iface->lower = gtk_clutter_embed_lower;
+  iface->sort_depth_order = gtk_clutter_embed_sort_depth_order;
 }
 
 static void
