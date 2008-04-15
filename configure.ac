@@ -69,7 +69,29 @@ AC_CHECK_FUNCS([memset munmap strcasecmp strdup])
 
 CLUTTER_REQUIRED=0.7.0
 
-PKG_CHECK_MODULES(CLUTTER, clutter-x11-0.7 >= $CLUTTER_REQUIRED)
+cluttergtkflavour=x11
+AC_ARG_WITH([flavour],
+            AC_HELP_STRING([--with-flavour=@<:@x11/win32@:>@],
+                           [Select the Clutter backend]),
+            cluttergtkflavour=$with_flavour)
+
+case $cluttergtkflavour in
+
+  x11)
+    AC_DEFINE([HAVE_CLUTTER_GTK_X11], 1, [Using the X11 flavour])
+    PKG_CHECK_MODULES(CLUTTER, clutter-x11-0.7 >= $CLUTTER_REQUIRED)
+    ;;
+    
+  win32)
+    AC_DEFINE([HAVE_CLUTTER_GTK_WIN32], 1, [Using the Win32 flavour])
+    PKG_CHECK_MODULES(CLUTTER, clutter-win32-0.7 >= $CLUTTER_REQUIRED)
+    ;;
+    
+  *)
+    AC_MSG_ERROR([Invalid flavour for Clutter-GTK: use x11 or win32])
+    ;;
+esac
+
 AC_SUBST(CLUTTER_CFLAGS)
 AC_SUBST(CLUTTER_LIBS)
 
@@ -135,6 +157,7 @@ echo "                 ==================="
 echo ""
 echo "                   prefix:   ${prefix}"
 echo ""
+echo "                  Flavour:   ${cluttergtkflavour}"
 echo "              Debug level:   ${enable_debug}"
 echo "            Documentation:   ${enable_gtk_doc}"
 echo ""

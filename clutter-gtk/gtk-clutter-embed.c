@@ -43,14 +43,23 @@
 #include <glib-object.h>
 
 #include <gdk/gdk.h>
-#include <gdk/gdkx.h>
 #include <gtk/gtkmain.h>
 
 #include <clutter/clutter-main.h>
 #include <clutter/clutter-stage.h>
 #include <clutter/clutter-container.h>
 
+#if defined(HAVE_CLUTTER_GTK_X11)
+
 #include <clutter/clutter-x11.h>
+#include <gdk/gdkx.h>
+
+#elif defined(HAVE_CLUTTER_GTK_WIN32)
+
+#include <clutter/clutter-win32.h>
+#include <gdk/gdkwin32.h>
+
+#endif /* HAVE_CLUTTER_GTK_{X11,WIN32} */
 
 #include "gtk-clutter-embed.h"
 
@@ -134,7 +143,9 @@ gtk_clutter_embed_realize (GtkWidget *widget)
   attributes.wclass = GDK_INPUT_OUTPUT;
   attributes.visual = gtk_widget_get_visual (widget);
   attributes.colormap = gtk_widget_get_colormap (widget);
-  attributes.event_mask = gtk_widget_get_events (widget) | GDK_EXPOSURE_MASK;
+  attributes.event_mask = gtk_widget_get_events (widget)
+    | GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK
+    | GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK;
 
   attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL | GDK_WA_COLORMAP;
 
@@ -148,8 +159,14 @@ gtk_clutter_embed_realize (GtkWidget *widget)
   
   gdk_window_set_back_pixmap (widget->window, NULL, FALSE);
 
+#if defined(HAVE_CLUTTER_GTK_X11)
   clutter_x11_set_stage_foreign (CLUTTER_STAGE (priv->stage), 
                                  GDK_WINDOW_XID (widget->window));
+#elif defined(HAVE_CLUTTER_GTK_WIN32)
+  clutter_win32_set_stage_foreign (CLUTTER_STAGE (priv->stage), 
+				   GDK_WINDOW_HWND (widget->window));
+#endif /* HAVE_CLUTTER_GTK_{X11,WIN32} */
+
   clutter_redraw (CLUTTER_STAGE(priv->stage));
 
   gtk_clutter_embed_send_configure (GTK_CLUTTER_EMBED (widget));
@@ -184,6 +201,7 @@ static gboolean
 gtk_clutter_embed_button_event (GtkWidget      *widget,
                                 GdkEventButton *event)
 {
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
   ClutterEvent cevent = { 0, };
 
   if (event->type == GDK_BUTTON_PRESS ||
@@ -195,6 +213,7 @@ gtk_clutter_embed_button_event (GtkWidget      *widget,
   else
     return FALSE;
 
+  cevent.any.stage = CLUTTER_STAGE (priv->stage);
   cevent.button.x = event->x;
   cevent.button.y = event->y;
   cevent.button.time = event->time;
@@ -214,6 +233,7 @@ static gboolean
 gtk_clutter_embed_key_event (GtkWidget   *widget,
                              GdkEventKey *event)
 {
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
   ClutterEvent cevent = { 0, };
 
   if (event->type == GDK_KEY_PRESS)
@@ -223,6 +243,7 @@ gtk_clutter_embed_key_event (GtkWidget   *widget,
   else
     return FALSE;
 
+  cevent.any.stage = CLUTTER_STAGE (priv->stage);
   cevent.key.time = event->time;
   cevent.key.modifier_state = event->state;
   cevent.key.keyval = event->keyval;
@@ -363,9 +384,11 @@ static void
 gtk_clutter_embed_init (GtkClutterEmbed *embed)
 {
   GtkClutterEmbedPrivate *priv;
+#ifdef HAVE_CLUTTER_GTK_X11
   const XVisualInfo *xvinfo;
   GdkVisual *visual;
   GdkColormap *colormap;
+#endif
 
   embed->priv = priv = GTK_CLUTTER_EMBED_GET_PRIVATE (embed);
 
@@ -376,12 +399,14 @@ gtk_clutter_embed_init (GtkClutterEmbed *embed)
   /* we always create new stages rather than use the default */
   /* priv->stage = clutter_stage_get_default (); */
 
+#ifdef HAVE_CLUTTER_GTK_X11
   /* We need to use the colormap from the Clutter visual */
   xvinfo = clutter_x11_get_stage_visual (CLUTTER_STAGE (priv->stage));
   visual = gdk_x11_screen_lookup_visual (gdk_screen_get_default (),
                                          xvinfo->visualid);
   colormap = gdk_colormap_new (visual, FALSE);
   gtk_widget_set_colormap (GTK_WIDGET (embed), colormap);
+#endif
 }
 
 /**
@@ -401,8 +426,12 @@ gtk_clutter_init (int *argc, char ***argv)
   if (!gtk_init_check (argc, argv))
     return CLUTTER_INIT_ERROR_GTK;
 
-  clutter_x11_set_display (GDK_DISPLAY ());
+#if defined(HAVE_CLUTTER_GTK_X11)
+  clutter_x11_set_display (GDK_DISPLAY());
   clutter_x11_disable_event_retrieval ();
+#elif defined(HAVE_CLUTTER_GTK_WIN32)
+  clutter_win32_disable_event_retrieval ();
+#endif /* HAVE_CLUTTER_GTK_{X11,WIN32} */
 
   return clutter_init (argc, argv);
 }

@@ -1,3 +1,20 @@
+2008-04-15  Neil Roberts  <neil@o-hand.com>
+
+	* configure.ac: Added a --with-flavour option to select between
+	x11 and win32 versions. Defaults to x11.
+
+	* clutter-gtk/gtk-clutter-embed.c: ifdef out X11 specific calls
+	and replace with Win32 equivalents.
+	(gtk_clutter_embed_key_event, gtk_clutter_embed_button_event): Set
+	the stage pointer when generating fake Clutter events otherwise
+	they just get ignored.
+	(gtk_clutter_embed_realize): Always request button and key events
+	in the window event mask. They aren't included by default on
+	Windows.
+	
+	* README (Requirements): Added a note about the minimum Clutter
+	version for the Win32 backend.
+
 2008-04-11  Emmanuele Bassi  <ebassi@openedhand.com>
 
 	* clutter-gtk/gtk-clutter-embed.c:
