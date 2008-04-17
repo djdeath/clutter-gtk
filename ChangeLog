@@ -1,5 +1,16 @@
 2008-04-17  Emmanuele Bassi  <ebassi@openedhand.com>
 
+	* README: Update requirements
+
+	* clutter-gtk/gtk-clutter-embed.c:
+	(gtk_clutter_embed_dispose): Destroy the ClutterStage we create.
+
+	(gtk_clutter_embed_realize),
+	(gtk_clutter_embed_init),
+	(gtk_clutter_init): Slight cleanup.
+
+2008-04-17  Emmanuele Bassi  <ebassi@openedhand.com>
+
 	* clutter-gtk/gtk-clutter-util.[ch]: Add utility functions to
 	ClutterGtk to be able to retrieve the ClutterColor equivalent
 	of the various style color components of a GtkWidget.

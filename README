@@ -9,7 +9,7 @@ ClutterStage.
 
 Requirements:
 
-  Clutter >= 0.6.0 (X11 backend) or >= 0.8.0 (Win32 backend)
+  Clutter >= 0.8.0 (X11 backend) or >= 0.8.0 (Win32 backend)
   GTK+ >= 2.12
 
 Copyright (C) 2006  OpenedHand

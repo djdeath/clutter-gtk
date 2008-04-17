@@ -100,6 +100,14 @@ gtk_clutter_embed_send_configure (GtkClutterEmbed *embed)
 static void
 gtk_clutter_embed_dispose (GObject *gobject)
 {
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (gobject)->priv;
+
+  if (priv->stage)
+    {
+      clutter_actor_destroy (priv->stage);
+      priv->stage = NULL;
+    }
+
   G_OBJECT_CLASS (gtk_clutter_embed_parent_class)->dispose (gobject);
 }
 
@@ -167,7 +175,7 @@ gtk_clutter_embed_realize (GtkWidget *widget)
 				   GDK_WINDOW_HWND (widget->window));
 #endif /* HAVE_CLUTTER_GTK_{X11,WIN32} */
 
-  clutter_redraw (CLUTTER_STAGE(priv->stage));
+  clutter_redraw (CLUTTER_STAGE (priv->stage));
 
   gtk_clutter_embed_send_configure (GTK_CLUTTER_EMBED (widget));
 }
@@ -384,33 +392,37 @@ static void
 gtk_clutter_embed_init (GtkClutterEmbed *embed)
 {
   GtkClutterEmbedPrivate *priv;
-#ifdef HAVE_CLUTTER_GTK_X11
-  const XVisualInfo *xvinfo;
-  GdkVisual *visual;
-  GdkColormap *colormap;
-#endif
 
   embed->priv = priv = GTK_CLUTTER_EMBED_GET_PRIVATE (embed);
 
+  /* disable double-buffering: it's automatically provided
+   * by OpenGL
+   */
   gtk_widget_set_double_buffered (GTK_WIDGET (embed), FALSE);
 
-  /* note we never ref or unref this */
-  priv->stage = clutter_stage_new (); 
   /* we always create new stages rather than use the default */
-  /* priv->stage = clutter_stage_get_default (); */
+  priv->stage = clutter_stage_new ();
 
 #ifdef HAVE_CLUTTER_GTK_X11
-  /* We need to use the colormap from the Clutter visual */
-  xvinfo = clutter_x11_get_stage_visual (CLUTTER_STAGE (priv->stage));
-  visual = gdk_x11_screen_lookup_visual (gdk_screen_get_default (),
-                                         xvinfo->visualid);
-  colormap = gdk_colormap_new (visual, FALSE);
-  gtk_widget_set_colormap (GTK_WIDGET (embed), colormap);
+  {
+    const XVisualInfo *xvinfo;
+    GdkVisual *visual;
+    GdkColormap *colormap;
+
+    /* We need to use the colormap from the Clutter visual */
+    xvinfo = clutter_x11_get_stage_visual (CLUTTER_STAGE (priv->stage));
+    visual = gdk_x11_screen_lookup_visual (gdk_screen_get_default (),
+                                           xvinfo->visualid);
+    colormap = gdk_colormap_new (visual, FALSE);
+    gtk_widget_set_colormap (GTK_WIDGET (embed), colormap);
+  }
 #endif
 }
 
 /**
  * gtk_clutter_init:
+ * @argc: pointer to the arguments count, or %NULL
+ * @argv: pointer to the arguments vector, or %NULL
  *
  * This function should be called instead of clutter_init() and
  * gtk_init().
@@ -421,7 +433,8 @@ gtk_clutter_embed_init (GtkClutterEmbed *embed)
  * Since: 0.8
  */
 ClutterInitError
-gtk_clutter_init (int *argc, char ***argv)
+gtk_clutter_init (int    *argc,
+                  char ***argv)
 {
   if (!gtk_init_check (argc, argv))
     return CLUTTER_INIT_ERROR_GTK;
