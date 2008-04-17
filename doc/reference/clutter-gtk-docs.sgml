@@ -44,10 +44,16 @@
     yada-yada-yada
     </para>
     
-  </chapter>    
+  </chapter>
+
   <chapter>
     <title>Clutter-Gtk Widgets</title>
     <xi:include href="xml/gtk-clutter-embed.xml"/>
+  </chapter>
+
+  <chapter>
+    <title>Miscellaneous</title>
+    <xi:include href="xml/gtk-clutter-util.xml"/>
   </chapter>
 
   <appendix id="license">

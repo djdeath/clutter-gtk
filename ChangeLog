@@ -1,3 +1,17 @@
+2008-04-17  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* clutter-gtk/gtk-clutter-util.[ch]: Add utility functions to
+	ClutterGtk to be able to retrieve the ClutterColor equivalent
+	of the various style color components of a GtkWidget.
+
+	* clutter-gtk/Makefile.am: Add gtk-clutter-util.[ch] to the build.
+
+	* doc/reference/clutter-gtk-docs.sgml: Add the new section in
+	the documentation.
+
+	* examples/gtk-clutter-events.c (create_colors): Test the newly
+	added color retrieval API.
+
 2008-04-15  Neil Roberts  <neil@o-hand.com>
 
 	* configure.ac: Added a --with-flavour option to select between

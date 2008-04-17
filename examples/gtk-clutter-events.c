@@ -2,6 +2,7 @@
 #include <clutter/clutter.h>
 
 #include <clutter-gtk/gtk-clutter-embed.h>
+#include <clutter-gtk/gtk-clutter-util.h>
 
 typedef struct {
 
@@ -63,20 +64,8 @@ on_opacity_changed (GtkSpinButton *button, EventApp *app)
 static void
 create_colors (EventApp *app, ClutterColor *stage, ClutterColor *text)
 {
-  GtkStyle *style = gtk_widget_get_style (app->window);
-  GdkColor color;
-
-  /* Set the stage color to base[NORMAL] */
-  color = style->bg[GTK_STATE_NORMAL];
-  stage->red = (guint8) ((color.red/65535.0) * 255);
-  stage->green = (guint8) ((color.green/65535.0) * 255);
-  stage->blue  = (guint8) ((color.blue/65535.0) * 255);
-  
-  /* Now the text color */
-  color = style->text[GTK_STATE_NORMAL];
-  text->red =(guint8) ((color.red/65535.0) * 255);
-  text->green = (guint8) ((color.green/65535.0) * 255);
-  text->blue = (guint8) ((color.blue/65535.0) * 255);
+  gtk_clutter_get_bg_color (app->window, GTK_STATE_NORMAL, stage);
+  gtk_clutter_get_text_color (app->window, GTK_STATE_NORMAL, text);
 }
 
 static gboolean
