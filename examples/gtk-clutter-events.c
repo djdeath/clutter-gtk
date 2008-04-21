@@ -148,7 +148,7 @@ main (gint argc, gchar **argv)
   if (pixbuf == NULL)
     g_error ("Unable to load pixbuf\n");
 
-  actor = clutter_texture_new_from_pixbuf (pixbuf);
+  actor = gtk_clutter_texture_new_from_pixbuf (pixbuf);
   app->hand = actor;
   clutter_group_add (CLUTTER_GROUP (app->stage), actor);
   clutter_actor_get_size (actor, &width, &height);

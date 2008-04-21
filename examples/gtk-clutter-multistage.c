@@ -1,6 +1,8 @@
 #include <gtk/gtk.h>
 #include <clutter/clutter.h>
+
 #include <clutter-gtk/gtk-clutter-embed.h>
+#include <clutter-gtk/gtk-clutter-util.h>
 
 int
 main (int argc, char *argv[])
@@ -18,14 +20,6 @@ main (int argc, char *argv[])
   if (gtk_clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
     g_error ("Unable to initialize GtkClutter");
 
-  pixbuf = gdk_pixbuf_new_from_file ("redhand.png", NULL);
-
-  if (!pixbuf)
-    g_error("pixbuf load failed");
-
-  tex1 = clutter_texture_new_from_pixbuf (pixbuf);
-  tex2 = clutter_clone_texture_new (tex1);
-
   window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   g_signal_connect (window, "destroy",
                     G_CALLBACK (gtk_main_quit), NULL);
@@ -37,15 +31,29 @@ main (int argc, char *argv[])
   gtk_widget_set_size_request (clutter1, 320, 240);
   stage1 = gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (clutter1));
   clutter_stage_set_color (CLUTTER_STAGE(stage1), &col1);
+  tex1 = gtk_clutter_texture_new_from_stock (clutter1,
+                                             GTK_STOCK_DIALOG_INFO,
+                                             GTK_ICON_SIZE_DIALOG);
+  clutter_actor_set_anchor_point (tex1,
+                                  clutter_actor_get_width (tex1) / 2,
+                                  clutter_actor_get_height (tex1) / 2);
+  clutter_actor_set_position (tex1, 160, 120);
   clutter_stage_add (stage1, tex1); 
+  clutter_actor_show (tex1);
 
   gtk_container_add (GTK_CONTAINER (vbox), clutter1);
 
   clutter2 = gtk_clutter_embed_new ();
   gtk_widget_set_size_request (clutter2, 320, 240);
   stage2 = gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (clutter2));
-
   clutter_stage_set_color (CLUTTER_STAGE(stage2), &col2);
+  tex2 = gtk_clutter_texture_new_from_icon_name (clutter1,
+                                                 "user-info",
+                                                 GTK_ICON_SIZE_BUTTON);
+  clutter_actor_set_anchor_point (tex2,
+                                  clutter_actor_get_width (tex2) / 2,
+                                  clutter_actor_get_height (tex2) / 2);
+  clutter_actor_set_position (tex2, 160, 120);
   clutter_stage_add (stage2, tex2);
 
   gtk_container_add (GTK_CONTAINER (vbox), clutter2);
