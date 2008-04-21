@@ -1,5 +1,15 @@
 2008-04-21  Emmanuele Bassi  <ebassi@openedhand.com>
 
+	Bug #876 - GtkClutterEmbed doesn't propagate events back down
+	to the GtkWindow
+
+	* clutter-gtk/gtk-clutter-embed.c:
+	(gtk_clutter_embed_button_event),
+	(gtk_clutter_embed_key_event): Just return FALSE in the
+	event handlers.
+
+2008-04-21  Emmanuele Bassi  <ebassi@openedhand.com>
+
 	* clutter-gtk/gtk-clutter-util.h:
 	* clutter-gtk/gtk-clutter-util.c:
 	(gtk_clutter_texture_new_from_pixbuf),

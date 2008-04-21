@@ -234,7 +234,7 @@ gtk_clutter_embed_button_event (GtkWidget      *widget,
 
   clutter_do_event (&cevent);
 
-  return TRUE;
+  return FALSE;
 }
 
 static gboolean
@@ -259,7 +259,7 @@ gtk_clutter_embed_key_event (GtkWidget   *widget,
 
   clutter_do_event (&cevent);
 
-  return TRUE;
+  return FALSE;
 }
 
 static gboolean
