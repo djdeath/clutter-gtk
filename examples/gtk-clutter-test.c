@@ -3,6 +3,7 @@
 #include <math.h>
 
 #include <clutter-gtk/gtk-clutter-embed.h>
+#include <clutter-gtk/gtk-clutter-util.h>
 
 #define TRAILS 0
 #define NHANDS  2
@@ -173,7 +174,7 @@ main (int argc, char *argv[])
 #if 1
       /* Create a texture from pixbuf, then clone in to same resources */
       if (i == 0)
-       oh->hand[i] = clutter_texture_new_from_pixbuf (pixbuf);
+       oh->hand[i] = gtk_clutter_texture_new_from_pixbuf (pixbuf);
      else
        oh->hand[i] = clutter_clone_texture_new (CLUTTER_TEXTURE (oh->hand[0]));
 #else

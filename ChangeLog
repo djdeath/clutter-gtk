@@ -1,3 +1,8 @@
+2008-04-24  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* examples/gtk-clutter-test.c (main): Use the utility function
+	for creating a ClutterTexture using a GdkPixbuf.
+
 2008-04-21  Emmanuele Bassi  <ebassi@openedhand.com>
 
 	Bug #876 - GtkClutterEmbed doesn't propagate events back down
