@@ -151,9 +151,14 @@ gtk_clutter_embed_realize (GtkWidget *widget)
   attributes.wclass = GDK_INPUT_OUTPUT;
   attributes.visual = gtk_widget_get_visual (widget);
   attributes.colormap = gtk_widget_get_colormap (widget);
+
+  /* NOTE: GDK_MOTION_NOTIFY above should be safe as Clutter does its own
+   *       throtling. 
+  */
   attributes.event_mask = gtk_widget_get_events (widget)
     | GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK
-    | GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK;
+    | GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK | GDK_MOTION_NOTIFY;
+
 
   attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL | GDK_WA_COLORMAP;
 
@@ -203,6 +208,42 @@ gtk_clutter_embed_size_allocate (GtkWidget     *widget,
 
   if (CLUTTER_ACTOR_IS_VISIBLE (priv->stage))
     clutter_actor_queue_redraw (priv->stage);
+}
+
+static gboolean
+gtk_clutter_embed_motion_notify_event (GtkWidget      *widget,
+                                       GdkEventMotion *event)
+{
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
+  ClutterEvent cevent = { 0, };
+
+  cevent.type = CLUTTER_MOTION;
+  cevent.any.stage = CLUTTER_STAGE (priv->stage);
+  cevent.motion.x = event->x;
+  cevent.motion.y = event->y;
+  cevent.motion.time = event->time;
+
+  clutter_do_event (&cevent);
+
+  /* doh - motion events can push ENTER/LEAVE events onto Clutters
+   * internal event queue which we do really ever touch (essentially
+   * proxying from gtks queue). The below pumps them back out and
+   * processes.
+   * *could* be side effects with below though doubful as no other
+   * events reach the queue (we shut down event collection). Maybe
+   * a peek_mask type call could be even safer. 
+  */
+  while (clutter_events_pending())
+    {
+      ClutterEvent *ev = clutter_event_get ();
+      if (ev)
+        {
+          clutter_do_event (ev);
+          clutter_event_free (ev);
+        }
+    }
+
+  return FALSE;
 }
 
 static gboolean
@@ -384,6 +425,7 @@ gtk_clutter_embed_class_init (GtkClutterEmbedClass *klass)
   widget_class->button_release_event = gtk_clutter_embed_button_event;
   widget_class->key_press_event = gtk_clutter_embed_key_event;
   widget_class->key_release_event = gtk_clutter_embed_key_event;
+  widget_class->motion_notify_event = gtk_clutter_embed_motion_notify_event;
   widget_class->expose_event = gtk_clutter_embed_expose_event;
   widget_class->map_event = gtk_clutter_embed_map_event;
 }
