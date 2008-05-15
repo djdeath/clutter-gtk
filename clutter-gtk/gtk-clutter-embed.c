@@ -445,6 +445,9 @@ gtk_clutter_embed_init (GtkClutterEmbed *embed)
   /* we always create new stages rather than use the default */
   priv->stage = clutter_stage_new ();
 
+  /* we must realize the stage to get it ready for embedding */
+  clutter_actor_realize (priv->stage);
+
 #ifdef HAVE_CLUTTER_GTK_X11
   {
     const XVisualInfo *xvinfo;

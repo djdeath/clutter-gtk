@@ -1,3 +1,9 @@
+2008-05-15  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* clutter-gtk/gtk-clutter-embed.c:
+	(gtk_clutter_embed_init): Realize the stage before retrieving
+	the visual from it.
+
 2008-05-07  Matthew Allum  <mallum@openedhand.com>
 
 	* clutter-gtk/gtk-clutter-embed.c:
