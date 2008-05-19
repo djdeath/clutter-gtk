@@ -51,7 +51,7 @@
 
 #if defined(HAVE_CLUTTER_GTK_X11)
 
-#include <clutter/clutter-x11.h>
+#include <clutter/x11/clutter-x11.h>
 #include <gdk/gdkx.h>
 
 #elif defined(HAVE_CLUTTER_GTK_WIN32)
