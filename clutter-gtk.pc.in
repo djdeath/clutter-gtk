@@ -7,5 +7,5 @@ Name: clutter-gtk
 Description: GTK+ widget for Clutter
 Version: @VERSION@
 Libs: -L${libdir} -lclutter-gtk-0.7
-Cflags: -I${includedir}/clutter-0.6/clutter-gtk
+Cflags: -I${includedir}/clutter-0.7/clutter-gtk
 Requires: clutter-x11-0.7 gtk+-2.0

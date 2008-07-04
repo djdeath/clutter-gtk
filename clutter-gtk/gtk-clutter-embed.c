@@ -63,13 +63,7 @@
 
 #include "gtk-clutter-embed.h"
 
-static void clutter_container_iface_init (ClutterContainerIface *iface);
-
-G_DEFINE_TYPE_WITH_CODE (GtkClutterEmbed,
-                         gtk_clutter_embed,
-                         GTK_TYPE_WIDGET,
-                         G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_CONTAINER,
-                                                clutter_container_iface_init));
+G_DEFINE_TYPE (GtkClutterEmbed, gtk_clutter_embed, GTK_TYPE_WIDGET);
 
 #define GTK_CLUTTER_EMBED_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), GTK_TYPE_CLUTTER_EMBED, GtkClutterEmbedPrivate))
 
@@ -117,11 +111,12 @@ gtk_clutter_embed_show (GtkWidget *widget)
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
 
   /* Make sure the widget is realised before we show */
-  gtk_widget_realize (widget);
-
-  GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->show (widget);
+  if (!GTK_WIDGET_REALIZED (widget))
+    gtk_widget_realize (widget);
 
   clutter_actor_show (priv->stage);
+
+  GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->show (widget);
 }
 
 static void
@@ -129,9 +124,9 @@ gtk_clutter_embed_hide (GtkWidget *widget)
 {
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
 
-  GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->hide (widget);
-
   clutter_actor_hide (priv->stage);
+
+  GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->hide (widget);
 }
 
 static void
@@ -156,9 +151,12 @@ gtk_clutter_embed_realize (GtkWidget *widget)
    *       throtling. 
   */
   attributes.event_mask = gtk_widget_get_events (widget)
-    | GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK
-    | GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK | GDK_MOTION_NOTIFY;
-
+                        | GDK_EXPOSURE_MASK
+                        | GDK_BUTTON_PRESS_MASK
+                        | GDK_BUTTON_RELEASE_MASK
+                        | GDK_KEY_PRESS_MASK
+                        | GDK_KEY_RELEASE_MASK
+                        | GDK_MOTION_NOTIFY;
 
   attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL | GDK_WA_COLORMAP;
 
@@ -180,7 +178,7 @@ gtk_clutter_embed_realize (GtkWidget *widget)
 				   GDK_WINDOW_HWND (widget->window));
 #endif /* HAVE_CLUTTER_GTK_{X11,WIN32} */
 
-  clutter_redraw (CLUTTER_STAGE (priv->stage));
+  clutter_actor_queue_redraw (CLUTTER_ACTOR (priv->stage));
 
   gtk_clutter_embed_send_configure (GTK_CLUTTER_EMBED (widget));
 }
@@ -304,19 +302,20 @@ gtk_clutter_embed_key_event (GtkWidget   *widget,
 }
 
 static gboolean
-gtk_clutter_embed_expose_event (GtkWidget *widget, GdkEventExpose *event)
+gtk_clutter_embed_expose_event (GtkWidget      *widget,
+                                GdkEventExpose *event)
 {
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
 
   if (CLUTTER_ACTOR_IS_VISIBLE (priv->stage))
     clutter_actor_queue_redraw (priv->stage);
 
-  return TRUE;
+  return FALSE;
 }
 
 static gboolean
-gtk_clutter_embed_map_event (GtkWidget	     *widget,
-                             GdkEventAny     *event)
+gtk_clutter_embed_map_event (GtkWidget	 *widget,
+                             GdkEventAny *event)
 {
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
 
@@ -325,86 +324,19 @@ gtk_clutter_embed_map_event (GtkWidget	     *widget,
   */
   CLUTTER_ACTOR_SET_FLAGS (priv->stage, CLUTTER_ACTOR_MAPPED);
 
-  return TRUE;
+  return FALSE;
 }
 
-static void
-gtk_clutter_embed_add (ClutterContainer *container,
-                       ClutterActor     *actor)
+static gboolean
+gtk_clutter_embed_focus_out (GtkWidget     *widget,
+                             GdkEventFocus *event)
 {
-  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (container)->priv;
-  ClutterContainer *stage = CLUTTER_CONTAINER (priv->stage);
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
 
-  clutter_container_add_actor (stage, actor);
-  g_signal_emit_by_name (container, "actor-added", actor);
-}
+  /* give back key focus to the stage */
+  clutter_stage_set_key_focus (CLUTTER_STAGE (priv->stage), NULL);
 
-static void
-gtk_clutter_embed_remove (ClutterContainer *container,
-                          ClutterActor     *actor)
-{
-  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (container)->priv;
-  ClutterContainer *stage = CLUTTER_CONTAINER (priv->stage);
-
-  g_object_ref (actor);
-
-  clutter_container_remove_actor (stage, actor);
-  g_signal_emit_by_name (container, "actor-removed", actor);
-
-  g_object_unref (actor);
-}
-
-static void
-gtk_clutter_embed_foreach (ClutterContainer *container,
-                           ClutterCallback   callback,
-                           gpointer          callback_data)
-{
-  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (container)->priv;
-  ClutterContainer *stage = CLUTTER_CONTAINER (priv->stage);
-
-  clutter_container_foreach (stage, callback, callback_data);
-}
-
-static void
-gtk_clutter_embed_raise (ClutterContainer *container,
-                         ClutterActor     *child,
-                         ClutterActor     *sibling)
-{
-  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (container)->priv;
-  ClutterContainer *stage = CLUTTER_CONTAINER (priv->stage);
-
-  clutter_container_raise_child (stage, child, sibling);
-}
-
-static void
-gtk_clutter_embed_lower (ClutterContainer *container,
-                         ClutterActor     *child,
-                         ClutterActor     *sibling)
-{
-  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (container)->priv;
-  ClutterContainer *stage = CLUTTER_CONTAINER (priv->stage);
-
-  clutter_container_lower_child (stage, child, sibling);
-}
-
-static void
-gtk_clutter_embed_sort_depth_order (ClutterContainer *container)
-{
-  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (container)->priv;
-  ClutterContainer *stage = CLUTTER_CONTAINER (priv->stage);
-
-  clutter_container_sort_depth_order (stage);
-}
-
-static void
-clutter_container_iface_init (ClutterContainerIface *iface)
-{
-  iface->add = gtk_clutter_embed_add;
-  iface->remove = gtk_clutter_embed_remove;
-  iface->foreach = gtk_clutter_embed_foreach;
-  iface->raise = gtk_clutter_embed_raise;
-  iface->lower = gtk_clutter_embed_lower;
-  iface->sort_depth_order = gtk_clutter_embed_sort_depth_order;
+  return FALSE;
 }
 
 static void
@@ -428,6 +360,7 @@ gtk_clutter_embed_class_init (GtkClutterEmbedClass *klass)
   widget_class->motion_notify_event = gtk_clutter_embed_motion_notify_event;
   widget_class->expose_event = gtk_clutter_embed_expose_event;
   widget_class->map_event = gtk_clutter_embed_map_event;
+  widget_class->focus_out_event = gtk_clutter_embed_focus_out;
 }
 
 static void
@@ -436,6 +369,8 @@ gtk_clutter_embed_init (GtkClutterEmbed *embed)
   GtkClutterEmbedPrivate *priv;
 
   embed->priv = priv = GTK_CLUTTER_EMBED_GET_PRIVATE (embed);
+
+  GTK_WIDGET_SET_FLAGS (embed, GTK_CAN_FOCUS);
 
   /* disable double-buffering: it's automatically provided
    * by OpenGL

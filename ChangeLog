@@ -1,3 +1,17 @@
+2008-07-04  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* clutter-gtk.pc.in: Fix the inclusion directory
+
+	* clutter-gtk/gtk-clutter-embed.c: Synch up with the stable branch
+	to handle focus. Also remove the ClutterContainer implementation.
+
+	* clutter-gtk/gtk-clutter-util.[ch]: Fully document and add the
+	gtk_clutter_texture_set_from_icon_name() helper function.
+
+	* configure.ac: Whitespace
+
+	* examples/gtk-clutter-test.c: Update.
+
 2008-05-19  Tomas Frydrych  <tf@openedhand.com>
 
 	* clutter-gtk/gtk-clutter-embed.c:
@@ -13,7 +27,7 @@
 2008-05-07  Matthew Allum  <mallum@openedhand.com>
 
 	* clutter-gtk/gtk-clutter-embed.c:
-        Add motion event handling - fixes #907
+	Add motion event handling - fixes #907
 
 2008-04-24  Emmanuele Bassi  <ebassi@openedhand.com>
 
@@ -122,7 +136,7 @@
 
 	* examples/Makefile.am:
 	* examples/gtk-clutter-multistage.c:
-        Add a *very* simple multiple stage example.
+	Add a *very* simple multiple stage example.
 
 2008-04-01  Neil Roberts  <neil@o-hand.com>
 
@@ -134,8 +148,8 @@
 2008-04-01  Matthew Allum  <mallum@openedhand.com>
 
 	* clutter-gtk/gtk-clutter-embed.c:
-        Update for latest trunk multistage.
-        Should now support multple widgets.
+	Update for latest trunk multistage.
+	Should now support multple widgets.
 
 2008-02-29  Emmanuele Bassi  <ebassi@openedhand.com>
 
@@ -149,23 +163,23 @@
 
 	* clutter-gtk.pc.in:
 	* configure.ac:
-        Bump up to unstable 0.7 version and clutter req.
+	Bump up to unstable 0.7 version and clutter req.
 
 	* clutter-gtk/gtk-clutter-embed.c:
 	* clutter-gtk/gtk-clutter-embed.h:
-        Add clutter_gtk_init(), as to use new API to share DISPLAY and
-        turn off Clutter 'automatic' event collection.
-        Add methods for;
-          expose    - Queue a Clutter redraw.
-          map       - set Actor mapped flag.
-          show/hide - Forward to stage also.
-        Minor doc additions.
+	Add clutter_gtk_init(), as to use new API to share DISPLAY and
+	turn off Clutter 'automatic' event collection.
+	Add methods for;
+	  expose    - Queue a Clutter redraw.
+	  map       - set Actor mapped flag.
+	  show/hide - Forward to stage also.
+	Minor doc additions.
 
 	* examples/gtk-clutter-events.c:
-        Add some minor comments re when to call show_all().
+	Add some minor comments re when to call show_all().
 
 	* examples/gtk-clutter-test.c:
-        Fix event->actor mapping.
+	Fix event->actor mapping.
 
 2008-02-21  Emmanuele Bassi  <ebassi@openedhand.com>
 

@@ -197,7 +197,7 @@ main (int argc, char *argv[])
     }
 
   /* Add the group to the stage */
-  clutter_container_add_actor (CLUTTER_CONTAINER (clutter),
+  clutter_container_add_actor (CLUTTER_CONTAINER (stage),
                                CLUTTER_ACTOR (oh->group));
 
   g_signal_connect (stage, "button-press-event",

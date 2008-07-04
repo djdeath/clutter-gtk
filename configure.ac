@@ -90,6 +90,7 @@ case $cluttergtkflavour in
   *)
     AC_MSG_ERROR([Invalid flavour for Clutter-GTK: use x11 or win32])
     ;;
+
 esac
 
 AC_SUBST(CLUTTER_CFLAGS)
