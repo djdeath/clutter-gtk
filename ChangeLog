@@ -1,3 +1,15 @@
+2008-07-15  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* configure.ac: Post-release bump to 0.8.1.
+
+======== Clutter-GTK 0.8.0 ====================================================
+
+2008-07-15  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* configure.ac:
+	* README:
+	* NEWS: Release 0.8.0
+
 2008-07-04  Emmanuele Bassi  <ebassi@openedhand.com>
 
 	* clutter-gtk.pc.in: Fix the inclusion directory

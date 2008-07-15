@@ -26,6 +26,7 @@
 #include <gtk/gtkwidget.h>
 #include <clutter/clutter-main.h>
 #include <clutter/clutter-actor.h>
+#include <clutter-gtk/gtk-clutter-util.h>
 
 G_BEGIN_DECLS
 

@@ -1,3 +1,13 @@
+Clutter-GTK 0.8.0 15/07/2008
+============================
+
+ - Require clutter-x11 0.8.0 or clutter-win32 0.8.0
+ - Support the Clutter win32 backend
+ - Support multiple GtkClutterEmbed widgets
+ - Add utility functions for integrating with GTK+ themes, GTK+ stock icons,
+   icon themes and GdkPixbuf
+ - Do not open a second Display connection on X11
+
 Clutter-GTK 0.6.0 18/02/2008
 ============================
 

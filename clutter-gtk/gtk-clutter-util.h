@@ -22,8 +22,8 @@
 #ifndef __GTK_CLUTTER_UTIL_H__
 #define __GTK_CLUTTER_UTIL_H__
 
-#include <gtk/gtkwidget.h>
-#include <clutter/clutter-color.h>
+#include <gtk/gtk.h>
+#include <clutter/clutter.h>
 
 G_BEGIN_DECLS
 
