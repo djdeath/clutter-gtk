@@ -156,7 +156,7 @@ gtk_clutter_embed_realize (GtkWidget *widget)
                         | GDK_BUTTON_RELEASE_MASK
                         | GDK_KEY_PRESS_MASK
                         | GDK_KEY_RELEASE_MASK
-                        | GDK_MOTION_NOTIFY;
+                        | GDK_POINTER_MOTION_MASK;
 
   attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL | GDK_WA_COLORMAP;
 
