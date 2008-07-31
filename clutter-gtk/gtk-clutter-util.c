@@ -182,7 +182,8 @@ gtk_clutter_texture_new_from_pixbuf (GdkPixbuf *pixbuf)
                                      gdk_pixbuf_get_width (pixbuf),
                                      gdk_pixbuf_get_height (pixbuf),
                                      gdk_pixbuf_get_rowstride (pixbuf),
-                                     4, 0,
+                                     gdk_pixbuf_get_has_alpha (pixbuf) ? 3 : 4,
+                                     0,
                                      &error);
   if (error)
     {
@@ -218,7 +219,8 @@ gtk_clutter_texture_set_from_pixbuf (ClutterTexture *texture,
                                      gdk_pixbuf_get_width (pixbuf),
                                      gdk_pixbuf_get_height (pixbuf),
                                      gdk_pixbuf_get_rowstride (pixbuf),
-                                     4, 0,
+                                     gdk_pixbuf_get_has_alpha (pixbuf) ? 3 : 4,
+                                     0,
                                      &error);
   if (error)
     {
