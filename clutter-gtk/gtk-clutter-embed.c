@@ -204,8 +204,7 @@ gtk_clutter_embed_size_allocate (GtkWidget     *widget,
                           allocation->width,
                           allocation->height);
 
-  if (CLUTTER_ACTOR_IS_VISIBLE (priv->stage))
-    clutter_actor_queue_redraw (priv->stage);
+  clutter_actor_queue_relayout (priv->stage);
 }
 
 static gboolean

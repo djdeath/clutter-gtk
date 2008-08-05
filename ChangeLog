@@ -1,3 +1,9 @@
+2008-08-05  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* clutter-gtk/gtk-clutter-embed.c:
+	(gtk_clutter_embed_size_allocate): Queue a relayout on the stage
+	when we have an allocation from the GtkWidget.
+
 2008-08-01  Neil Roberts  <neil@o-hand.com>
 
 	* clutter-gtk/gtk-clutter-util.c
