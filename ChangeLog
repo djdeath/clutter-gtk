@@ -1,3 +1,12 @@
+2008-09-15  Emmanuele Bassi  <emmanuele.bassi@intel.com>
+
+	Bug 1114 - Mouse wheel events ignored in GtkClutterEmbed
+
+	* clutter-gtk/gtk-clutter-embed.c:
+	(gtk_clutter_embed_scroll_event),
+	(gtk_clutter_embed_class_init): Add relaying of the scroll
+	events from GTK+ to Clutter. (Pierre-Luc Beaudoin)
+
 2008-08-05  Emmanuele Bassi  <ebassi@openedhand.com>
 
 	* clutter-gtk/gtk-clutter-embed.c:

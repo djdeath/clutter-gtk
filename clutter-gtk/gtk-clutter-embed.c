@@ -338,6 +338,31 @@ gtk_clutter_embed_focus_out (GtkWidget     *widget,
   return FALSE;
 }
 
+static gboolean
+gtk_clutter_embed_scroll_event (GtkWidget      *widget,
+                                GdkEventScroll *event)
+{
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
+
+  ClutterEvent cevent = { 0, };
+
+  if (event->type == GDK_SCROLL)
+    cevent.type = cevent.scroll.type = CLUTTER_SCROLL;
+  else
+    return FALSE;
+
+  cevent.any.stage = CLUTTER_STAGE (priv->stage);
+  cevent.scroll.x = (gint) event->x;
+  cevent.scroll.y = (gint) event->y;
+  cevent.scroll.time = event->time;
+  cevent.scroll.direction = event->direction;
+  cevent.scroll.modifier_state = event->state;
+
+  clutter_do_event (&cevent);
+
+  return FALSE;
+}
+
 static void
 gtk_clutter_embed_class_init (GtkClutterEmbedClass *klass)
 {
@@ -360,6 +385,7 @@ gtk_clutter_embed_class_init (GtkClutterEmbedClass *klass)
   widget_class->expose_event = gtk_clutter_embed_expose_event;
   widget_class->map_event = gtk_clutter_embed_map_event;
   widget_class->focus_out_event = gtk_clutter_embed_focus_out;
+  widget_class->scroll_event = gtk_clutter_embed_scroll_event;
 }
 
 static void
