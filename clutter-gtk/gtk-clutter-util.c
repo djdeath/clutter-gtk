@@ -20,9 +20,24 @@
  * GTK+ stock items and icon themes.
  */
 
+enum
+{
+  /* base symbols from GtkRcStyle */
+  FG_COMPONENT = GTK_RC_FG,
+  BG_COMPONENT = GTK_RC_BG,
+  TEXT_COMPONENT = GTK_RC_TEXT,
+  BASE_COMPONENT = GTK_RC_BASE,
+
+  /* symbols used by GtkStyle */
+  LIGHT_COMPONENT,
+  MID_COMPONENT,
+  DARK_COMPONENT,
+  TEXT_AA_COMPONENT
+};
+
 static inline void
 gtk_clutter_get_component (GtkWidget    *widget,
-                           GtkRcFlags    component,
+                           gint          component,
                            GtkStateType  state,
                            ClutterColor *color)
 {
@@ -31,20 +46,36 @@ gtk_clutter_get_component (GtkWidget    *widget,
 
   switch (component)
     {
-    case GTK_RC_FG:
+    case FG_COMPONENT:
       gtk_color = style->fg[state];
       break;
 
-    case GTK_RC_BG:
+    case BG_COMPONENT:
       gtk_color = style->bg[state];
       break;
 
-    case GTK_RC_TEXT:
+    case TEXT_COMPONENT:
       gtk_color = style->text[state];
       break;
 
-    case GTK_RC_BASE:
+    case BASE_COMPONENT:
       gtk_color = style->base[state];
+      break;
+
+    case LIGHT_COMPONENT:
+      gtk_color = style->light[state];
+      break;
+
+    case MID_COMPONENT:
+      gtk_color = style->mid[state];
+      break;
+
+    case DARK_COMPONENT:
+      gtk_color = style->dark[state];
+      break;
+
+    case TEXT_AA_COMPONENT:
+      gtk_color = style->text_aa[state];
       break;
 
     default:
@@ -79,7 +110,7 @@ gtk_clutter_get_fg_color (GtkWidget    *widget,
                     state <= GTK_STATE_INSENSITIVE);
   g_return_if_fail (color != NULL);
 
-  gtk_clutter_get_component (widget, GTK_RC_FG, state, color);
+  gtk_clutter_get_component (widget, FG_COMPONENT, state, color);
 }
 
 /**
@@ -103,7 +134,7 @@ gtk_clutter_get_bg_color (GtkWidget    *widget,
                     state <= GTK_STATE_INSENSITIVE);
   g_return_if_fail (color != NULL);
 
-  gtk_clutter_get_component (widget, GTK_RC_BG, state, color);
+  gtk_clutter_get_component (widget, BG_COMPONENT, state, color);
 }
 
 /**
@@ -127,7 +158,7 @@ gtk_clutter_get_text_color (GtkWidget    *widget,
                     state <= GTK_STATE_INSENSITIVE);
   g_return_if_fail (color != NULL);
 
-  gtk_clutter_get_component (widget, GTK_RC_TEXT, state, color);
+  gtk_clutter_get_component (widget, TEXT_COMPONENT, state, color);
 }
 
 /**
@@ -151,7 +182,103 @@ gtk_clutter_get_base_color (GtkWidget    *widget,
                     state <= GTK_STATE_INSENSITIVE);
   g_return_if_fail (color != NULL);
 
-  gtk_clutter_get_component (widget, GTK_RC_BASE, state, color);
+  gtk_clutter_get_component (widget, BASE_COMPONENT, state, color);
+}
+
+/**
+ * gtk_clutter_get_light_color:
+ * @widget: a #GtkWidget
+ * @state: a state
+ * @color: return location for a #ClutterColor
+ *
+ * Retrieves the light color of @widget for the given @state and copies it
+ * into @color.
+ *
+ * Since: 0.8
+ */
+void
+gtk_clutter_get_light_color (GtkWidget    *widget,
+                             GtkStateType  state,
+                             ClutterColor *color)
+{
+  g_return_if_fail (GTK_IS_WIDGET (widget));
+  g_return_if_fail (state >= GTK_STATE_NORMAL &&
+                    state <= GTK_STATE_INSENSITIVE);
+  g_return_if_fail (color != NULL);
+
+  gtk_clutter_get_component (widget, LIGHT_COMPONENT, state, color);
+}
+
+/**
+ * gtk_clutter_get_mid_color:
+ * @widget: a #GtkWidget
+ * @state: a state
+ * @color: return location for a #ClutterColor
+ *
+ * Retrieves the mid color of @widget for the given @state and copies it
+ * into @color.
+ *
+ * Since: 0.8
+ */
+void
+gtk_clutter_get_mid_color (GtkWidget    *widget,
+                           GtkStateType  state,
+                           ClutterColor *color)
+{
+  g_return_if_fail (GTK_IS_WIDGET (widget));
+  g_return_if_fail (state >= GTK_STATE_NORMAL &&
+                    state <= GTK_STATE_INSENSITIVE);
+  g_return_if_fail (color != NULL);
+
+  gtk_clutter_get_component (widget, MID_COMPONENT, state, color);
+}
+
+/**
+ * gtk_clutter_get_dark_color:
+ * @widget: a #GtkWidget
+ * @state: a state
+ * @color: return location for a #ClutterColor
+ *
+ * Retrieves the dark color of @widget for the given @state and copies it
+ * into @color.
+ *
+ * Since: 0.8
+ */
+void
+gtk_clutter_get_dark_color (GtkWidget    *widget,
+                            GtkStateType  state,
+                            ClutterColor *color)
+{
+  g_return_if_fail (GTK_IS_WIDGET (widget));
+  g_return_if_fail (state >= GTK_STATE_NORMAL &&
+                    state <= GTK_STATE_INSENSITIVE);
+  g_return_if_fail (color != NULL);
+
+  gtk_clutter_get_component (widget, DARK_COMPONENT, state, color);
+}
+
+/**
+ * gtk_clutter_get_text_aa_color:
+ * @widget: a #GtkWidget
+ * @state: a state
+ * @color: return location for a #ClutterColor
+ *
+ * Retrieves the text-aa color of @widget for the given @state and copies it
+ * into @color.
+ *
+ * Since: 0.8
+ */
+void
+gtk_clutter_get_text_aa_color (GtkWidget    *widget,
+                               GtkStateType  state,
+                               ClutterColor *color)
+{
+  g_return_if_fail (GTK_IS_WIDGET (widget));
+  g_return_if_fail (state >= GTK_STATE_NORMAL &&
+                    state <= GTK_STATE_INSENSITIVE);
+  g_return_if_fail (color != NULL);
+
+  gtk_clutter_get_component (widget, TEXT_AA_COMPONENT, state, color);
 }
 
 /**

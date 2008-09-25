@@ -36,7 +36,19 @@ void          gtk_clutter_get_bg_color               (GtkWidget      *widget,
 void          gtk_clutter_get_text_color             (GtkWidget      *widget,
                                                       GtkStateType    state,
                                                       ClutterColor   *color);
+void          gtk_clutter_get_text_aa_color          (GtkWidget      *widget,
+                                                      GtkStateType    state,
+                                                      ClutterColor   *color);
 void          gtk_clutter_get_base_color             (GtkWidget      *widget,
+                                                      GtkStateType    state,
+                                                      ClutterColor   *color);
+void          gtk_clutter_get_light_color            (GtkWidget      *widget,
+                                                      GtkStateType    state,
+                                                      ClutterColor   *color);
+void          gtk_clutter_get_dark_color             (GtkWidget      *widget,
+                                                      GtkStateType    state,
+                                                      ClutterColor   *color);
+void          gtk_clutter_get_mid_color              (GtkWidget      *widget,
                                                       GtkStateType    state,
                                                       ClutterColor   *color);
 
