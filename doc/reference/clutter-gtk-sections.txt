@@ -1,0 +1,45 @@
+<SECTION>
+<FILE>gtk-clutter-embed</FILE>
+<TITLE>GtkClutterEmbed</TITLE>
+GtkClutterEmbed
+GtkClutterEmbedClass
+gtk_clutter_embed_new
+gtk_clutter_embed_get_stage
+
+<SUBSECTION Standard>
+GTK_CLUTTER_EMBED
+GTK_IS_CLUTTER_EMBED
+GTK_TYPE_CLUTTER_EMBED
+GTK_CLUTTER_EMBED_CLASS
+GTK_IS_CLUTTER_EMBED_CLASS
+GTK_CLUTTER_EMBED_GET_CLASS
+
+<SUBSECTION Private>
+GtkClutterEmbedPrivate
+gtk_clutter_embed_get_type
+</SECTION>
+
+<SECTION>
+<FILE>gtk-clutter-util</FILE>
+<TITLE>Utility Functions</TITLE>
+ClutterGtkInitError
+gtk_clutter_init
+
+<SUBSECTION>
+gtk_clutter_get_fg_color
+gtk_clutter_get_bg_color
+gtk_clutter_get_text_color
+gtk_clutter_get_base_color
+gtk_clutter_get_text_aa_color
+gtk_clutter_get_light_color
+gtk_clutter_get_mid_color
+gtk_clutter_get_dark_color
+
+<SUBSECTION>
+gtk_clutter_texture_new_from_pixbuf
+gtk_clutter_texture_new_from_stock
+gtk_clutter_texture_new_from_icon_name
+gtk_clutter_texture_set_from_pixbuf
+gtk_clutter_texture_set_from_stock
+gtk_clutter_texture_set_from_icon_name
+</SECTION>
