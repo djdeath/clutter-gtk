@@ -1,3 +1,7 @@
+2008-10-15  Emmanuele Bassi  <ebassi@linux.intel.com>
+
+	* configure.ac: Bump up to 0.9 now that we've branched.
+
 2008-10-2  Robert Bragg  <robert@linux.intel.com>
 	
 	* clutter-gtk/doc/reference/Makefile.am:

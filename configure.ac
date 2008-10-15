@@ -2,8 +2,8 @@
 # An odd micro number indicates in-progress development, (eg. from CVS)
 # An even micro number indicates a released version.
 m4_define([clutter_major_version], [0])
-m4_define([clutter_minor_version], [8])
-m4_define([clutter_micro_version], [1])
+m4_define([clutter_minor_version], [9])
+m4_define([clutter_micro_version], [0])
 
 m4_define([clutter_version],
           [clutter_major_version.clutter_minor_version.clutter_micro_version])
@@ -67,7 +67,7 @@ AC_FUNC_MALLOC
 AC_FUNC_MMAP
 AC_CHECK_FUNCS([memset munmap strcasecmp strdup])
 
-CLUTTER_REQUIRED=0.8.0
+CLUTTER_REQUIRED=0.9.0
 
 cluttergtkflavour=x11
 AC_ARG_WITH([flavour],
@@ -79,12 +79,12 @@ case $cluttergtkflavour in
 
   x11)
     AC_DEFINE([HAVE_CLUTTER_GTK_X11], 1, [Using the X11 flavour])
-    PKG_CHECK_MODULES(CLUTTER, clutter-x11-0.8 >= $CLUTTER_REQUIRED)
+    PKG_CHECK_MODULES(CLUTTER, clutter-x11-0.9 >= $CLUTTER_REQUIRED)
     ;;
     
   win32)
     AC_DEFINE([HAVE_CLUTTER_GTK_WIN32], 1, [Using the Win32 flavour])
-    PKG_CHECK_MODULES(CLUTTER, clutter-win32-0.8 >= $CLUTTER_REQUIRED)
+    PKG_CHECK_MODULES(CLUTTER, clutter-win32-0.9 >= $CLUTTER_REQUIRED)
     ;;
     
   *)
@@ -96,7 +96,7 @@ esac
 AC_SUBST(CLUTTER_CFLAGS)
 AC_SUBST(CLUTTER_LIBS)
 
-PKG_CHECK_MODULES(GTK, gtk+-2.0)
+PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.12)
 AC_SUBST(GTK_CFLAGS)
 AC_SUBST(GTK_LIBS)
 
@@ -132,7 +132,7 @@ AC_SUBST(CLUTTER_DEBUG_CFLAGS)
 
 dnl = GTK Doc check ========================================================
 
-GTK_DOC_CHECK([1.4])
+GTK_DOC_CHECK([1.8])
 
 dnl ========================================================================
 
