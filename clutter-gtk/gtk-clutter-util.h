@@ -19,6 +19,10 @@
  *   Emmanuele Bassi  <ebassi@openedhand.com>
  */
 
+#if !defined(__CLUTTER_GTK_H_INSIDE__) && !defined(CLUTTER_GTK_COMPILATION)
+#error "Only <clutter-gtk/clutter-gtk.h> can be included directly."
+#endif
+
 #ifndef __GTK_CLUTTER_UTIL_H__
 #define __GTK_CLUTTER_UTIL_H__
 

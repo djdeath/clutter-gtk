@@ -52,7 +52,13 @@
   </chapter>
 
   <chapter>
+    <title>Clutter-Gtk Actors</title>
+    <xi:include href="xml/gtk-clutter-viewport.xml"/>
+  </chapter>
+
+  <chapter>
     <title>Miscellaneous</title>
+    <xi:include href="xml/gtk-clutter-scrollable.xml"/>
     <xi:include href="xml/gtk-clutter-util.xml"/>
   </chapter>
 

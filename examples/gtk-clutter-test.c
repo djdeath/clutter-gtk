@@ -2,8 +2,7 @@
 #include <clutter/clutter.h>
 #include <math.h>
 
-#include <clutter-gtk/gtk-clutter-embed.h>
-#include <clutter-gtk/gtk-clutter-util.h>
+#include <clutter-gtk/clutter-gtk.h>
 
 #define TRAILS 0
 #define NHANDS  2

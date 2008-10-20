@@ -20,13 +20,15 @@
  *   Emmanuele Bassi  <ebassi@openedhand.com>
  */
 
+#if !defined(__CLUTTER_GTK_H_INSIDE__) && !defined(CLUTTER_GTK_COMPILATION)
+#error "Only <clutter-gtk/clutter-gtk.h> can be included directly."
+#endif
+
 #ifndef __GTK_CLUTTER_EMBED_H__
 #define __GTK_CLUTTER_EMBED_H__
 
-#include <gtk/gtkwidget.h>
-#include <clutter/clutter-main.h>
-#include <clutter/clutter-actor.h>
-#include <clutter-gtk/gtk-clutter-util.h>
+#include <gtk/gtk.h>
+#include <clutter/clutter.h>
 
 G_BEGIN_DECLS
 

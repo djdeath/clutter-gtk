@@ -1,9 +1,10 @@
 NULL =
 
 noinst_PROGRAMS = \
-	gtk-clutter-test \
 	gtk-clutter-events \
-	gtk-clutter-multistage
+	gtk-clutter-multistage \
+	gtk-clutter-test \
+        gtk-clutter-viewport
 
 INCLUDES = \
 	-I$(srcdir) \
@@ -12,10 +13,10 @@ INCLUDES = \
 AM_CPPFLAGS = $(CLUTTER_CFLAGS) $(GTK_CFLAGS)
 
 common_deps = \
-	$(top_builddir)/clutter-gtk/libclutter-gtk-0.8.la
+	$(top_builddir)/clutter-gtk/libclutter-gtk-0.9.la
 
 common_ldadd = \
-	$(top_builddir)/clutter-gtk/libclutter-gtk-0.8.la \
+	$(top_builddir)/clutter-gtk/libclutter-gtk-0.9.la \
 	$(CLUTTER_LIBS)	\
 	$(GTK_LIBS)
 
@@ -30,5 +31,9 @@ gtk_clutter_events_LDADD = $(common_ldadd)
 gtk_clutter_multistage_SOURCES = gtk-clutter-multistage.c
 gtk_clutter_multistage_DEPENDENCIES = $(common_deps)
 gtk_clutter_multistage_LDADD = $(common_ldadd)
+
+gtk_clutter_viewport_SOURCES = gtk-clutter-viewport.c
+gtk_clutter_viewport_DEPENDENCIES = $(common_deps)
+gtk_clutter_viewport_LDADD = $(common_ldadd)
 
 EXTRA_DIST = redhand.png

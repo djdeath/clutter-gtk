@@ -1,3 +1,37 @@
+2008-10-20  Emmanuele Bassi  <ebassi@linux.intel.com>
+
+	* clutter-gtk/Makefile.am:
+	* examples/Makefile.am: Update the build.
+
+	* clutter-gtk/clutter-gtk.h: Added a single include header, and
+	disabled the inclusion of specific headers; this keeps the
+	library clean and future-proof, now that we have more than one
+	header file.
+
+	* clutter-gtk/gtk-clutter-embed.h:
+	* clutter-gtk/gtk-clutter-util.h: Disabled the direct inclusion
+	of a single header file.
+
+	* clutter-gtk/gtk-clutter-scrollable.c:
+	* clutter-gtk/gtk-clutter-scrollable.h: Added a GtkClutterScrollable
+	interface for scrollable actors using GtkAdjustments.
+
+	* clutter-gtk/gtk-clutter-viewport.c:
+	* clutter-gtk/gtk-clutter-viewport.h: Added a scrollable actor
+	implementing GtkClutterScrollable.
+
+	* doc/reference/Makefile.am:
+	* doc/reference/clutter-gtk-docs.sgml:
+	* doc/reference/clutter-gtk-sections.txt:
+	* doc/reference/clutter-gtk.types: Update the documentation.
+
+	* examples/gtk-clutter-events.c:
+	* examples/gtk-clutter-multistage.c:
+	* examples/gtk-clutter-test.c: Update to include clutter-gtk.h.
+
+	* examples/gtk-clutter-viewport.c: Added an example of
+	the GtkClutterViewport usage.
+
 2008-10-15  Emmanuele Bassi  <ebassi@linux.intel.com>
 
 	* configure.ac: Bump up to 0.9 now that we've branched.

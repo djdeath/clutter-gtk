@@ -43,3 +43,42 @@ gtk_clutter_texture_set_from_pixbuf
 gtk_clutter_texture_set_from_stock
 gtk_clutter_texture_set_from_icon_name
 </SECTION>
+
+<SECTION>
+<TITLE>GtkClutterScrollable</TITLE>
+<FILE>gtk-clutter-scrollable</FILE>
+GtkClutterScrollableIface
+gtk_clutter_scrollable_set_adjustments
+gtk_clutter_scrollable_get_adjustments
+
+<SUBSECTION Standard>
+GtkClutterScrollable
+GTK_TYPE_CLUTTER_SCROLLABLE
+GTK_CLUTTER_SCROLLABLE
+GTK_IS_CLUTTER_SCROLLABLE
+GTK_CLUTTER_SCROLLABLE_GET_IFACE
+<SUBSECTION Private>
+gtk_clutter_scrollable_get_type
+</SECTION>
+
+<SECTION>
+<TITLE>GtkClutterViewport</TITLE>
+<FILE>gtk-clutter-viewport</FILE>
+GtkClutterViewport
+GtkClutterViewportClass
+gtk_clutter_viewport_new
+gtk_clutter_viewport_get_origin
+gtk_clutter_viewport_get_originu
+
+<SUBSECTION Standard>
+GTK_TYPE_CLUTTER_VIEWPORT
+GTK_CLUTTER_VIEWPORT
+GTK_IS_CLUTTER_VIEWPORT
+GTK_CLUTTER_VIEWPORT_CLASS
+GTK_IS_CLUTTER_VIEWPORT_CLASS
+GTK_CLUTTER_VIEWPORT_GET_CLASS
+
+<SUBSECTION Private>
+GtkClutterViewportPrivate
+gtk_clutter_viewport_get_type
+</SECTION>
