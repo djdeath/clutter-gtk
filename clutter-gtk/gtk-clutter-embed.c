@@ -40,14 +40,11 @@
 #include "config.h"
 #endif
 
+#include "gtk-clutter-embed.h"
+
 #include <glib-object.h>
 
 #include <gdk/gdk.h>
-#include <gtk/gtkmain.h>
-
-#include <clutter/clutter-main.h>
-#include <clutter/clutter-stage.h>
-#include <clutter/clutter-container.h>
 
 #if defined(HAVE_CLUTTER_GTK_X11)
 
@@ -60,8 +57,6 @@
 #include <gdk/gdkwin32.h>
 
 #endif /* HAVE_CLUTTER_GTK_{X11,WIN32} */
-
-#include "gtk-clutter-embed.h"
 
 G_DEFINE_TYPE (GtkClutterEmbed, gtk_clutter_embed, GTK_TYPE_WIDGET);
 
@@ -219,6 +214,7 @@ gtk_clutter_embed_motion_notify_event (GtkWidget      *widget,
   cevent.motion.x = event->x;
   cevent.motion.y = event->y;
   cevent.motion.time = event->time;
+  cevent.motion.modifier_state = event->state;
 
   clutter_do_event (&cevent);
 
