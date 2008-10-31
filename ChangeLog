@@ -1,3 +1,8 @@
+2008-10-31  Emmanuele Bassi  <ebassi@linux.intel.com>
+
+	* Makefile.am:
+	* clutter-gtk.pc.in: Remove last bits of 0.8 usage.
+
 2008-10-30  Emmanuele Bassi  <ebassi@linux.intel.com>
 
 	* clutter-gtk/gtk-clutter-embed.c:

@@ -1,12 +1,12 @@
 SUBDIRS = clutter-gtk doc examples
 
-clutter-gtk-0.8.pc: clutter-gtk.pc
-	@cp -f clutter-gtk.pc clutter-gtk-0.8.pc
+clutter-gtk-0.9.pc: clutter-gtk.pc
+	@cp -f clutter-gtk.pc clutter-gtk-0.9.pc
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = clutter-gtk-0.8.pc
+pkgconfig_DATA = clutter-gtk-0.9.pc
 
-CLEANFILES = clutter-gtk-0.8.pc
+CLEANFILES = clutter-gtk-0.9.pc
 
 DISTCLEANFILES = clutter-gtk.pc
 
