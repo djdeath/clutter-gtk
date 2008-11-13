@@ -42,7 +42,7 @@ main (int argc, char *argv[])
   clutter_actor_set_size (viewport, 320, 240);
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), viewport);
 
-  if (argc < 1)
+  if (argc < 2)
     tex = gtk_clutter_texture_new_from_stock (embed,
                                               GTK_STOCK_DIALOG_INFO,
                                               GTK_ICON_SIZE_DIALOG);

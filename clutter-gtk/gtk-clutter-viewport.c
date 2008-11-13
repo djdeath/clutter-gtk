@@ -183,13 +183,11 @@ viewport_reclamp_adjustment (GtkAdjustment *adjustment)
 }
 
 static gboolean
-viewport_set_hadjustment_values (GtkClutterViewport *viewport)
+viewport_set_hadjustment_values (GtkClutterViewport *viewport,
+                                 guint               width)
 {
   GtkClutterViewportPrivate *priv = viewport->priv;
   GtkAdjustment *h_adjust = priv->h_adjustment;
-  guint width;
-
-  width = clutter_actor_get_width (CLUTTER_ACTOR (viewport));
 
   gtk_adjustment_set_page_size (h_adjust, width);
   gtk_adjustment_set_step_increment (h_adjust, width * 0.1);
@@ -215,11 +213,11 @@ viewport_set_hadjustment_values (GtkClutterViewport *viewport)
 }
 
 static gboolean
-viewport_set_vadjustment_values (GtkClutterViewport *viewport)
+viewport_set_vadjustment_values (GtkClutterViewport *viewport,
+                                 guint               height)
 {
   GtkClutterViewportPrivate *priv = viewport->priv;
   GtkAdjustment *v_adjust = priv->v_adjustment;
-  guint height;
 
   height = clutter_actor_get_height (CLUTTER_ACTOR (viewport));
 
@@ -274,6 +272,7 @@ connect_adjustment (GtkClutterViewport *viewport,
   GtkClutterViewportPrivate *priv = viewport->priv;
   GtkAdjustment **adj_p;
   gboolean value_changed = FALSE;
+  guint width, height;
 
   adj_p = (orientation == GTK_ORIENTATION_HORIZONTAL) ? &priv->h_adjustment
                                                       : &priv->v_adjustment;
@@ -287,10 +286,12 @@ connect_adjustment (GtkClutterViewport *viewport,
   disconnect_adjustment (viewport, orientation);
   *adj_p = g_object_ref_sink (adjustment);
 
+  clutter_actor_get_size (CLUTTER_ACTOR (viewport), &width, &height);
+
   if (orientation == GTK_ORIENTATION_HORIZONTAL)
-    value_changed = viewport_set_hadjustment_values (viewport);
+    value_changed = viewport_set_hadjustment_values (viewport, width);
   else
-    value_changed = viewport_set_vadjustment_values (viewport);
+    value_changed = viewport_set_vadjustment_values (viewport, height);
 
   g_signal_connect (adjustment, "value-changed",
                     G_CALLBACK (viewport_adjustment_value_changed),
@@ -452,18 +453,19 @@ gtk_clutter_viewport_get_preferred_width (ClutterActor *actor,
 {
   GtkClutterViewportPrivate *priv = GTK_CLUTTER_VIEWPORT (actor)->priv;
 
+  /* we don't have a minimum size */
+  if (min_width_p)
+    *min_width_p = 0;
+
   /* if we have a child, we want to be as big as the child
    * wishes to be; otherwise, we don't have a preferred width
    */
   if (priv->child)
     clutter_actor_get_preferred_width (priv->child, for_height,
-                                       min_width_p,
+                                       NULL,
                                        natural_width_p);
   else
     {
-      if (min_width_p)
-        *min_width_p = 0;
-
       if (natural_width_p)
         *natural_width_p = 0;
     }
@@ -477,18 +479,19 @@ gtk_clutter_viewport_get_preferred_height (ClutterActor *actor,
 {
   GtkClutterViewportPrivate *priv = GTK_CLUTTER_VIEWPORT (actor)->priv;
 
+  /* we don't have a minimum size */
+  if (min_height_p)
+    *min_height_p = 0;
+
   /* if we have a child, we want to be as big as the child
    * wishes to be; otherwise, we don't have a preferred height
    */
   if (priv->child)
     clutter_actor_get_preferred_height (priv->child, for_width,
-                                        min_height_p,
+                                        NULL,
                                         natural_height_p);
   else
     {
-      if (min_height_p)
-        *min_height_p = 0;
-
       if (natural_height_p)
         *natural_height_p = 0;
     }
@@ -503,14 +506,20 @@ gtk_clutter_viewport_allocate (ClutterActor          *actor,
   GtkClutterViewportPrivate *priv = viewport->priv;
   ClutterActorClass *parent_class;
   gboolean h_adjustment_value_changed, v_adjustment_value_changed;
+  guint width, height;
 
   parent_class = CLUTTER_ACTOR_CLASS (gtk_clutter_viewport_parent_class);
   parent_class->allocate (actor, box, origin_changed);
 
-  h_adjustment_value_changed = viewport_set_hadjustment_values (viewport);
-  v_adjustment_value_changed = viewport_set_vadjustment_values (viewport);
+  width  = CLUTTER_UNITS_TO_DEVICE (box->x2 - box->x1);
+  height = CLUTTER_UNITS_TO_DEVICE (box->y2 - box->y1);
 
-  if (priv->child)
+  h_adjustment_value_changed =
+    viewport_set_hadjustment_values (viewport, width);
+  v_adjustment_value_changed =
+    viewport_set_vadjustment_values (viewport, height);
+
+  if (priv->child && CLUTTER_ACTOR_IS_VISIBLE (priv->child))
     {
       ClutterActorBox child_allocation = { 0, };
       ClutterUnit alloc_width, alloc_height;

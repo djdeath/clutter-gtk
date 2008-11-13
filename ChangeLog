@@ -1,3 +1,21 @@
+2008-11-13  Emmanuele Bassi  <ebassi@linux.intel.com>
+
+	* clutter-gtk/gtk-clutter-viewport.c:
+	(viewport_set_hadjustment_values),
+	(viewport_set_vadjustment_values): Pass the width and height
+	instead of getting it from the actor.
+
+	(connect_adjustment),
+	(gtk_clutter_viewport_allocate): Update.
+
+	(gtk_clutter_viewport_get_preferred_width),
+	(gtk_clutter_viewport_get_preferred_height): The Viewport
+	does not have a minimum size, by definition of scrollable
+	actor.
+
+	* examples/gtk-clutter-viewport.c: Fix the arguments count
+	check.
+
 2008-10-31  Emmanuele Bassi  <ebassi@linux.intel.com>
 
 	* Makefile.am:
