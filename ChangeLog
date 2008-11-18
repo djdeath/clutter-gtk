@@ -1,3 +1,13 @@
+2008-11-18  Emmanuele Bassi  <ebassi@linux.intel.com>
+
+	* clutter-gtk/gtk-clutter-embed.c:
+	(gtk_clutter_embed_focus_in),
+	(gtk_clutter_embed_focus_out),
+	(gtk_clutter_embed_class_init): Emit the ::activate and
+	::deactivate signals on the stage when we get a ::focus-in-event
+	and a ::focus-out-event on the ClutterEmbed widget, respectively.
+	Thanks to Jerry Yu.
+
 2008-11-13  Emmanuele Bassi  <ebassi@linux.intel.com>
 
 	* clutter-gtk/gtk-clutter-viewport.c:

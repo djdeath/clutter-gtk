@@ -323,10 +323,23 @@ gtk_clutter_embed_map_event (GtkWidget	 *widget,
 }
 
 static gboolean
+gtk_clutter_embed_focus_in (GtkWidget *widget,
+                            GdkEventFocus *event)
+{
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
+
+  g_signal_emit_by_name (priv->stage, "activate");
+
+  return FALSE;
+}
+
+static gboolean
 gtk_clutter_embed_focus_out (GtkWidget     *widget,
                              GdkEventFocus *event)
 {
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
+
+  g_signal_emit_by_name (priv->stage, "deactivate");
 
   /* give back key focus to the stage */
   clutter_stage_set_key_focus (CLUTTER_STAGE (priv->stage), NULL);
@@ -380,6 +393,7 @@ gtk_clutter_embed_class_init (GtkClutterEmbedClass *klass)
   widget_class->motion_notify_event = gtk_clutter_embed_motion_notify_event;
   widget_class->expose_event = gtk_clutter_embed_expose_event;
   widget_class->map_event = gtk_clutter_embed_map_event;
+  widget_class->focus_in_event = gtk_clutter_embed_focus_in;
   widget_class->focus_out_event = gtk_clutter_embed_focus_out;
   widget_class->scroll_event = gtk_clutter_embed_scroll_event;
 }
