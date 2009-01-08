@@ -20,7 +20,7 @@ on_gtk_entry_changed (GtkEditable *editable, EventApp *app)
 {
   const gchar *text = gtk_entry_get_text (GTK_ENTRY (editable));
 
-  clutter_entry_set_text (CLUTTER_ENTRY (app->clutter_entry), text);
+  clutter_text_set_text (CLUTTER_TEXT (app->clutter_entry), text);
 }
 
 static void
@@ -160,7 +160,7 @@ main (gint argc, gchar **argv)
                     NULL);
 
   /* Setup the clutter entry */
-  actor = clutter_entry_new_full ("Sans 10", "", &text_color);
+  actor = clutter_text_new_full ("Sans 10", "", &text_color);
   app->clutter_entry = actor;
   clutter_group_add (CLUTTER_GROUP (app->stage), actor);
   clutter_actor_set_position (actor, 0, 0);
