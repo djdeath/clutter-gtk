@@ -195,11 +195,14 @@ gtk_clutter_embed_size_allocate (GtkWidget     *widget,
       gtk_clutter_embed_send_configure (GTK_CLUTTER_EMBED (widget));
     }
 
+  /* change the size of the stage and ensure that the viewport
+   * has been updated as well
+   */
   clutter_actor_set_size (priv->stage,
                           allocation->width,
                           allocation->height);
 
-  clutter_actor_queue_relayout (priv->stage);
+  clutter_stage_ensure_viewport (CLUTTER_STAGE (priv->stage));
 }
 
 static gboolean
