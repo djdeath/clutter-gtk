@@ -18,7 +18,8 @@ typedef struct SuperOH
 
 } SuperOH; 
 
-gboolean fade = FALSE;
+static gboolean fade = FALSE;
+static gboolean fullscreen = FALSE;
 
 /* input handler */
 void 
@@ -34,7 +35,7 @@ input_cb (ClutterStage *stage,
       clutter_event_get_coords (event, &x, &y);
 
       a = clutter_stage_get_actor_at_pos (stage, x, y);
-      if (a && (CLUTTER_IS_TEXTURE (a) || CLUTTER_IS_CLONE_TEXTURE (a)))
+      if (a && (CLUTTER_IS_TEXTURE (a) || CLUTTER_IS_CLONE (a)))
 	clutter_actor_hide (a);
     }
   else if (event->type == CLUTTER_KEY_PRESS)
@@ -102,6 +103,22 @@ clickity (GtkButton *button,
         fade = !fade;
 }
 
+static void
+on_fullscreen (GtkButton *button,
+               GtkWindow *window)
+{
+  if (!fullscreen)
+    {
+      gtk_window_fullscreen (window);
+      fullscreen = TRUE;
+    }
+  else
+    {
+      gtk_window_unfullscreen (window);
+      fullscreen = FALSE;
+    }
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -144,6 +161,15 @@ main (int argc, char *argv[])
                     G_CALLBACK (clickity), NULL);
   gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 0);
 
+  button = gtk_button_new_with_label ("Fullscreen");
+  gtk_button_set_image (GTK_BUTTON (button),
+                        gtk_image_new_from_stock (GTK_STOCK_FULLSCREEN,
+                                                  GTK_ICON_SIZE_BUTTON));
+  g_signal_connect (button, "clicked",
+                    G_CALLBACK (on_fullscreen),
+                    window);
+  gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 0);
+
   button = gtk_button_new_from_stock (GTK_STOCK_QUIT);
   g_signal_connect_swapped (button, "clicked",
                             G_CALLBACK (gtk_widget_destroy),
@@ -175,7 +201,7 @@ main (int argc, char *argv[])
       if (i == 0)
        oh->hand[i] = gtk_clutter_texture_new_from_pixbuf (pixbuf);
      else
-       oh->hand[i] = clutter_clone_texture_new (CLUTTER_TEXTURE (oh->hand[0]));
+       oh->hand[i] = clutter_clone_new (oh->hand[0]);
 #else
       ClutterColor colour = { 255, 0, 0, 255 };
 
