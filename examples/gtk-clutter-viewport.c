@@ -3,6 +3,19 @@
 
 #include <clutter-gtk/clutter-gtk.h>
 
+static GTimer *timer = NULL;
+
+static void
+on_load_finished (ClutterTexture *texture,
+                  const GError   *error,
+                  gpointer        user_data)
+{
+  if (timer)
+    g_print ("%s: load time: %.3f secs\n",
+             G_STRLOC,
+             g_timer_elapsed (timer, NULL));
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -14,6 +27,10 @@ main (int argc, char *argv[])
   GtkAdjustment   *h_adjustment, *v_adjustment;
   gint             i;
   ClutterColor     col2 = { 0, };
+
+  g_thread_init (NULL);
+  gdk_threads_init ();
+  clutter_threads_init ();
 
   if (gtk_clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
     g_error ("Unable to initialize GtkClutter");
@@ -50,12 +67,29 @@ main (int argc, char *argv[])
     {
       GError *error = NULL;
 
-      tex = clutter_texture_new_from_file (argv[1], &error);
+      tex = clutter_texture_new ();
+      g_object_set (G_OBJECT (tex), "load-async", TRUE, NULL);
+      g_signal_connect (tex,
+                        "load-finished", G_CALLBACK (on_load_finished),
+                        NULL);
+
+      timer = g_timer_new ();
+
+      clutter_texture_set_from_file (CLUTTER_TEXTURE (tex), argv[1], &error);
       if (error)
         {
           g_warning ("Unable to open `%s': %s", argv[1], error->message);
           g_error_free (error);
         }
+      else
+        g_print ("%s: load time: %.3f secs\n",
+                 G_STRLOC,
+                 g_timer_elapsed (timer, NULL));
+
+      g_print ("%s: tex.size = %d, %d\n",
+               G_STRLOC,
+               clutter_actor_get_width (tex),
+               clutter_actor_get_height (tex));
     }
 
   clutter_container_add_actor (CLUTTER_CONTAINER (viewport), tex); 
