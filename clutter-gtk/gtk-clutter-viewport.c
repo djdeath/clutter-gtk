@@ -561,9 +561,9 @@ gtk_clutter_viewport_paint (ClutterActor *actor)
   /* translate the paint environment by the same amount
    * defined by the origin value
    */
-  cogl_translatex (CLUTTER_UNITS_TO_FIXED (priv->origin.x) * -1,
-                   CLUTTER_UNITS_TO_FIXED (priv->origin.y) * -1,
-                   CLUTTER_UNITS_TO_FIXED (priv->origin.z) * -1);
+  cogl_translate (CLUTTER_UNITS_TO_FLOAT (priv->origin.x) * -1,
+                  CLUTTER_UNITS_TO_FLOAT (priv->origin.y) * -1,
+                  CLUTTER_UNITS_TO_FLOAT (priv->origin.z) * -1);
 
   /* the child will be painted in the new frame of reference */
   if (priv->child && CLUTTER_ACTOR_IS_VISIBLE (priv->child))
