@@ -65,6 +65,8 @@ G_DEFINE_TYPE (GtkClutterEmbed, gtk_clutter_embed, GTK_TYPE_WIDGET);
 struct _GtkClutterEmbedPrivate
 {
   ClutterActor *stage;
+
+  guint queue_redraw_id;
 };
 
 static void
@@ -87,9 +89,32 @@ gtk_clutter_embed_send_configure (GtkClutterEmbed *embed)
 }
 
 static void
+on_stage_queue_redraw (ClutterStage *stage,
+                       gpointer      user_data)
+{
+  GtkWidget *embed = user_data;
+
+  /* we stop the emission of the Stage::queue-redraw signal to prevent
+   * the default handler from running; then we queue a redraw on the
+   * GtkClutterEmbed widget which will cause an expose event to be
+   * emitted. the Stage is redrawn in the expose event handler, thus
+   * "slaving" the Clutter redraw cycle to GTK+'s own
+   */
+  g_signal_stop_emission_by_name (stage, "queue-redraw");
+
+  gtk_widget_queue_draw (embed);
+}
+
+static void
 gtk_clutter_embed_dispose (GObject *gobject)
 {
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (gobject)->priv;
+
+  if (priv->queue_redraw_id)
+    {
+      g_signal_handler_disconnect (priv->stage, priv->queue_redraw_id);
+      priv->queue_redraw_id = 0;
+    }
 
   if (priv->stage)
     {
@@ -206,6 +231,18 @@ gtk_clutter_embed_size_allocate (GtkWidget     *widget,
 }
 
 static gboolean
+gtk_clutter_embed_expose_event (GtkWidget *widget,
+                                GdkEventExpose *event)
+{
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
+
+  /* force a redraw on expose */
+  clutter_redraw (CLUTTER_STAGE (priv->stage));
+
+  return FALSE;
+}
+
+static gboolean
 gtk_clutter_embed_motion_notify_event (GtkWidget      *widget,
                                        GdkEventMotion *event)
 {
@@ -300,18 +337,6 @@ gtk_clutter_embed_key_event (GtkWidget   *widget,
 }
 
 static gboolean
-gtk_clutter_embed_expose_event (GtkWidget      *widget,
-                                GdkEventExpose *event)
-{
-  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
-
-  if (CLUTTER_ACTOR_IS_VISIBLE (priv->stage))
-    clutter_actor_queue_redraw (priv->stage);
-
-  return FALSE;
-}
-
-static gboolean
 gtk_clutter_embed_map_event (GtkWidget	 *widget,
                              GdkEventAny *event)
 {
@@ -389,6 +414,7 @@ gtk_clutter_embed_class_init (GtkClutterEmbedClass *klass)
   widget_class->realize = gtk_clutter_embed_realize;
   widget_class->show = gtk_clutter_embed_show;
   widget_class->hide = gtk_clutter_embed_hide;
+  widget_class->expose_event = gtk_clutter_embed_expose_event;
   widget_class->button_press_event = gtk_clutter_embed_button_event;
   widget_class->button_release_event = gtk_clutter_embed_button_event;
   widget_class->key_press_event = gtk_clutter_embed_key_event;
@@ -420,6 +446,15 @@ gtk_clutter_embed_init (GtkClutterEmbed *embed)
 
   /* we must realize the stage to get it ready for embedding */
   clutter_actor_realize (priv->stage);
+
+  /* intercept the queue-redraw signal of the stage to know when
+   * Clutter-side requests a redraw; this way we can also request
+   * a redraw GTK-side
+   */
+  priv->queue_redraw_id =
+    g_signal_connect (priv->stage,
+                      "queue-redraw", G_CALLBACK (on_stage_queue_redraw),
+                      embed);
 
 #ifdef HAVE_CLUTTER_GTK_X11
   {
