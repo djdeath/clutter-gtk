@@ -678,9 +678,9 @@ gtk_clutter_viewport_new (GtkAdjustment *h_adjust,
  */
 void
 gtk_clutter_viewport_get_origin (GtkClutterViewport *viewport,
-                                 gint               *x,
-                                 gint               *y,
-                                 gint               *z)
+                                 gfloat             *x,
+                                 gfloat             *y,
+                                 gfloat             *z)
 {
   GtkClutterViewportPrivate *priv;
 
@@ -689,33 +689,11 @@ gtk_clutter_viewport_get_origin (GtkClutterViewport *viewport,
   priv = viewport->priv;
 
   if (x)
-    *x = CLUTTER_UNITS_TO_DEVICE (priv->origin.x);
+    *x = CLUTTER_UNITS_TO_FLOAT (priv->origin.x);
 
   if (y)
-    *y = CLUTTER_UNITS_TO_DEVICE (priv->origin.y);
+    *y = CLUTTER_UNITS_TO_FLOAT (priv->origin.y);
 
   if (z)
-    *z = CLUTTER_UNITS_TO_DEVICE (priv->origin.z);
-}
-
-/**
- * gtk_clutter_viewport_get_originu:
- * @viewport: a #GtkClutterViewport
- * @origin: a #ClutterVertex
- *
- * Retrieves the current translation factor ("origin") used
- * when displaying the child of @viewport.
- *
- * This function is the units-based version of
- * gtk_clutter_viewport_get_origin().
- *
- * Since: 1.0
- */
-void
-gtk_clutter_viewport_get_originu (GtkClutterViewport *viewport,
-                                  ClutterVertex      *origin)
-{
-  g_return_if_fail (GTK_IS_CLUTTER_VIEWPORT (viewport));
-
-  *origin = viewport->priv->origin;
+    *z = CLUTTER_UNITS_TO_FLOAT (priv->origin.z);
 }

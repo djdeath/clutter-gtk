@@ -78,11 +78,9 @@ ClutterActor *gtk_clutter_viewport_new         (GtkAdjustment      *h_adjust,
                                                 GtkAdjustment      *v_adjust);
 
 void          gtk_clutter_viewport_get_origin  (GtkClutterViewport *viewport,
-                                                gint               *x,
-                                                gint               *y,
-                                                gint               *z);
-void          gtk_clutter_viewport_get_originu (GtkClutterViewport *viewport,
-                                                ClutterVertex      *origin);
+                                                gfloat             *x,
+                                                gfloat             *y,
+                                                gfloat             *z);
 
 G_END_DECLS
 
