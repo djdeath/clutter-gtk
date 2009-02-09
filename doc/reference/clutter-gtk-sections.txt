@@ -47,6 +47,7 @@ gtk_clutter_texture_set_from_icon_name
 <SECTION>
 <TITLE>GtkClutterScrollable</TITLE>
 <FILE>gtk-clutter-scrollable</FILE>
+GtkClutterScrollable
 GtkClutterScrollableIface
 gtk_clutter_scrollable_set_adjustments
 gtk_clutter_scrollable_get_adjustments
@@ -68,7 +69,6 @@ GtkClutterViewport
 GtkClutterViewportClass
 gtk_clutter_viewport_new
 gtk_clutter_viewport_get_origin
-gtk_clutter_viewport_get_originu
 
 <SUBSECTION Standard>
 GTK_TYPE_CLUTTER_VIEWPORT
