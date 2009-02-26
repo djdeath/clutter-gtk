@@ -401,6 +401,53 @@ gtk_clutter_embed_scroll_event (GtkWidget      *widget,
 }
 
 static void
+gtk_clutter_embed_style_set (GtkWidget *widget,
+                             GtkStyle  *old_style)
+{
+  GdkScreen *screen;
+  GtkSettings *settings;
+  gdouble dpi;
+  gchar *font_name;
+  const cairo_font_options_t *font_options;
+  gint double_click_time, double_click_distance;
+  ClutterBackend *backend;
+
+  GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->style_set (widget,
+                                                                old_style);
+
+  if (gtk_widget_has_screen (widget))
+    screen = gtk_widget_get_screen (widget);
+  else
+    screen = gdk_screen_get_default ();
+
+  dpi = gdk_screen_get_resolution (screen);
+  if (dpi < 0)
+    dpi = 96.0;
+
+  font_options = gdk_screen_get_font_options (screen);
+
+  settings = gtk_settings_get_for_screen (screen);
+  g_object_get (G_OBJECT (settings),
+                "gtk-font-name", &font_name,
+                "gtk-double-click-time", &double_click_time,
+                "gtk-double-click-distance", &double_click_distance,
+                NULL);
+
+  /* copy all settings and values coming from GTK+ into
+   * the ClutterBackend; this way, a scene embedded into
+   * a GtkClutterEmbed will not look completely alien
+   */
+  backend = clutter_get_default_backend ();
+  clutter_backend_set_resolution (backend, dpi);
+  clutter_backend_set_font_options (backend, font_options);
+  clutter_backend_set_font_name (backend, font_name);
+  clutter_backend_set_double_click_time (backend, double_click_time);
+  clutter_backend_set_double_click_distance (backend, double_click_distance);
+
+  g_free (font_name);
+}
+
+static void
 gtk_clutter_embed_class_init (GtkClutterEmbedClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
@@ -410,6 +457,7 @@ gtk_clutter_embed_class_init (GtkClutterEmbedClass *klass)
 
   gobject_class->dispose = gtk_clutter_embed_dispose;
 
+  widget_class->style_set = gtk_clutter_embed_style_set;
   widget_class->size_allocate = gtk_clutter_embed_size_allocate;
   widget_class->realize = gtk_clutter_embed_realize;
   widget_class->show = gtk_clutter_embed_show;
