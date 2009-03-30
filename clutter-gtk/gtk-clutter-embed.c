@@ -131,11 +131,8 @@ gtk_clutter_embed_show (GtkWidget *widget)
 {
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
 
-  /* Make sure the widget is realised before we show */
-  if (!GTK_WIDGET_REALIZED (widget))
-    gtk_widget_realize (widget);
-
-  clutter_actor_show (priv->stage);
+  if (GTK_WIDGET_REALIZED (widget))
+    clutter_actor_show (priv->stage);
 
   GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->show (widget);
 }
@@ -157,6 +154,24 @@ gtk_clutter_embed_realize (GtkWidget *widget)
   GdkWindowAttr attributes;
   int attributes_mask;
   
+  /* we must realize the stage to get it ready for embedding */
+  clutter_actor_realize (priv->stage);
+
+#ifdef HAVE_CLUTTER_GTK_X11
+  {
+    const XVisualInfo *xvinfo;
+    GdkVisual *visual;
+    GdkColormap *colormap;
+
+    /* We need to use the colormap from the Clutter visual */
+    xvinfo = clutter_x11_get_stage_visual (CLUTTER_STAGE (priv->stage));
+    visual = gdk_x11_screen_lookup_visual (gtk_widget_get_screen (widget),
+                                           xvinfo->visualid);
+    colormap = gdk_colormap_new (visual, FALSE);
+    gtk_widget_set_colormap (widget, colormap);
+  }
+#endif
+
   GTK_WIDGET_SET_FLAGS (widget, GTK_REALIZED);
 
   attributes.window_type = GDK_WINDOW_CHILD;
@@ -198,6 +213,9 @@ gtk_clutter_embed_realize (GtkWidget *widget)
   clutter_win32_set_stage_foreign (CLUTTER_STAGE (priv->stage), 
 				   GDK_WINDOW_HWND (widget->window));
 #endif /* HAVE_CLUTTER_GTK_{X11,WIN32} */
+
+  if (GTK_WIDGET_VISIBLE (widget))
+    clutter_actor_show (priv->stage);
 
   clutter_actor_queue_redraw (CLUTTER_ACTOR (priv->stage));
 
@@ -493,9 +511,6 @@ gtk_clutter_embed_init (GtkClutterEmbed *embed)
   /* we always create new stages rather than use the default */
   priv->stage = clutter_stage_new ();
 
-  /* we must realize the stage to get it ready for embedding */
-  clutter_actor_realize (priv->stage);
-
   /* intercept the queue-redraw signal of the stage to know when
    * Clutter-side requests a redraw; this way we can also request
    * a redraw GTK-side
@@ -504,21 +519,6 @@ gtk_clutter_embed_init (GtkClutterEmbed *embed)
     g_signal_connect (priv->stage,
                       "queue-redraw", G_CALLBACK (on_stage_queue_redraw),
                       embed);
-
-#ifdef HAVE_CLUTTER_GTK_X11
-  {
-    const XVisualInfo *xvinfo;
-    GdkVisual *visual;
-    GdkColormap *colormap;
-
-    /* We need to use the colormap from the Clutter visual */
-    xvinfo = clutter_x11_get_stage_visual (CLUTTER_STAGE (priv->stage));
-    visual = gdk_x11_screen_lookup_visual (gdk_screen_get_default (),
-                                           xvinfo->visualid);
-    colormap = gdk_colormap_new (visual, FALSE);
-    gtk_widget_set_colormap (GTK_WIDGET (embed), colormap);
-  }
-#endif
 }
 
 /**
