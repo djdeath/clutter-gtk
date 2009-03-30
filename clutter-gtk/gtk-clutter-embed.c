@@ -552,6 +552,61 @@ gtk_clutter_init (int    *argc,
 }
 
 /**
+ * gtk_clutter_init_with_args:
+ * @argc: a pointer to the number of command line arguments.
+ * @argv: a pointer to the array of command line arguments.
+ * @parameter_string: a string which is displayed in
+ *    the first line of <option>--help</option> output, after
+ *    <literal><replaceable>programname</replaceable> [OPTION...]</literal>
+ * @entries: a %NULL-terminated array of #GOptionEntry<!-- -->s
+ *    describing the options of your program
+ * @translation_domain: a translation domain to use for translating
+ *    the <option>--help</option> output for the options in @entries
+ *    with gettext(), or %NULL
+ * @error: a return location for errors
+ *
+ * This function should be called instead of clutter_init() and
+ * gtk_init_with_args().
+ *
+ * Return value: %CLUTTER_INIT_SUCCESS on success, a negative integer
+ *   on failure.
+ *
+ * Since: 1.0
+ */
+ClutterInitError
+gtk_clutter_init_with_args (int            *argc,
+                            char         ***argv,
+                            const char     *parameter_string,
+                            GOptionEntry   *entries,
+                            const char     *translation_domain,
+                            GError        **error)
+{
+  gboolean res;
+
+  res = gtk_init_with_args (argc, argv,
+                            (char*) parameter_string,
+                            entries,
+                            (char*) translation_domain,
+                            error);
+
+  if (!res)
+    return CLUTTER_INIT_ERROR_GTK;
+
+#if defined(GDK_WINDOWING_X11)
+  clutter_x11_set_display (GDK_DISPLAY());
+  clutter_x11_disable_event_retrieval ();
+#elif defined(GDK_WINDOWING_WIN32)
+  clutter_win32_disable_event_retrieval ();
+#endif /* GDK_WINDOWING_{X11,WIN32} */
+
+  return clutter_init_with_args (argc, argv,
+                                 NULL,
+                                 NULL,
+                                 NULL,
+                                 error);
+}
+
+/**
  * gtk_clutter_embed_new:
  *
  * Creates a new #GtkClutterEmbed widget. This widget can be

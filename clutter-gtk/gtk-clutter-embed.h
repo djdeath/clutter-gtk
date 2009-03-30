@@ -101,6 +101,12 @@ ClutterActor *gtk_clutter_embed_get_stage (GtkClutterEmbed *embed);
 
 ClutterInitError gtk_clutter_init (gint    *argc,
                                    gchar ***argv);
+ClutterInitError gtk_clutter_init_with_args (int          *argc,
+                                             char       ***argv,
+                                             const char   *parameter_string,
+                                             GOptionEntry *entries,
+                                             const char   *translation_domain,
+                                             GError      **error);
 
 G_END_DECLS
 
