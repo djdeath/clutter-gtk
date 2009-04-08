@@ -90,6 +90,7 @@ gtk_clutter_embed_send_configure (GtkClutterEmbed *embed)
 
 static void
 on_stage_queue_redraw (ClutterStage *stage,
+                       gboolean      queue_origin,
                        gpointer      user_data)
 {
   GtkWidget *embed = user_data;
