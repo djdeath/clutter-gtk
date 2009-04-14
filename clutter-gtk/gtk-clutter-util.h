@@ -31,6 +31,31 @@
 
 G_BEGIN_DECLS
 
+/**
+ * ClutterGtkInitError:
+ * @CLUTTER_INIT_ERROR_LAST: Placeholder
+ * @CLUTTER_INIT_ERROR_GTK: Unable to initialize GTK+
+ *
+ * Extension of the #ClutterInitError enumeration for the integration
+ * with GTK+
+ *
+ * Since: 0.8
+ */
+typedef enum {
+  CLUTTER_INIT_ERROR_LAST = CLUTTER_INIT_ERROR_INTERNAL,
+
+  CLUTTER_INIT_ERROR_GTK  = (CLUTTER_INIT_ERROR_LAST - 1)
+} ClutterGtkInitError;
+
+ClutterInitError gtk_clutter_init           (int            *argc,
+                                             char         ***argv);
+ClutterInitError gtk_clutter_init_with_args (int            *argc,
+                                             char         ***argv,
+                                             const char     *parameter_string,
+                                             GOptionEntry   *entries,
+                                             const char     *translation_domain,
+                                             GError        **error);
+
 void          gtk_clutter_get_fg_color               (GtkWidget      *widget,
                                                       GtkStateType    state,
                                                       ClutterColor   *color);
