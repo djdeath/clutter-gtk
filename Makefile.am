@@ -4,7 +4,7 @@ V         = @
 Q         = $(V:1=)
 QUIET_GEN = $(Q:@=@echo '  GEN   '$@;)
 
-SUBDIRS = clutter-gtk doc examples
+SUBDIRS = build clutter-gtk doc examples
 
 clutter-gtk-0.9.pc: clutter-gtk.pc
 	$(QUIET_GEN)cp -f clutter-gtk.pc clutter-gtk-0.9.pc
