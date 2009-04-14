@@ -32,12 +32,12 @@
 
 G_BEGIN_DECLS
 
-#define GTK_TYPE_CLUTTER_EMBED          (gtk_clutter_embed_get_type ())
-#define GTK_CLUTTER_EMBED(o)            (G_TYPE_CHECK_INSTANCE_CAST ((o), GTK_TYPE_CLUTTER_EMBED, GtkClutterEmbed))
-#define GTK_IS_CLUTTER_EMBED(o)         (G_TYPE_CHECK_INSTANCE_TYPE ((o), GTK_TYPE_CLUTTER_EMBED))
-#define GTK_CLUTTER_EMBED_CLASS(k)      (G_TYPE_CHECK_CLASS_CAST ((k), GTK_TYPE_CLUTTER_EMBED, GtkClutterEmbedClass))
-#define GTK_IS_CLUTTER_EMBED_CLASS(k)   (G_TYPE_CHECK_CLASS_TYPE ((k), GTK_TYPE_CLUTTER_EMBED))
-#define GTK_CLUTTER_EMBED_GET_CLASS(o)  (G_TYPE_INSTANCE_GET_CLASS ((o), GTK_TYPE_CLUTTER_EMBED, GtkClutterEmbedClass))
+#define GTK_CLUTTER_TYPE_EMBED          (gtk_clutter_embed_get_type ())
+#define GTK_CLUTTER_EMBED(o)            (G_TYPE_CHECK_INSTANCE_CAST ((o), GTK_CLUTTER_TYPE_EMBED, GtkClutterEmbed))
+#define GTK_CLUTTER_IS_EMBED(o)         (G_TYPE_CHECK_INSTANCE_TYPE ((o), GTK_CLUTTER_TYPE_EMBED))
+#define GTK_CLUTTER_EMBED_CLASS(k)      (G_TYPE_CHECK_CLASS_CAST ((k), GTK_CLUTTER_TYPE_EMBED, GtkClutterEmbedClass))
+#define GTK_CLUTTER_IS_EMBED_CLASS(k)   (G_TYPE_CHECK_CLASS_TYPE ((k), GTK_CLUTTER_TYPE_EMBED))
+#define GTK_CLUTTER_EMBED_GET_CLASS(o)  (G_TYPE_INSTANCE_GET_CLASS ((o), GTK_CLUTTER_TYPE_EMBED, GtkClutterEmbedClass))
 
 typedef struct _GtkClutterEmbed         GtkClutterEmbed;
 typedef struct _GtkClutterEmbedPrivate  GtkClutterEmbedPrivate;

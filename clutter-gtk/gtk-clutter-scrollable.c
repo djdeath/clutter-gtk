@@ -102,7 +102,7 @@ gtk_clutter_scrollable_set_adjustments (GtkClutterScrollable *scrollable,
 {
   GtkClutterScrollableIface *iface;
 
-  g_return_if_fail (GTK_IS_CLUTTER_SCROLLABLE (scrollable));
+  g_return_if_fail (GTK_CLUTTER_IS_SCROLLABLE (scrollable));
   g_return_if_fail (h_adjust == NULL || GTK_IS_ADJUSTMENT (h_adjust));
 
   iface = GTK_CLUTTER_SCROLLABLE_GET_IFACE (scrollable);
@@ -128,7 +128,7 @@ gtk_clutter_scrollable_get_adjustments (GtkClutterScrollable  *scrollable,
 {
   GtkClutterScrollableIface *iface;
 
-  g_return_if_fail (GTK_IS_CLUTTER_SCROLLABLE (scrollable));
+  g_return_if_fail (GTK_CLUTTER_IS_SCROLLABLE (scrollable));
 
   iface = GTK_CLUTTER_SCROLLABLE_GET_IFACE (scrollable);
   if (iface->get_adjustments)

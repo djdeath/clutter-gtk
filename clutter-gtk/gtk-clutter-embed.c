@@ -60,7 +60,7 @@
 
 G_DEFINE_TYPE (GtkClutterEmbed, gtk_clutter_embed, GTK_TYPE_WIDGET);
 
-#define GTK_CLUTTER_EMBED_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), GTK_TYPE_CLUTTER_EMBED, GtkClutterEmbedPrivate))
+#define GTK_CLUTTER_EMBED_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), GTK_CLUTTER_TYPE_EMBED, GtkClutterEmbedPrivate))
 
 struct _GtkClutterEmbedPrivate
 {
@@ -564,7 +564,7 @@ gtk_clutter_init (int    *argc,
 GtkWidget *
 gtk_clutter_embed_new (void)
 {
-  return g_object_new (GTK_TYPE_CLUTTER_EMBED, NULL);
+  return g_object_new (GTK_CLUTTER_TYPE_EMBED, NULL);
 }
 
 /**
@@ -582,7 +582,7 @@ gtk_clutter_embed_new (void)
 ClutterActor *
 gtk_clutter_embed_get_stage (GtkClutterEmbed *embed)
 {
-  g_return_val_if_fail (GTK_IS_CLUTTER_EMBED (embed), NULL);
+  g_return_val_if_fail (GTK_CLUTTER_IS_EMBED (embed), NULL);
 
   return embed->priv->stage;
 }

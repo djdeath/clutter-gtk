@@ -42,7 +42,7 @@
 #define gtk_adjustment_get_page_size(a)         ((a)->page_size)
 #endif
 
-#define GET_PRIVATE(obj)        (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GTK_TYPE_CLUTTER_VIEWPORT, GtkClutterViewportPrivate))
+#define GET_PRIVATE(obj)        (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GTK_CLUTTER_TYPE_VIEWPORT, GtkClutterViewportPrivate))
 
 #define I_(str) (g_intern_static_string ((str)))
 
@@ -54,7 +54,7 @@ G_DEFINE_TYPE_WITH_CODE (GtkClutterViewport,
                          CLUTTER_TYPE_ACTOR,
                          G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_CONTAINER,
                                                 clutter_container_iface_init)
-                         G_IMPLEMENT_INTERFACE (GTK_TYPE_CLUTTER_SCROLLABLE,
+                         G_IMPLEMENT_INTERFACE (GTK_CLUTTER_TYPE_SCROLLABLE,
                                                 gtk_clutter_scrollable_iface_init));
 
 struct _GtkClutterViewportPrivate
@@ -658,7 +658,7 @@ ClutterActor *
 gtk_clutter_viewport_new (GtkAdjustment *h_adjust,
                           GtkAdjustment *v_adjust)
 {
-  return g_object_new (GTK_TYPE_CLUTTER_VIEWPORT,
+  return g_object_new (GTK_CLUTTER_TYPE_VIEWPORT,
                        "hadjustment", h_adjust,
                        "vadjustment", v_adjust,
                        NULL);
@@ -684,7 +684,7 @@ gtk_clutter_viewport_get_origin (GtkClutterViewport *viewport,
 {
   GtkClutterViewportPrivate *priv;
 
-  g_return_if_fail (GTK_IS_CLUTTER_VIEWPORT (viewport));
+  g_return_if_fail (GTK_CLUTTER_IS_VIEWPORT (viewport));
 
   priv = viewport->priv;
 

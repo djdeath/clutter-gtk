@@ -36,10 +36,10 @@
 
 G_BEGIN_DECLS
 
-#define GTK_TYPE_CLUTTER_SCROLLABLE             (gtk_clutter_scrollable_get_type ())
-#define GTK_CLUTTER_SCROLLABLE(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTK_TYPE_CLUTTER_SCROLLABLE, GtkClutterScrollable))
-#define GTK_IS_CLUTTER_SCROLLABLE(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GTK_TYPE_CLUTTER_SCROLLABLE))
-#define GTK_CLUTTER_SCROLLABLE_GET_IFACE(obj)   (G_TYPE_INSTANCE_GET_INTERFACE ((obj), GTK_TYPE_CLUTTER_SCROLLABLE, GtkClutterScrollableIface))
+#define GTK_CLUTTER_TYPE_SCROLLABLE             (gtk_clutter_scrollable_get_type ())
+#define GTK_CLUTTER_SCROLLABLE(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTK_CLUTTER_TYPE_SCROLLABLE, GtkClutterScrollable))
+#define GTK_CLUTTER_IS_SCROLLABLE(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GTK_CLUTTER_TYPE_SCROLLABLE))
+#define GTK_CLUTTER_SCROLLABLE_GET_IFACE(obj)   (G_TYPE_INSTANCE_GET_INTERFACE ((obj), GTK_CLUTTER_TYPE_SCROLLABLE, GtkClutterScrollableIface))
 
 typedef struct _GtkClutterScrollable            GtkClutterScrollable; /* dummy */
 typedef struct _GtkClutterScrollableIface       GtkClutterScrollableIface;

@@ -31,12 +31,12 @@
 
 G_BEGIN_DECLS
 
-#define GTK_TYPE_CLUTTER_VIEWPORT               (gtk_clutter_viewport_get_type ())
-#define GTK_CLUTTER_VIEWPORT(obj)               (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTK_TYPE_CLUTTER_VIEWPORT, GtkClutterViewport))
-#define GTK_IS_CLUTTER_VIEWPORT(obj)            (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GTK_TYPE_CLUTTER_VIEWPORT))
-#define GTK_CLUTTER_VIEWPORT_CLASS(klass)       (G_TYPE_CHECK_CLASS_CAST ((klass), GTK_TYPE_CLUTTER_VIEWPORT, GtkClutterViewportClass))
-#define GTK_IS_CLUTTER_VIEWPORT_CLASS(klass)    (G_TYPE_CHECK_CLASS_TYPE ((klass), GTK_TYPE_CLUTTER_VIEWPORT))
-#define GTK_CLUTTER_VIEWPORT_GET_CLASS(obj)     (G_TYPE_INSTANCE_GET_CLASS ((obj), GTK_TYPE_CLUTTER_VIEWPORT, GtkClutterViewportClass))
+#define GTK_CLUTTER_TYPE_VIEWPORT               (gtk_clutter_viewport_get_type ())
+#define GTK_CLUTTER_VIEWPORT(obj)               (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTK_CLUTTER_TYPE_VIEWPORT, GtkClutterViewport))
+#define GTK_CLUTTER_IS_VIEWPORT(obj)            (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GTK_CLUTTER_TYPE_VIEWPORT))
+#define GTK_CLUTTER_VIEWPORT_CLASS(klass)       (G_TYPE_CHECK_CLASS_CAST ((klass), GTK_CLUTTER_TYPE_VIEWPORT, GtkClutterViewportClass))
+#define GTK_CLUTTER_IS_VIEWPORT_CLASS(klass)    (G_TYPE_CHECK_CLASS_TYPE ((klass), GTK_CLUTTER_TYPE_VIEWPORT))
+#define GTK_CLUTTER_VIEWPORT_GET_CLASS(obj)     (G_TYPE_INSTANCE_GET_CLASS ((obj), GTK_CLUTTER_TYPE_VIEWPORT, GtkClutterViewportClass))
 
 typedef struct _GtkClutterViewport              GtkClutterViewport;
 typedef struct _GtkClutterViewportPrivate       GtkClutterViewportPrivate;
