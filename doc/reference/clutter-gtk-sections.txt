@@ -24,6 +24,7 @@ gtk_clutter_embed_get_type
 <TITLE>Utility Functions</TITLE>
 ClutterGtkInitError
 gtk_clutter_init
+gtk_clutter_init_with_args
 
 <SUBSECTION>
 gtk_clutter_get_fg_color
@@ -53,7 +54,6 @@ gtk_clutter_scrollable_set_adjustments
 gtk_clutter_scrollable_get_adjustments
 
 <SUBSECTION Standard>
-GtkClutterScrollable
 GTK_CLUTTER_TYPE_SCROLLABLE
 GTK_CLUTTER_SCROLLABLE
 GTK_CLUTTER_IS_SCROLLABLE

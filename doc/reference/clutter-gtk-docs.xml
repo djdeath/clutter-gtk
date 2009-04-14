@@ -10,8 +10,8 @@
     <releaseinfo>Version &version;</releaseinfo>
 
     <copyright>
-      <year>2006</year>
-      <holder>OpenedHand LTD</holder>
+      <year>2006, 2007, 2008, 2009</year>
+      <holder>Intel Corporation</holder>
     </copyright>
 
     <legalnotice>
@@ -40,27 +40,57 @@
   <chapter>
     <title>Clutter-Gtk Overview</title>
     
-    <para>
-    yada-yada-yada
-    </para>
+    <para>Clutter-Gtk is an integration library for the Clutter toolkit
+    providing access and integration for the GTK+ library.</para>
+
+    <para>Clutter-Gtk allows embedding a Clutter scene graph into a
+    GTK+ application; retrieving themeing information; integrate GTK+
+    data structures and object classes with Clutter actors.</para>
     
   </chapter>
 
   <chapter>
     <title>Clutter-Gtk Widgets</title>
+
     <xi:include href="xml/gtk-clutter-embed.xml"/>
   </chapter>
 
   <chapter>
     <title>Clutter-Gtk Actors</title>
+
+    <xi:include href="xml/gtk-clutter-scrollable.xml"/>
     <xi:include href="xml/gtk-clutter-viewport.xml"/>
   </chapter>
 
   <chapter>
     <title>Miscellaneous</title>
-    <xi:include href="xml/gtk-clutter-scrollable.xml"/>
+
     <xi:include href="xml/gtk-clutter-util.xml"/>
   </chapter>
+
+  <index>
+    <title>Index</title>
+  </index>
+
+  <index role="1.0">
+    <title>Index of new symbols in 1.0</title>
+  </index>
+
+  <index role="0.8">
+    <title>Index of new symbols in 0.8</title>
+  </index>
+
+  <index role="0.6">
+    <title>Index of new symbols in 0.6</title>
+  </index>
+
+  <index role="0.4">
+    <title>Index of new symbols in 0.4</title>
+  </index>
+
+  <index role="0.2">
+    <title>Index of new symbols in 0.2</title>
+  </index>
 
   <appendix id="license">
     <title>License</title>
