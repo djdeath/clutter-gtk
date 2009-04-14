@@ -1,0 +1,643 @@
+2008-11-18  Emmanuele Bassi  <ebassi@linux.intel.com>
+
+	* clutter-gtk/gtk-clutter-embed.c:
+	(gtk_clutter_embed_focus_in),
+	(gtk_clutter_embed_focus_out),
+	(gtk_clutter_embed_class_init): Emit the ::activate and
+	::deactivate signals on the stage when we get a ::focus-in-event
+	and a ::focus-out-event on the ClutterEmbed widget, respectively.
+	Thanks to Jerry Yu.
+
+2008-11-13  Emmanuele Bassi  <ebassi@linux.intel.com>
+
+	* clutter-gtk/gtk-clutter-viewport.c:
+	(viewport_set_hadjustment_values),
+	(viewport_set_vadjustment_values): Pass the width and height
+	instead of getting it from the actor.
+
+	(connect_adjustment),
+	(gtk_clutter_viewport_allocate): Update.
+
+	(gtk_clutter_viewport_get_preferred_width),
+	(gtk_clutter_viewport_get_preferred_height): The Viewport
+	does not have a minimum size, by definition of scrollable
+	actor.
+
+	* examples/gtk-clutter-viewport.c: Fix the arguments count
+	check.
+
+2008-10-31  Emmanuele Bassi  <ebassi@linux.intel.com>
+
+	* Makefile.am:
+	* clutter-gtk.pc.in: Remove last bits of 0.8 usage.
+
+2008-10-30  Emmanuele Bassi  <ebassi@linux.intel.com>
+
+	* clutter-gtk/gtk-clutter-embed.c:
+	(gtk_clutter_embed_motion_notify_event): Copy the motion
+	event modifier state like we do for the rest of the events.
+
+2008-10-20  Emmanuele Bassi  <ebassi@linux.intel.com>
+
+	* clutter-gtk/Makefile.am:
+	* examples/Makefile.am: Update the build.
+
+	* clutter-gtk/clutter-gtk.h: Added a single include header, and
+	disabled the inclusion of specific headers; this keeps the
+	library clean and future-proof, now that we have more than one
+	header file.
+
+	* clutter-gtk/gtk-clutter-embed.h:
+	* clutter-gtk/gtk-clutter-util.h: Disabled the direct inclusion
+	of a single header file.
+
+	* clutter-gtk/gtk-clutter-scrollable.c:
+	* clutter-gtk/gtk-clutter-scrollable.h: Added a GtkClutterScrollable
+	interface for scrollable actors using GtkAdjustments.
+
+	* clutter-gtk/gtk-clutter-viewport.c:
+	* clutter-gtk/gtk-clutter-viewport.h: Added a scrollable actor
+	implementing GtkClutterScrollable.
+
+	* doc/reference/Makefile.am:
+	* doc/reference/clutter-gtk-docs.sgml:
+	* doc/reference/clutter-gtk-sections.txt:
+	* doc/reference/clutter-gtk.types: Update the documentation.
+
+	* examples/gtk-clutter-events.c:
+	* examples/gtk-clutter-multistage.c:
+	* examples/gtk-clutter-test.c: Update to include clutter-gtk.h.
+
+	* examples/gtk-clutter-viewport.c: Added an example of
+	the GtkClutterViewport usage.
+
+2008-10-15  Emmanuele Bassi  <ebassi@linux.intel.com>
+
+	* configure.ac: Bump up to 0.9 now that we've branched.
+
+2008-10-2  Robert Bragg  <robert@linux.intel.com>
+	
+	* clutter-gtk/doc/reference/Makefile.am:
+	reverts previous change: It's Poky that needs changing.
+
+2008-10-2  Robert Bragg  <robert@linux.intel.com>
+	* clutter-gtk/doc/reference/Makefile.am:
+	Dont use += to set EXTRA_DIST since there isn't a preceding = which
+	automake gets upset about. This means we can remove the patches
+	fixing this in Poky.
+
+2008-09-25  Emmanuele Bassi  <ebassi@linux.intel.com>
+
+	* clutter-gtk/gtk-clutter-util.[ch]: Add API for retrieving
+	the various color components out of a GtkWidget style in form
+	of a ClutterColor.
+
+	* doc/reference/clutter-gtk-sections.txt: Include the newly
+	added API in the generated reference.
+
+2008-09-15  Emmanuele Bassi  <emmanuele.bassi@intel.com>
+
+	Bug 1114 - Mouse wheel events ignored in GtkClutterEmbed
+
+	* clutter-gtk/gtk-clutter-embed.c:
+	(gtk_clutter_embed_scroll_event),
+	(gtk_clutter_embed_class_init): Add relaying of the scroll
+	events from GTK+ to Clutter. (Pierre-Luc Beaudoin)
+
+2008-08-05  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* clutter-gtk/gtk-clutter-embed.c:
+	(gtk_clutter_embed_size_allocate): Queue a relayout on the stage
+	when we have an allocation from the GtkWidget.
+
+2008-08-01  Neil Roberts  <neil@o-hand.com>
+
+	* clutter-gtk/gtk-clutter-util.c
+	(gtk_clutter_texture_set_from_pixbuf)
+	(gtk_clutter_texture_new_from_pixbuf): The bpp values were the
+	wrong way around so these two functions always failed.
+
+2008-07-31  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* clutter-gtk/gtk-clutter-util.c:
+	(gtk_clutter_texture_new_from_pixbuf),
+	(gtk_clutter_texture_set_from_pixbuf): Check if the pixbuf has
+	an alpha before setting the BPP.
+
+======== Clutter-GTK 0.8.1 ====================================================
+
+2008-07-18  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* NEWS: Release 0.8.1
+
+2008-07-18  Neil Roberts  <neil@o-hand.com>
+
+	* clutter-gtk/gtk-clutter-embed.c (gtk_clutter_embed_realize): Fix
+	name of mask for motion events.
+
+2008-07-16  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* clutter-gtk.pc.in: Fix the pkg-config file. (Ignacio Casal
+	Quinteiro)
+
+2008-07-15  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* configure.ac: Post-release bump to 0.8.1.
+
+======== Clutter-GTK 0.8.0 ====================================================
+
+2008-07-15  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* configure.ac:
+	* README:
+	* NEWS: Release 0.8.0
+
+2008-07-04  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* clutter-gtk.pc.in: Fix the inclusion directory
+
+	* clutter-gtk/gtk-clutter-embed.c: Synch up with the stable branch
+	to handle focus. Also remove the ClutterContainer implementation.
+
+	* clutter-gtk/gtk-clutter-util.[ch]: Fully document and add the
+	gtk_clutter_texture_set_from_icon_name() helper function.
+
+	* configure.ac: Whitespace
+
+	* examples/gtk-clutter-test.c: Update.
+
+2008-05-19  Tomas Frydrych  <tf@openedhand.com>
+
+	* clutter-gtk/gtk-clutter-embed.c:
+	Fixed inclusion of clutter-x11.h following change in structure of
+	clutter includes.
+
+2008-05-15  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* clutter-gtk/gtk-clutter-embed.c:
+	(gtk_clutter_embed_init): Realize the stage before retrieving
+	the visual from it.
+
+2008-05-07  Matthew Allum  <mallum@openedhand.com>
+
+	* clutter-gtk/gtk-clutter-embed.c:
+	Add motion event handling - fixes #907
+
+2008-04-24  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* examples/gtk-clutter-test.c (main): Use the utility function
+	for creating a ClutterTexture using a GdkPixbuf.
+
+2008-04-21  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	Bug #876 - GtkClutterEmbed doesn't propagate events back down
+	to the GtkWindow
+
+	* clutter-gtk/gtk-clutter-embed.c:
+	(gtk_clutter_embed_button_event),
+	(gtk_clutter_embed_key_event): Just return FALSE in the
+	event handlers.
+
+2008-04-21  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* clutter-gtk/gtk-clutter-util.h:
+	* clutter-gtk/gtk-clutter-util.c:
+	(gtk_clutter_texture_new_from_pixbuf),
+	(gtk_clutter_texture_new_from_stock),
+	(gtk_clutter_texture_new_from_icon_name): Add utility functions
+	to create a ClutterTexture from a Pixbuf (to replace the
+	clutter_texture_from_pixbuf() call when it will be removed
+	from Clutter core); from a stock id; and from an icon name.
+
+	* examples/Makefile.am: Clean up.
+
+	* examples/gtk-clutter-events.c:
+	* examples/gtk-clutter-multistage.c: Use the new utility API.
+
+2008-04-17  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* README: Update requirements
+
+	* clutter-gtk/gtk-clutter-embed.c:
+	(gtk_clutter_embed_dispose): Destroy the ClutterStage we create.
+
+	(gtk_clutter_embed_realize),
+	(gtk_clutter_embed_init),
+	(gtk_clutter_init): Slight cleanup.
+
+2008-04-17  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* clutter-gtk/gtk-clutter-util.[ch]: Add utility functions to
+	ClutterGtk to be able to retrieve the ClutterColor equivalent
+	of the various style color components of a GtkWidget.
+
+	* clutter-gtk/Makefile.am: Add gtk-clutter-util.[ch] to the build.
+
+	* doc/reference/clutter-gtk-docs.sgml: Add the new section in
+	the documentation.
+
+	* examples/gtk-clutter-events.c (create_colors): Test the newly
+	added color retrieval API.
+
+2008-04-15  Neil Roberts  <neil@o-hand.com>
+
+	* configure.ac: Added a --with-flavour option to select between
+	x11 and win32 versions. Defaults to x11.
+
+	* clutter-gtk/gtk-clutter-embed.c: ifdef out X11 specific calls
+	and replace with Win32 equivalents.
+	(gtk_clutter_embed_key_event, gtk_clutter_embed_button_event): Set
+	the stage pointer when generating fake Clutter events otherwise
+	they just get ignored.
+	(gtk_clutter_embed_realize): Always request button and key events
+	in the window event mask. They aren't included by default on
+	Windows.
+
+	* README (Requirements): Added a note about the minimum Clutter
+	version for the Win32 backend.
+
+2008-04-11  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* clutter-gtk/gtk-clutter-embed.c:
+	(clutter_container_iface_init): Make GtkClutterEmbed implement
+	ClutterContainer, and proxy all virtual functions to the
+	embedded Stage.
+
+	* examples/gtk-clutter-test.c: (main): Add the group straight
+	to the GtkClutterEmbed widget to test the Container interface
+	implementation.
+
+2008-04-11  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* clutter-gtk/gtk-clutter-embed.c:
+	(gtk_clutter_init): Call gtk_init_check(); this is safe, because
+	multiple calls to gtk_init() are safe.
+
+	* clutter-gtk/gtk-clutter-embed.h: Extend the ClutterInitError
+	enumeration.
+
+	* examples/gtk-clutter-events.c:
+	* examples/gtk-clutter-multistage.c:
+	* examples/gtk-clutter-test.c: Call gtk_clutter_init() and error
+	out in case of failure.
+
+2008-04-04  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* clutter-gtk/gtk-clutter-embed.c:
+	(gtk_clutter_embed_init): Update after upstream API change.
+
+2008-04-01  Matthew Allum  <mallum@openedhand.com>
+
+	* examples/Makefile.am:
+	* examples/gtk-clutter-multistage.c:
+	Add a *very* simple multiple stage example.
+
+2008-04-01  Neil Roberts  <neil@o-hand.com>
+
+	* examples/gtk-clutter-test.c (main): Moved the
+	clutter_actor_show_all call to after the parent widget is
+	shown. Otherwise all of the actors get unrealized when
+	clutter_x11_set_stage_foreign is called and nothing is displayed.
+
+2008-04-01  Matthew Allum  <mallum@openedhand.com>
+
+	* clutter-gtk/gtk-clutter-embed.c:
+	Update for latest trunk multistage.
+	Should now support multple widgets.
+
+2008-02-29  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* Makefile.am:
+	* clutter-gtk/Makefile.am:
+	* examples/Makefile.am: Post-release bump build fixes
+
+	* clutter-gtk/gtk-clutter-embed.c: Extend documentation.
+
+2008-02-29  Matthew Allum  <mallum@openedhand.com>
+
+	* clutter-gtk.pc.in:
+	* configure.ac:
+	Bump up to unstable 0.7 version and clutter req.
+
+	* clutter-gtk/gtk-clutter-embed.c:
+	* clutter-gtk/gtk-clutter-embed.h:
+	Add clutter_gtk_init(), as to use new API to share DISPLAY and
+	turn off Clutter 'automatic' event collection.
+	Add methods for;
+	  expose    - Queue a Clutter redraw.
+	  map       - set Actor mapped flag.
+	  show/hide - Forward to stage also.
+	Minor doc additions.
+
+	* examples/gtk-clutter-events.c:
+	Add some minor comments re when to call show_all().
+
+	* examples/gtk-clutter-test.c:
+	Fix event->actor mapping.
+
+2008-02-21  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* clutter-gtk/gtk-clutter-embed.c:
+	(gtk_clutter_embed_send_configure): Emit a Configure event
+	with the coordinates for the widget area.
+
+	(gtk_clutter_embed_realize),
+	(gtk_clutter_embed_size_allocate): Send the configure event.
+
+2008-02-18  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* README:
+	* NEWS: Release 0.6.0
+
+2008-02-07  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* clutter-gtk/gtk-clutter-embed.c: Explicitly note that you should
+	never call clutter_actor_set_size() on the embedded stage, but
+	call gtk_widget_set_size_request() on the widget itself to
+	resize the stage.
+
+2008-01-25  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* README:
+	* NEWS: Release 0.5.2
+
+	* configure.ac: Post release bump to 0.5.3
+
+2008-01-24  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* doc/reference/clutter-gtk-docs.sgml:
+	* doc/reference/clutter-gtk.types: Update with the widget name
+	change.
+
+	* examples/gtk-clutter-test.c: Set a default size on the
+	widget to avoid the 0, 0 initial size.
+
+2008-01-23  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* configure.ac: Fix srcdir detection.
+
+2008-01-23  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* configure.ac: Bump up to 0.5.1 and require Clutter 0.5.3
+	using clutter-x11.
+
+	* clutter-gtk.pc.in: Require clutter-x11-0.5.
+
+	* clutter-gtk/Makefile.am:
+	* clutter-gtk/gtk-clutter-embed.[ch]: Add the new GtkClutterEmbed
+	widget; this widget reverts back to the old, pre-XEMBED implementation
+	of an embeddable stage, by letting Clutter draw directly onto a
+	child GdkWindow, thanks to the fixes that went into Clutter
+	core. (#716, #717, #718, based on a patch by Havoc Pennington)
+
+	* clutter-gtk/clutter-gtk.[ch]: Remove the XEMBED based embeddable
+	widget.
+
+	* examples/gtk-clutter-events.c:
+	* examples/gtk-clutter-test.c: Update the tests for the new API.
+
+2008-01-17  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* NEWS:
+	* README: Release 0.5.0
+
+2007-12-04  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	Update after the API changes in Clutter core
+
+	* clutter-gtk/clutter-gtk.c:
+	(gtk_clutter_destroy): Do not call clutter_actor_destroy()
+	on the stage.
+
+	(gtk_clutter_map): Use the new X11 API for retrieving the
+	XID of the stage window.
+
+	(gtk_clutter_init): Set the widget as paintable and the stage
+	as resizable.
+
+	* examples/gtk-clutter-events.c:
+	(on_x_changed), (on_y_changed),	(on_z_changed): Use the new
+	clutter_actor_set_rotation() API.
+
+	* examples/gtk-clutter-test.c (frame_cb): Ditto as above.
+
+2007-08-20  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* doc/reference/clutter-gtk-sections.txt:
+	* doc/reference/clutter-gtk-docs.sgml:
+	* clutter-gtk/clutter-gtk.[ch]: Fix API reference.
+
+	* examples/Makefile.am: Fix compilation of the examples
+
+2007-08-15  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* configure.ac:
+	* clutter-gtk.pc.in:
+	* Makefile.am:
+	* clutter-gtk/Makefile.am: Bump up to 0.5.0 and require
+	clutter-gtk-0.5 as well.
+
+2007-08-07  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* configure.ac: Bump up to 0.4.0; require clutter-glx-0.4.
+
+	* clutter-gtk.pc.in:
+	* Makefile.am:
+	* clutter-gtk/Makefile.am: Update.
+
+2007-08-03  Chris Lord,,,  <chris@openedhand.com>
+
+	* doc/reference/Makefile.am:
+	Fix documentation building
+
+2007-07-18  Neil J. Patel  <njp@o-hand.com>
+
+	* examples/Makefile.am:
+	Point to new clutter-gtk library name.
+
+2007-07-17  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* examples/gtk-clutter-events.c: Remove wrong casting around
+	the g_signal_connect() argument; this masked a weird memory
+	corruption bug happening when compiling outside the sources
+	directory.
+
+2007-07-17  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* clutter-gtk/Makefile.am:
+	* clutter-gtk.pc.in: Install (and use) a versioned library, to
+	match the behaviour of clutter-core and the other integration
+	libraries.
+
+2007-07-17  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* clutter-gtk.pc.in: Depend on the right clutter pkgconfig file
+
+	* Makefile.am: Install a versioned clutter-gtk pkgconfig file
+
+2007-07-06  Matthew Allum  <mallum@openedhand.com>
+
+	* NEWS:
+	Update.
+	* configure.ac:
+	Bump up version to 0.3.1
+
+2007-07-06  Matthew Allum  <mallum@openedhand.com>
+
+	* clutter-gtk.pc.in:
+	Fix to require 0.3 clutter.
+
+2007-06-11  Neil Jagdish Patel  <njp@f7>
+
+	* examples/gtk-clutter-events.c: (create_colors):
+	Removed stray g_print
+
+2007-06-11  Neil Jagdish Patel  <njp@o-hand.com>
+
+	* examples/Makefile.am:
+	* examples/gtk-clutter-events.c: (on_gtk_entry_changed),
+	(on_x_changed), (on_y_changed), (on_z_changed),
+	(on_opacity_changed), (create_colors), (main):
+	Added another example whihc shows some interaction between gtk and
+	the stage.
+
+	* examples/gtk-clutter-test.c: (main):
+	Updated to work with clutter-0.3
+
+
+2007-04-17  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* configure.ac: Branch for development; bump to 0.3.0, to
+	match Clutter core version; require clutter-glx backend.
+
+	* clutter-gtk/clutter-gtk.c: Include the GLX backend specific
+	functions; add an "embedded" read-only property, which signals
+	whether the widget has successfully embedded the stage window;
+	use the new clutter_glx_get_stage_window() function.
+
+	* examples/gtk-clutter-test.c: Port to the new event API.
+
+2007-03-23  Ross Burton  <ross@openedhand.com>
+
+	* configure.ac:
+	Don't require any particular GTK+ version.
+
+2007-03-23  Ross Burton  <ross@openedhand.com>
+
+	* examples/Makefile.am:
+	Dist the PNG.
+
+================= 2007-03-22 0.1 Release ========================
+
+2007-03-22  Matthew Allum  <mallum@openedhand.com>
+
+	* clutter-gtk.doap:
+	Update for 0.1 Realease
+
+2007-03-22  Matthew Allum  <mallum@openedhand.com>
+
+	* NEWS:
+	Update for 0.1 release
+	* doc/reference/clutter-gtk.types:
+	Rename fix.
+
+2007-03-22  Matthew Allum  <mallum@openedhand.com>
+
+	* clutter-gtk/Makefile.am:
+	* clutter-gtk/clutter-gtk.c:
+	* clutter-gtk/gtk-clutter.c:
+	* clutter-gtk/gtk-clutter.h:
+	* configure.ac:
+	* examples/gtk-clutter-test.c:
+	Various naming fixups.
+
+2007-03-21  Matthew Allum  <mallum@openedhand.com>
+
+	* clutter-gtk.pc.in:
+	* clutter-gtk/Makefile.am:
+	More version fixes.
+
+2007-03-21  Matthew Allum  <mallum@openedhand.com>
+
+	* doc/reference/Makefile.am:
+	Fix lib path so docs build again.
+
+2007-03-21  Matthew Allum  <mallum@openedhand.com>
+
+	* clutter-gtk/gtk-clutter.c:
+	* clutter-gtk/gtk-clutter.h:
+	Redo to subclass GtkSocket and use XEMBED to embed clutter stage.
+	Needs at least clutter 0.2.2. Avoids previous issues with
+	white textures when painting onto a GtkWindow.
+	(Thanks to Iain for doing all the hardwork here)
+
+	* examples/gtk-clutter-test.c: (main):
+	Update.
+
+	* configure.ac:
+	* clutter-gtk.pc.in:
+	Fixups to require clutter-0.2.2
+
+2006-11-30  Matthew Allum  <mallum@openedhand.com>
+
+	* clutter-gtk.doap:
+	Update doap file a little.
+
+2006-11-30  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* clutter-gtk/gtk-clutter.c:
+	(gtk_clutter_expose_event): Queue a redraw of the
+	stage instead of directly swapping the GL buffers.
+
+2006-11-30  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* clutter-gtk/gtk-clutter.c:
+	(gtk_clutter_expose_event): Use the newly added
+	clutter_stage_swap_buffers() and fix the missing redraw
+	on expose bug.
+
+2006-11-29  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* examples/gtk-clutter-test.c: Add a "quit" button.
+
+2006-11-29  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* clutter-gtk/gtk-clutter.c:
+	(gtk_clutter_destroy): Destroy the ClutterStage instead
+	of unreffing it.
+
+	(gtk_clutter_size_allocate): Queue a redraw if the stage
+	is marked as visible.
+
+	(gtk_clutter_realize): Remove the forced realize: the
+	stage is already realized by default.
+
+	* examples/gtk-clutter-test.c: Use gtk_main_quit().
+
+2006-11-29  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* clutter-gtk/gtk-clutter.h: Add constructor; clean up.
+
+	* clutter-gtk/gtk-clutter.c:
+	(gtk_clutter_destroy), (gtk_clutter_class_init): Move
+	the stage unref to the GtkObject::destroy method.
+
+	(gtk_clutter_size_allocate): Oblige to the size allocation
+	request from the container of the GtkClutter widget by
+	resizing the ClutterStage.
+
+	(gtk_clutter_size_request): Require the size of the stage.
+
+	(gtk_clutter_destroy), (gtk_clutter_size_request),
+	(gtk_clutter_realize): Do not use the G_TYPE_INSTANCE_GET_PRIVATE()
+	macro, which does a type check and a function call; use the
+	priv pointer we conveniently keep around.
+
+	* examples/gtk-clutter-test.c: Use the given constructor;
+	now window resizing works.  The stage doesn't get refreshed
+	immediately (resize the window), though, and there's still
+	the X error when we close the window.
+
+2006-11-29  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* *: Initial import out of the main tree.
