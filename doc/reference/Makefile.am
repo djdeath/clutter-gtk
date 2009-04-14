@@ -1,8 +1,5 @@
 ## Process this file with automake to produce Makefile.in
 
-# We require automake 1.6 at least.
-AUTOMAKE_OPTIONS = 1.6
-
 # This is a blank Makefile.am for using gtk-doc.
 # Copy this to your project's API docs directory and modify the variables to
 # suit your project. See the GTK+ Makefiles in gtk+/docs/reference for examples
@@ -29,7 +26,7 @@ SCAN_OPTIONS=
 
 # Extra options to supply to gtkdoc-mkdb.
 # e.g. MKDB_OPTIONS=--sgml-mode --output-format=xml
-MKDB_OPTIONS=--sgml-mode --output-format=xml
+MKDB_OPTIONS=--sgml-mode --output-format=xml --name-space=gtk_clutter
 
 # Extra options to supply to gtkdoc-mktmpl
 # e.g. MKTMPL_OPTIONS=--only-section-tmpl
@@ -37,7 +34,13 @@ MKTMPL_OPTIONS=
 
 # Extra options to supply to gtkdoc-fixref. Not normally needed.
 # e.g. FIXXREF_OPTIONS=--extra-dir=../gdk-pixbuf/html --extra-dir=../gdk/html
-FIXXREF_OPTIONS=
+FIXXREF_OPTIONS=\
+	--extra-dir=$(G_PREFIX)/share/gtk-doc/html/glib \
+	--extra-dir=$(G_PREFIX)/share/gtk-doc/html/gobject \
+	--extra-dir=$(GDK_PREFIX)/share/gtk-doc/html/gdk \
+	--extra-dir=$(GTK_PREFIX)/share/gtk-doc/html/gtk \
+	--extra-dir=$(GDK_PIXBUF_PREFIX)/share/gtk-doc/html/gdk-pixbuf \
+	--extra-dir=$(CLUTTER_PREFIX)/share/gtk-doc/html/clutter
 
 # Used for dependencies. The docs will be rebuilt if any of these change.
 # e.g. HFILE_GLOB=$(top_srcdir)/gtk/*.h
@@ -55,7 +58,7 @@ HTML_IMAGES=
 
 # Extra SGML files that are included by $(DOC_MAIN_SGML_FILE).
 # e.g. content_files=running.sgml building.sgml changes-2.0.sgml
-content_files= version.xml
+content_files=version.xml
 
 # SGML files where gtk-doc abbrevations (#GtkWidget) are expanded
 # These files must be listed here *and* in content_files

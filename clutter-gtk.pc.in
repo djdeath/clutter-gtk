@@ -1,11 +1,13 @@
 prefix=@prefix@
-exec_prefix=${prefix}
-libdir=${exec_prefix}/lib
-includedir=${prefix}/include
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+flavour=@CLUTTER_GTK_FLAVOUR@
+apiversion=@CLUTTER_GTK_API_VERSION@
 
 Name: clutter-gtk
 Description: GTK+ widget for Clutter
 Version: @VERSION@
 Libs: -L${libdir} -lclutter-gtk-0.9
 Cflags: -I${includedir}/clutter-0.9/clutter-gtk
-Requires: clutter-x11-0.9 gtk+-2.0
+Requires: @CLUTTER_GTK_REQUIRES@

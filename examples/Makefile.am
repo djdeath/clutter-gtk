@@ -10,7 +10,7 @@ INCLUDES = \
 	-I$(srcdir) \
 	-I$(top_srcdir)
 
-AM_CPPFLAGS = $(CLUTTER_CFLAGS) $(GTK_CFLAGS)
+AM_CPPFLAGS = $(MAINTAINER_CFLAGS) $(CLUTTER_CFLAGS) $(GTK_CFLAGS)
 
 common_deps = \
 	$(top_builddir)/clutter-gtk/libclutter-gtk-0.9.la
