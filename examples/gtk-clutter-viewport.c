@@ -19,14 +19,11 @@ on_load_finished (ClutterTexture *texture,
 int
 main (int argc, char *argv[])
 {
-  ClutterTimeline *timeline;
   ClutterActor    *stage, *viewport, *tex;
   ClutterColor     stage_color = { 0x61, 0x64, 0x8c, 0xff };
   GtkWidget       *window, *embed; 
   GtkWidget       *table, *scrollbar;
   GtkAdjustment   *h_adjustment, *v_adjustment;
-  gint             i;
-  ClutterColor     col2 = { 0, };
 
   g_thread_init (NULL);
   gdk_threads_init ();

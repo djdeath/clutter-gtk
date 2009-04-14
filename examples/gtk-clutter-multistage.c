@@ -6,13 +6,9 @@
 int
 main (int argc, char *argv[])
 {
-  ClutterTimeline *timeline;
   ClutterActor    *stage1, *stage2, *tex1, *tex2;
-  ClutterColor     stage_color = { 0x61, 0x64, 0x8c, 0xff };
   GtkWidget       *window, *clutter1, *clutter2;
-  GtkWidget       *label, *button, *vbox;
-  GdkPixbuf       *pixbuf;
-  gint             i;
+  GtkWidget       *vbox;
   ClutterColor     col1 = { 0xff, 0xff, 0xff, 0xff };
   ClutterColor     col2 = { 0, 0, 0, 0xff };
 

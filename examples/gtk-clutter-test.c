@@ -125,7 +125,7 @@ main (int argc, char *argv[])
   ClutterTimeline *timeline;
   ClutterActor    *stage;
   ClutterColor     stage_color = { 0x61, 0x64, 0x8c, 0xff };
-  GtkWidget       *window, *clutter, *socket_box;
+  GtkWidget       *window, *clutter;
   GtkWidget       *label, *button, *vbox;
   GdkPixbuf       *pixbuf;
   SuperOH         *oh;
