@@ -349,6 +349,7 @@ gtk_clutter_embed_key_event (GtkWidget   *widget,
   cevent.key.modifier_state = event->state;
   cevent.key.keyval = event->keyval;
   cevent.key.hardware_keycode = event->hardware_keycode;
+  cevent.key.unicode_value = gdk_keyval_to_unicode (event->keyval);
 
   clutter_do_event (&cevent);
 
