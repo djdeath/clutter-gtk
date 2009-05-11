@@ -153,6 +153,8 @@ AC_SUBST(CLUTTER_PREFIX)
 
 GTK_DOC_CHECK([1.11])
 
+GOBJECT_INTROSPECTION_CHECK([0.6.3])
+
 dnl ========================================================================
 
 SHAVE_INIT([build/autotools], [enable])
@@ -185,4 +187,5 @@ echo "                  Flavour:   ${CLUTTER_GTK_FLAVOUR}"
 echo "              Debug level:   ${enable_debug}"
 echo "            Documentation:   ${enable_gtk_doc}"
 echo "           Compiler flags:   $MAINTAINER_CFLAGS"
+echo "       Introspection data:   ${enable_introspection}"
 echo ""

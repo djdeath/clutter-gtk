@@ -46,3 +46,5 @@ libtool
 ltmain.sh
 missing
 stamp-h1
+/clutter-gtk/GtkClutter-*.gir
+/clutter-gtk/GtkClutter-*.typelib

@@ -11,8 +11,12 @@ lt_unmangle ()
    last_result=`echo $1 | $SED -e 's#.libs/##' -e 's#[0-9a-zA-Z_\-\.]*_la-##'`
 }
 
-# the real libtool to use
-LIBTOOL="$1"
+tempval=`echo $1 | sed s/\'//g`
+if test "x$tempval" = "x$SHELL"; then
+   shift
+fi
+tempval=`echo $1 | sed s/\'//g`
+LIBTOOL="$tempval"
 shift
 
 # if 1, don't print anything, the underlaying wrapper will do it
