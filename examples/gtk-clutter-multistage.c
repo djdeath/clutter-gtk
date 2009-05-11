@@ -3,6 +3,17 @@
 
 #include <clutter-gtk/clutter-gtk.h>
 
+static void
+on_stage2_allocation (GObject      *gobject,
+                      GParamSpec   *pspec,
+                      ClutterActor *texture)
+{
+  gint width = clutter_actor_get_width (CLUTTER_ACTOR (gobject));
+  gint height = clutter_actor_get_height (CLUTTER_ACTOR (gobject));
+
+  clutter_actor_set_position (texture, width / 2, height / 2);
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -39,7 +50,7 @@ main (int argc, char *argv[])
   gtk_container_add (GTK_CONTAINER (vbox), clutter1);
 
   clutter2 = gtk_clutter_embed_new ();
-  gtk_widget_set_size_request (clutter2, 320, 240);
+  gtk_widget_set_size_request (clutter2, 320, 120);
   stage2 = gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (clutter2));
   clutter_stage_set_color (CLUTTER_STAGE(stage2), &col2);
   tex2 = gtk_clutter_texture_new_from_icon_name (clutter1,
@@ -48,8 +59,12 @@ main (int argc, char *argv[])
   clutter_actor_set_anchor_point (tex2,
                                   clutter_actor_get_width (tex2) / 2,
                                   clutter_actor_get_height (tex2) / 2);
-  clutter_actor_set_position (tex2, 160, 120);
+  clutter_actor_set_position (tex2, 160, 60);
   clutter_stage_add (stage2, tex2);
+
+  g_signal_connect (stage2, "notify::allocation",
+                    G_CALLBACK (on_stage2_allocation),
+                    tex2);
 
   gtk_container_add (GTK_CONTAINER (vbox), clutter2);
 
