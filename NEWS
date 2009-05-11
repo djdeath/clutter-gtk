@@ -1,3 +1,43 @@
+Clutter-GTK 0.9.0 11/05/2009
+============================
+
+Christian Persch (2):
+      [embed] Do NOT realize from GtkWidgetClass::show
+      Add gtk_clutter_init_with_args()
+
+Emmanuele Bassi (25):
+      Use ClutterText in the events example
+      Ensure that the viewport is updated when resizing
+      Rename cogl_translatex() to cogl_translate()
+      Move to ClutterClone
+      Load the image asynchronously
+      Make the Stage redraw cycle part of GTK+
+      [docs] Rename SGML to XML
+      [docs] Remove newline in the version
+      [viewport] Remove units-based API
+      [docs] Remove the get_originu() method
+      [embed] Use GTK+ settings
+      Change the GtkClutter macro namespace
+      Move init functions out of Embed source
+      [tests] Remove compiler warnings
+      [build] Improve build environment
+      [docs] Improve the documentation
+      [gitignore] Create the ignore list
+      Rename the svn ChangeLog and add dummy one
+      [authors] Update my email address
+      [readme] Update the dependencies
+      [build] Recurse under build/
+      [build] Add a ChangeLog generation rule
+      [gitignore] Add more gtk-doc files
+      [examples] Tweak multistage example
+      [build] Generate ChangeLog starting from the git import
+
+Neil Roberts (1):
+      [gtk-clutter-embed] Fill in the unicode_value field of ClutterKeyEvent
+
+Rob Bradford (1):
+      [embed] Update "queue-redraw" signal handler prototype
+
 Clutter-GTK 0.8.1 18/07/2008
 ============================
 
