@@ -83,7 +83,7 @@ main (int argc, char *argv[])
                  G_STRLOC,
                  g_timer_elapsed (timer, NULL));
 
-      g_print ("%s: tex.size = %d, %d\n",
+      g_print ("%s: tex.size = %.2f, %.2f\n",
                G_STRLOC,
                clutter_actor_get_width (tex),
                clutter_actor_get_height (tex));

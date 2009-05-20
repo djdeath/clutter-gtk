@@ -30,11 +30,11 @@ input_cb (ClutterStage *stage,
   if (event->type == CLUTTER_BUTTON_PRESS)
     {
       ClutterActor *a;
-      gint x, y;
+      gfloat x, y;
 
       clutter_event_get_coords (event, &x, &y);
 
-      a = clutter_stage_get_actor_at_pos (stage, x, y);
+      a = clutter_stage_get_actor_at_pos (stage, CLUTTER_PICK_ALL, x, y);
       if (a && (CLUTTER_IS_TEXTURE (a) || CLUTTER_IS_CLONE (a)))
 	clutter_actor_hide (a);
     }

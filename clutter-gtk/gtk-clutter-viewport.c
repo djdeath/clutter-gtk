@@ -184,7 +184,7 @@ viewport_reclamp_adjustment (GtkAdjustment *adjustment)
 
 static gboolean
 viewport_set_hadjustment_values (GtkClutterViewport *viewport,
-                                 guint               width)
+                                 gfloat              width)
 {
   GtkClutterViewportPrivate *priv = viewport->priv;
   GtkAdjustment *h_adjust = priv->h_adjustment;
@@ -214,7 +214,7 @@ viewport_set_hadjustment_values (GtkClutterViewport *viewport,
 
 static gboolean
 viewport_set_vadjustment_values (GtkClutterViewport *viewport,
-                                 guint               height)
+                                 gfloat              height)
 {
   GtkClutterViewportPrivate *priv = viewport->priv;
   GtkAdjustment *v_adjust = priv->v_adjustment;
@@ -272,7 +272,7 @@ connect_adjustment (GtkClutterViewport *viewport,
   GtkClutterViewportPrivate *priv = viewport->priv;
   GtkAdjustment **adj_p;
   gboolean value_changed = FALSE;
-  guint width, height;
+  gfloat width, height;
 
   adj_p = (orientation == GTK_ORIENTATION_HORIZONTAL) ? &priv->h_adjustment
                                                       : &priv->v_adjustment;
@@ -533,8 +533,8 @@ gtk_clutter_viewport_allocate (ClutterActor          *actor,
                                         NULL, NULL,
                                         &alloc_width, &alloc_height);
 
-      child_allocation.x1 = clutter_actor_get_xu (priv->child);
-      child_allocation.y1 = clutter_actor_get_yu (priv->child);
+      child_allocation.x1 = clutter_actor_get_x (priv->child);
+      child_allocation.y1 = clutter_actor_get_y (priv->child);
       child_allocation.x2 = child_allocation.x1 + alloc_width;
       child_allocation.y2 = child_allocation.y1 + alloc_height;
 

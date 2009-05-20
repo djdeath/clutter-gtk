@@ -74,11 +74,11 @@ on_stage_capture (ClutterActor *actor,
 {
   if (event->type == CLUTTER_BUTTON_RELEASE)
     {
-      gint x, y;
+      gfloat x, y;
 
       clutter_event_get_coords (event, &x, &y);
 
-      g_print ("Event captured at (%d, %d)\n", x, y);
+      g_print ("Event captured at (%.2f, %.2f)\n", x, y);
     }
 
   return FALSE;
@@ -102,7 +102,7 @@ main (gint argc, gchar **argv)
   GtkWidget     *widget, *vbox, *hbox, *button, *label, *box;
   ClutterActor  *actor;
   GdkPixbuf     *pixbuf = NULL;
-  guint          width, height;
+  gfloat         width, height;
   ClutterColor   stage_color = {255, 255, 255, 255};
   ClutterColor   text_color = {0, 0, 0, 255};
 
