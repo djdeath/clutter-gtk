@@ -230,9 +230,7 @@ gtk_clutter_embed_unrealize (GtkWidget *widget)
 {
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
 
-  clutter_actor_unmap (priv->stage);
   clutter_actor_hide (priv->stage);
-  clutter_actor_unrealize (priv->stage);
 
   GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->unrealize (widget);
 }
