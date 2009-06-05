@@ -4,14 +4,14 @@
 #include <clutter-gtk/clutter-gtk.h>
 
 static void
-on_stage2_allocation (GObject      *gobject,
-                      GParamSpec   *pspec,
-                      ClutterActor *texture)
+on_stage2_allocation_changed (ClutterActor           *stage_2,
+                              const ClutterActorBox  *allocation,
+                              ClutterAllocationFlags  flags,
+                              ClutterActor           *texture_2)
 {
-  gint width = clutter_actor_get_width (CLUTTER_ACTOR (gobject));
-  gint height = clutter_actor_get_height (CLUTTER_ACTOR (gobject));
-
-  clutter_actor_set_position (texture, width / 2, height / 2);
+  clutter_actor_set_position (texture_2,
+                              (allocation->x2 - allocation->x1) / 2,
+                              (allocation->y2 - allocation->y1) / 2);
 }
 
 int
@@ -62,11 +62,11 @@ main (int argc, char *argv[])
   clutter_actor_set_position (tex2, 160, 60);
   clutter_stage_add (stage2, tex2);
 
-  g_signal_connect (stage2, "notify::allocation",
-                    G_CALLBACK (on_stage2_allocation),
-                    tex2);
-
   gtk_container_add (GTK_CONTAINER (vbox), clutter2);
+
+  g_signal_connect (stage2, "allocation-changed",
+                    G_CALLBACK (on_stage2_allocation_changed),
+                    tex2);
 
   gtk_widget_show_all (window);
   clutter_actor_show_all (stage1); 

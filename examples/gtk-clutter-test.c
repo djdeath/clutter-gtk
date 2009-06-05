@@ -30,11 +30,11 @@ input_cb (ClutterStage *stage,
   if (event->type == CLUTTER_BUTTON_PRESS)
     {
       ClutterActor *a;
-      gint x, y;
+      gfloat x, y;
 
       clutter_event_get_coords (event, &x, &y);
 
-      a = clutter_stage_get_actor_at_pos (stage, x, y);
+      a = clutter_stage_get_actor_at_pos (stage, CLUTTER_PICK_ALL, x, y);
       if (a && (CLUTTER_IS_TEXTURE (a) || CLUTTER_IS_CLONE (a)))
 	clutter_actor_hide (a);
     }
@@ -54,11 +54,12 @@ input_cb (ClutterStage *stage,
 /* Timeline handler */
 void
 frame_cb (ClutterTimeline *timeline, 
-	  gint             frame_num, 
+	  gint             msecs,
 	  gpointer         data)
 {
   SuperOH        *oh = (SuperOH *)data;
   gint            i;
+  guint           rotation = clutter_timeline_get_progress (timeline) * 360.0f;
 
 #if TRAILS
   oh->bgpixb = clutter_stage_snapshot (CLUTTER_STAGE (stage),
@@ -73,7 +74,7 @@ frame_cb (ClutterTimeline *timeline,
   /* Rotate everything clockwise about stage center*/
   clutter_actor_set_rotation (CLUTTER_ACTOR (oh->group),
                               CLUTTER_Z_AXIS,
-                              frame_num,
+                              rotation,
                               WINWIDTH / 2, WINHEIGHT / 2, 0);
 
   for (i = 0; i < NHANDS; i++)
@@ -81,12 +82,12 @@ frame_cb (ClutterTimeline *timeline,
       /* rotate each hand around there centers */
       clutter_actor_set_rotation (oh->hand[i],
                                   CLUTTER_Z_AXIS,
-                                  - 6.0 * frame_num,
+                                  - 6.0 * rotation,
                                   clutter_actor_get_width (oh->hand[i]) / 2,
                                   clutter_actor_get_height (oh->hand[i]) / 2,
                                   0);
       if (fade == TRUE)
-        clutter_actor_set_opacity (oh->hand[i], (255 - (frame_num % 255)));
+        clutter_actor_set_opacity (oh->hand[i], (255 - (rotation % 255)));
     }
 
   /*
@@ -241,7 +242,7 @@ main (int argc, char *argv[])
   clutter_actor_show_all (CLUTTER_ACTOR (oh->group));
 
   /* Create a timeline to manage animation */
-  timeline = clutter_timeline_new (360, 60); /* num frames, fps */
+  timeline = clutter_timeline_new (6000);
   g_object_set(timeline, "loop", TRUE, NULL);   /* have it loop */
 
   /* fire a callback for frame change */

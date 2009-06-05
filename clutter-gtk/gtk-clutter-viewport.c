@@ -147,10 +147,10 @@ viewport_adjustment_value_changed (GtkAdjustment      *adjustment,
     {
       GtkAdjustment *h_adjust = priv->h_adjustment;
       GtkAdjustment *v_adjust = priv->v_adjustment;
-      ClutterUnit new_x, new_y;
+      gfloat new_x, new_y;
 
-      new_x = CLUTTER_UNITS_FROM_FLOAT (gtk_adjustment_get_value (h_adjust));
-      new_y = CLUTTER_UNITS_FROM_FLOAT (gtk_adjustment_get_value (v_adjust));
+      new_x = gtk_adjustment_get_value (h_adjust);
+      new_y = gtk_adjustment_get_value (v_adjust);
 
       /* change the origin and queue a relayout */
       if (new_x != priv->origin.x || new_y != priv->origin.y)
@@ -184,7 +184,7 @@ viewport_reclamp_adjustment (GtkAdjustment *adjustment)
 
 static gboolean
 viewport_set_hadjustment_values (GtkClutterViewport *viewport,
-                                 guint               width)
+                                 gfloat              width)
 {
   GtkClutterViewportPrivate *priv = viewport->priv;
   GtkAdjustment *h_adjust = priv->h_adjustment;
@@ -196,15 +196,13 @@ viewport_set_hadjustment_values (GtkClutterViewport *viewport,
 
   if (priv->child && CLUTTER_ACTOR_IS_VISIBLE (priv->child))
     {
-      ClutterUnit natural_width;
+      gfloat natural_width;
 
       clutter_actor_get_preferred_size (priv->child,
                                         NULL, NULL,
                                         &natural_width, NULL);
 
-      gtk_adjustment_set_upper (h_adjust,
-                                MAX (CLUTTER_UNITS_TO_DEVICE (natural_width),
-                                     width));
+      gtk_adjustment_set_upper (h_adjust, MAX (natural_width, width));
     }
   else
     gtk_adjustment_set_upper (h_adjust, width);
@@ -214,7 +212,7 @@ viewport_set_hadjustment_values (GtkClutterViewport *viewport,
 
 static gboolean
 viewport_set_vadjustment_values (GtkClutterViewport *viewport,
-                                 guint               height)
+                                 gfloat              height)
 {
   GtkClutterViewportPrivate *priv = viewport->priv;
   GtkAdjustment *v_adjust = priv->v_adjustment;
@@ -228,15 +226,13 @@ viewport_set_vadjustment_values (GtkClutterViewport *viewport,
 
   if (priv->child && CLUTTER_ACTOR_IS_VISIBLE (priv->child))
     {
-      ClutterUnit natural_height;
+      gfloat natural_height;
 
       clutter_actor_get_preferred_size (priv->child,
                                         NULL, NULL,
                                         NULL, &natural_height);
 
-      gtk_adjustment_set_upper (v_adjust,
-                                MAX (CLUTTER_UNITS_TO_DEVICE (natural_height),
-                                     height));
+      gtk_adjustment_set_upper (v_adjust, MAX (natural_height, height));
     }
   else
     gtk_adjustment_set_upper (v_adjust, height);
@@ -272,7 +268,7 @@ connect_adjustment (GtkClutterViewport *viewport,
   GtkClutterViewportPrivate *priv = viewport->priv;
   GtkAdjustment **adj_p;
   gboolean value_changed = FALSE;
-  guint width, height;
+  gfloat width, height;
 
   adj_p = (orientation == GTK_ORIENTATION_HORIZONTAL) ? &priv->h_adjustment
                                                       : &priv->v_adjustment;
@@ -447,9 +443,9 @@ gtk_clutter_viewport_dispose (GObject *gobject)
 
 static void
 gtk_clutter_viewport_get_preferred_width (ClutterActor *actor,
-                                          ClutterUnit   for_height,
-                                          ClutterUnit  *min_width_p,
-                                          ClutterUnit  *natural_width_p)
+                                          gfloat        for_height,
+                                          gfloat       *min_width_p,
+                                          gfloat       *natural_width_p)
 {
   GtkClutterViewportPrivate *priv = GTK_CLUTTER_VIEWPORT (actor)->priv;
 
@@ -473,9 +469,9 @@ gtk_clutter_viewport_get_preferred_width (ClutterActor *actor,
 
 static void
 gtk_clutter_viewport_get_preferred_height (ClutterActor *actor,
-                                           ClutterUnit   for_width,
-                                           ClutterUnit  *min_height_p,
-                                           ClutterUnit  *natural_height_p)
+                                           gfloat        for_width,
+                                           gfloat       *min_height_p,
+                                           gfloat       *natural_height_p)
 {
   GtkClutterViewportPrivate *priv = GTK_CLUTTER_VIEWPORT (actor)->priv;
 
@@ -498,21 +494,21 @@ gtk_clutter_viewport_get_preferred_height (ClutterActor *actor,
 }
 
 static void
-gtk_clutter_viewport_allocate (ClutterActor          *actor,
-                               const ClutterActorBox *box,
-                               gboolean               origin_changed)
+gtk_clutter_viewport_allocate (ClutterActor           *actor,
+                               const ClutterActorBox  *box,
+                               ClutterAllocationFlags  flags)
 {
   GtkClutterViewport *viewport = GTK_CLUTTER_VIEWPORT (actor);
   GtkClutterViewportPrivate *priv = viewport->priv;
   ClutterActorClass *parent_class;
   gboolean h_adjustment_value_changed, v_adjustment_value_changed;
-  guint width, height;
+  gfloat width, height;
 
   parent_class = CLUTTER_ACTOR_CLASS (gtk_clutter_viewport_parent_class);
-  parent_class->allocate (actor, box, origin_changed);
+  parent_class->allocate (actor, box, flags);
 
-  width  = CLUTTER_UNITS_TO_DEVICE (box->x2 - box->x1);
-  height = CLUTTER_UNITS_TO_DEVICE (box->y2 - box->y1);
+  width  = box->x2 - box->x1;
+  height = box->y2 - box->y1;
 
   h_adjustment_value_changed =
     viewport_set_hadjustment_values (viewport, width);
@@ -522,7 +518,7 @@ gtk_clutter_viewport_allocate (ClutterActor          *actor,
   if (priv->child && CLUTTER_ACTOR_IS_VISIBLE (priv->child))
     {
       ClutterActorBox child_allocation = { 0, };
-      ClutterUnit alloc_width, alloc_height;
+      gfloat alloc_width, alloc_height;
 
       /* a viewport is a boundless actor which can contain a child
        * without constraints; hence, we give any child exactly the
@@ -533,12 +529,12 @@ gtk_clutter_viewport_allocate (ClutterActor          *actor,
                                         NULL, NULL,
                                         &alloc_width, &alloc_height);
 
-      child_allocation.x1 = clutter_actor_get_xu (priv->child);
-      child_allocation.y1 = clutter_actor_get_yu (priv->child);
+      child_allocation.x1 = clutter_actor_get_x (priv->child);
+      child_allocation.y1 = clutter_actor_get_y (priv->child);
       child_allocation.x2 = child_allocation.x1 + alloc_width;
       child_allocation.y2 = child_allocation.y1 + alloc_height;
 
-      clutter_actor_allocate (priv->child, &child_allocation, origin_changed);
+      clutter_actor_allocate (priv->child, &child_allocation, flags);
     }
 
   gtk_adjustment_changed (priv->h_adjustment);
@@ -561,9 +557,9 @@ gtk_clutter_viewport_paint (ClutterActor *actor)
   /* translate the paint environment by the same amount
    * defined by the origin value
    */
-  cogl_translate (CLUTTER_UNITS_TO_FLOAT (priv->origin.x) * -1,
-                  CLUTTER_UNITS_TO_FLOAT (priv->origin.y) * -1,
-                  CLUTTER_UNITS_TO_FLOAT (priv->origin.z) * -1);
+  cogl_translate (priv->origin.x * -1,
+                  priv->origin.y * -1,
+                  priv->origin.z * -1);
 
   /* the child will be painted in the new frame of reference */
   if (priv->child && CLUTTER_ACTOR_IS_VISIBLE (priv->child))
@@ -689,11 +685,11 @@ gtk_clutter_viewport_get_origin (GtkClutterViewport *viewport,
   priv = viewport->priv;
 
   if (x)
-    *x = CLUTTER_UNITS_TO_FLOAT (priv->origin.x);
+    *x = priv->origin.x;
 
   if (y)
-    *y = CLUTTER_UNITS_TO_FLOAT (priv->origin.y);
+    *y = priv->origin.y;
 
   if (z)
-    *z = CLUTTER_UNITS_TO_FLOAT (priv->origin.z);
+    *z = priv->origin.z;
 }

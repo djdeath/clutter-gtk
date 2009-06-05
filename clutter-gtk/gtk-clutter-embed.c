@@ -153,9 +153,6 @@ gtk_clutter_embed_realize (GtkWidget *widget)
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv; 
   GdkWindowAttr attributes;
   int attributes_mask;
-  
-  /* we must realize the stage to get it ready for embedding */
-  clutter_actor_realize (priv->stage);
 
 #ifdef HAVE_CLUTTER_GTK_X11
   {
@@ -165,6 +162,12 @@ gtk_clutter_embed_realize (GtkWidget *widget)
 
     /* We need to use the colormap from the Clutter visual */
     xvinfo = clutter_x11_get_stage_visual (CLUTTER_STAGE (priv->stage));
+    if (xvinfo == None)
+      {
+        g_critical ("Unable to retrieve the XVisualInfo from Clutter");
+        return;
+      }
+
     visual = gdk_x11_screen_lookup_visual (gtk_widget_get_screen (widget),
                                            xvinfo->visualid);
     colormap = gdk_colormap_new (visual, FALSE);
@@ -214,12 +217,22 @@ gtk_clutter_embed_realize (GtkWidget *widget)
 				   GDK_WINDOW_HWND (widget->window));
 #endif /* HAVE_CLUTTER_GTK_{X11,WIN32} */
 
+  clutter_actor_realize (priv->stage);
+
   if (GTK_WIDGET_VISIBLE (widget))
     clutter_actor_show (priv->stage);
 
-  clutter_actor_queue_redraw (CLUTTER_ACTOR (priv->stage));
-
   gtk_clutter_embed_send_configure (GTK_CLUTTER_EMBED (widget));
+}
+
+static void
+gtk_clutter_embed_unrealize (GtkWidget *widget)
+{
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
+
+  clutter_actor_hide (priv->stage);
+
+  GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->unrealize (widget);
 }
 
 static void
@@ -361,17 +374,47 @@ gtk_clutter_embed_map_event (GtkWidget	 *widget,
                              GdkEventAny *event)
 {
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
+  GtkWidgetClass *parent_class;
+  gboolean res = FALSE;
 
-  /* The backend wont get the XEvent as we go strait to do_event().
-   * So we have to make sure we set the event here.
-  */
-  CLUTTER_ACTOR_SET_FLAGS (priv->stage, CLUTTER_ACTOR_MAPPED);
+  parent_class = GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class);
+  if (parent_class->map_event)
+    res = parent_class->map_event (widget, event);
 
-  return FALSE;
+  clutter_actor_map (priv->stage);
+
+  return res;
 }
 
 static gboolean
-gtk_clutter_embed_focus_in (GtkWidget *widget,
+gtk_clutter_embed_unmap_event (GtkWidget   *widget,
+                               GdkEventAny *event)
+{
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
+  GtkWidgetClass *parent_class;
+  gboolean res = FALSE;
+
+  parent_class = GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class);
+  if (parent_class->unmap_event)
+    res = parent_class->unmap_event (widget, event);
+
+  clutter_actor_unmap (priv->stage);
+
+  return res;
+}
+
+static void
+gtk_clutter_embed_unmap (GtkWidget *widget)
+{
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
+
+  clutter_actor_unmap (priv->stage);
+
+  GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->unmap (widget);
+}
+
+static gboolean
+gtk_clutter_embed_focus_in (GtkWidget     *widget,
                             GdkEventFocus *event)
 {
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
@@ -480,8 +523,10 @@ gtk_clutter_embed_class_init (GtkClutterEmbedClass *klass)
   widget_class->style_set = gtk_clutter_embed_style_set;
   widget_class->size_allocate = gtk_clutter_embed_size_allocate;
   widget_class->realize = gtk_clutter_embed_realize;
+  widget_class->unrealize = gtk_clutter_embed_unrealize;
   widget_class->show = gtk_clutter_embed_show;
   widget_class->hide = gtk_clutter_embed_hide;
+  widget_class->unmap = gtk_clutter_embed_unmap;
   widget_class->expose_event = gtk_clutter_embed_expose_event;
   widget_class->button_press_event = gtk_clutter_embed_button_event;
   widget_class->button_release_event = gtk_clutter_embed_button_event;
@@ -490,6 +535,7 @@ gtk_clutter_embed_class_init (GtkClutterEmbedClass *klass)
   widget_class->motion_notify_event = gtk_clutter_embed_motion_notify_event;
   widget_class->expose_event = gtk_clutter_embed_expose_event;
   widget_class->map_event = gtk_clutter_embed_map_event;
+  widget_class->unmap_event = gtk_clutter_embed_unmap_event;
   widget_class->focus_in_event = gtk_clutter_embed_focus_in;
   widget_class->focus_out_event = gtk_clutter_embed_focus_out;
   widget_class->scroll_event = gtk_clutter_embed_scroll_event;
@@ -503,6 +549,7 @@ gtk_clutter_embed_init (GtkClutterEmbed *embed)
   embed->priv = priv = GTK_CLUTTER_EMBED_GET_PRIVATE (embed);
 
   GTK_WIDGET_SET_FLAGS (embed, GTK_CAN_FOCUS);
+  GTK_WIDGET_UNSET_FLAGS (embed, GTK_NO_WINDOW);
 
   /* disable double-buffering: it's automatically provided
    * by OpenGL
