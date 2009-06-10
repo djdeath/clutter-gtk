@@ -9,5 +9,5 @@ Name: clutter-gtk
 Description: GTK+ widget for Clutter
 Version: @VERSION@
 Libs: -L${libdir} -lclutter-gtk-0.9
-Cflags: -I${includedir}/clutter-0.9/clutter-gtk
+Cflags: -I${includedir}/clutter-0.9
 Requires: @CLUTTER_GTK_REQUIRES@
