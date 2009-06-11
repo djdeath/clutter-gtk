@@ -70,6 +70,7 @@ struct _GtkClutterEmbedPrivate
 
   GList *children;
   int n_active_children;
+  gboolean offscreen_children_changed;
   guint queue_redraw_id;
 };
 
@@ -106,6 +107,9 @@ on_stage_queue_redraw (ClutterStage *stage,
    * "slaving" the Clutter redraw cycle to GTK+'s own
    */
   g_signal_stop_emission_by_name (stage, "queue-redraw");
+
+  if (GTK_CLUTTER_EMBED (embed)->priv->n_active_children > 0)
+    GTK_CLUTTER_EMBED (embed)->priv->offscreen_children_changed = TRUE;
 
   gtk_widget_queue_draw (embed);
 }
@@ -297,6 +301,12 @@ gtk_clutter_embed_expose_event (GtkWidget *widget,
                                 GdkEventExpose *event)
 {
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
+
+  if (priv->offscreen_children_changed)
+    {
+      gdk_window_offscreen_children_changed (widget->window);
+      priv->offscreen_children_changed = FALSE;
+    }
 
   /* force a redraw on expose */
   clutter_redraw (CLUTTER_STAGE (priv->stage));
