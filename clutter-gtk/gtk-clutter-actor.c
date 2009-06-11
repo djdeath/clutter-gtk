@@ -78,8 +78,7 @@ gtk_clutter_actor_finalize (GObject *object)
 }
 
 static void
-gtk_clutter_actor_parent_set (ClutterActor          *actor,
-			      ClutterActor          *old_parent)
+gtk_clutter_actor_realize (ClutterActor *actor)
 {
   GtkClutterActor *clutter = GTK_CLUTTER_ACTOR (actor);
   ClutterActor *stage;
@@ -87,25 +86,9 @@ gtk_clutter_actor_parent_set (ClutterActor          *actor,
 
   new_embed = NULL;
   stage = clutter_actor_get_stage (actor);
-  if (stage)
-    new_embed = g_object_get_data (G_OBJECT (stage), "gtk-clutter-embed");
-
-  if (new_embed != clutter->priv->embed)
-    {
-      if (clutter->priv->embed)
-	gtk_container_remove (GTK_CONTAINER (clutter->priv->embed),
-			      clutter->priv->widget);
-      clutter->priv->embed = new_embed;
-      if (clutter->priv->embed)
-	gtk_container_add (GTK_CONTAINER (clutter->priv->embed),
-			   clutter->priv->widget);
-    }
-}
-
-static void
-gtk_clutter_actor_realize (ClutterActor *actor)
-{
-  GtkClutterActor *clutter = GTK_CLUTTER_ACTOR (actor);
+  clutter->priv->embed = g_object_get_data (G_OBJECT (stage), "gtk-clutter-embed");
+  gtk_container_add (GTK_CONTAINER (clutter->priv->embed),
+		     clutter->priv->widget);
 
   gtk_widget_realize (clutter->priv->widget);
   clutter->priv->pixmap = gdk_window_get_offscreen_pixmap (clutter->priv->widget->window);
@@ -123,6 +106,10 @@ gtk_clutter_actor_unrealize (ClutterActor *actor)
   gtk_widget_unrealize (clutter->priv->widget);
   g_object_unref (clutter->priv->pixmap);
   clutter->priv->pixmap = NULL;
+
+  gtk_container_remove (GTK_CONTAINER (clutter->priv->embed),
+			clutter->priv->widget);
+  clutter->priv->embed = NULL;
 }
 
 static void
@@ -214,7 +201,6 @@ gtk_clutter_actor_class_init (GtkClutterActorClass *klass)
   g_type_class_add_private (klass, sizeof (GtkClutterActorPrivate));
 
   actor_class->paint = gtk_clutter_actor_paint;
-  actor_class->parent_set = gtk_clutter_actor_parent_set;
   actor_class->realize = gtk_clutter_actor_realize;
   actor_class->unrealize = gtk_clutter_actor_unrealize;
 
