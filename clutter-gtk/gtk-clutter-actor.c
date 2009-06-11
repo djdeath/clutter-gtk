@@ -159,6 +159,7 @@ gtk_clutter_actor_allocate (ClutterActor           *actor,
   GtkClutterActor *clutter = GTK_CLUTTER_ACTOR (actor);
   GtkAllocation child_allocation;
   GdkPixmap *pixmap;
+  ClutterActorBox child_box;
 
   CLUTTER_ACTOR_CLASS (gtk_clutter_actor_parent_class)->allocate (actor, box, flags);
 
@@ -190,7 +191,11 @@ gtk_clutter_actor_allocate (ClutterActor           *actor,
 	}
     }
 
-  clutter_actor_allocate (clutter->priv->texture, box, flags);
+  child_box.x1 = 0;
+  child_box.y1 = 0;
+  child_box.x2 = box->x2 - box->x1;
+  child_box.y2 = box->y2 - box->y1;
+  clutter_actor_allocate (clutter->priv->texture, &child_box, flags);
 }
 
 static void
