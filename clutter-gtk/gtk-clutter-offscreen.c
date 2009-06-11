@@ -96,8 +96,14 @@ offscreen_window_to_parent (GdkWindow       *offscreen_window,
 			    double          *parent_y,
 			    GtkClutterOffscreen *offscreen)
 {
-  *parent_x = offscreen_x;
-  *parent_y = offscreen_y;
+  ClutterVertex point, vertex;
+
+  point.x = offscreen_x;
+  point.y = offscreen_y;
+  point.z = 0;
+  clutter_actor_apply_transform_to_point (offscreen->actor, &point, &vertex);
+  *parent_x = vertex.x;
+  *parent_y = vertex.y;
 }
 
 static void
