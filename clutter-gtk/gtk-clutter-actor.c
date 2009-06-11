@@ -303,6 +303,21 @@ gtk_clutter_actor_new (void)
   return g_object_new (GTK_CLUTTER_TYPE_ACTOR, NULL);
 }
 
+
+void
+gtk_clutter_actor_set_recieves_events (GtkClutterActor *actor,
+				       gboolean         recieves_events)
+{
+  gtk_clutter_offscreen_set_active (GTK_CLUTTER_OFFSCREEN (actor->priv->widget),
+				    recieves_events);
+}
+
+gboolean
+gtk_clutter_actor_get_recieves_events (GtkClutterActor *actor)
+{
+  return GTK_CLUTTER_OFFSCREEN (actor->priv->widget)->active;
+}
+
 /**
  * gtk_clutter_actor_get_widget:
  * @actor: a #GtkClutterActor

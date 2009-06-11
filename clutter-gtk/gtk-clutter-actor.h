@@ -78,9 +78,12 @@ struct _GtkClutterActorClass
   void (*_clutter_gtk_reserved6) (void);
 };
 
-GType         gtk_clutter_actor_get_type   (void) G_GNUC_CONST;
-ClutterActor *gtk_clutter_actor_new        (void);
-GtkWidget    *gtk_clutter_actor_get_widget (GtkClutterActor *actor);
+GType         gtk_clutter_actor_get_type            (void) G_GNUC_CONST;
+ClutterActor *gtk_clutter_actor_new                 (void);
+void          gtk_clutter_actor_set_recieves_events (GtkClutterActor *actor,
+						     gboolean         recieves_events);
+gboolean      gtk_clutter_actor_get_recieves_events (GtkClutterActor *actor);
+GtkWidget    *gtk_clutter_actor_get_widget          (GtkClutterActor *actor);
 
 G_END_DECLS
 

@@ -6,6 +6,7 @@
 
 #include <gtk/gtk.h>
 
+#include "gtk-clutter-embed.h"
 #include "gtk-clutter-offscreen.h"
 #include "gtk-clutter-actor-internal.h"
 
@@ -61,6 +62,7 @@ gtk_clutter_offscreen_init (GtkClutterOffscreen *offscreen)
 {
   GTK_WIDGET_UNSET_FLAGS (offscreen, GTK_NO_WINDOW);
   gtk_container_set_resize_mode (GTK_CONTAINER (offscreen), GTK_RESIZE_IMMEDIATE);
+  offscreen->active = TRUE;
 }
 
 GtkWidget *
@@ -114,8 +116,21 @@ offscreen_window_from_parent (GdkWindow       *window,
 			      double          *offscreen_y,
 			      GtkClutterOffscreen *offscreen)
 {
-  *offscreen_x = parent_x;
-  *offscreen_y = parent_y;
+  gfloat x, y;
+  if (clutter_actor_transform_stage_point (offscreen->actor,
+					   parent_x,
+					   parent_y,
+					   &x, &y))
+    {
+      *offscreen_x = x;
+      *offscreen_y = y;
+    }
+  else
+    {
+      /* Could't transform. What the heck do we do now? */
+      *offscreen_x = parent_x;
+      *offscreen_y = parent_y;
+    }
 }
 
 static void
@@ -233,4 +248,24 @@ gtk_clutter_offscreen_damage (GtkWidget      *widget,
 			     event->area.height);
 
   return TRUE;
+}
+
+void _gtk_clutter_embed_change_active (GtkClutterEmbed *embed,
+				       int delta);
+
+void
+gtk_clutter_offscreen_set_active (GtkClutterOffscreen *offscreen,
+				  gboolean      active)
+{
+  GtkWidget *parent;
+
+  active = !!active;
+
+  if (offscreen->active != active)
+    {
+      offscreen->active = active;
+      parent = gtk_widget_get_parent (GTK_WIDGET (offscreen));
+      if (parent)
+	_gtk_clutter_embed_change_active (GTK_CLUTTER_EMBED (parent), active ? 1 : -1);
+    }
 }
