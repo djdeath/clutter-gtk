@@ -4,6 +4,7 @@ noinst_PROGRAMS = \
 	gtk-clutter-events \
 	gtk-clutter-multistage \
 	gtk-clutter-test \
+	gtk-clutter-test-actor \
         gtk-clutter-viewport
 
 INCLUDES = \
@@ -23,6 +24,10 @@ common_ldadd = \
 gtk_clutter_test_SOURCES = gtk-clutter-test.c
 gtk_clutter_test_DEPENDENCIES = $(common_deps)
 gtk_clutter_test_LDADD = $(common_ldadd)
+
+gtk_clutter_test_actor_SOURCES = gtk-clutter-test-actor.c
+gtk_clutter_test_actor_DEPENDENCIES = $(common_deps)
+gtk_clutter_test_actor_LDADD = $(common_ldadd)
 
 gtk_clutter_events_SOURCES = gtk-clutter-events.c
 gtk_clutter_events_DEPENDENCIES = $(common_deps)
