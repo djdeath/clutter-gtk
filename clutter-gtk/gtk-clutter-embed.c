@@ -142,7 +142,10 @@ gtk_clutter_embed_hide (GtkWidget *widget)
 {
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
 
-  clutter_actor_hide (priv->stage);
+  /* gtk emits a hide signal during dispose, so it's possible we may
+   * have already disposed priv->stage. */
+  if (priv->stage)
+    clutter_actor_hide (priv->stage);
 
   GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->hide (widget);
 }
