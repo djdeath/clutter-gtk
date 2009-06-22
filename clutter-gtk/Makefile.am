@@ -22,11 +22,11 @@ AM_CPPFLAGS = \
 lib_LTLIBRARIES = libclutter-gtk-0.9.la
 
 # please, keep the list sorted alphabetically
-libclutter_gtk_0_9_la_SOURCES = 	\
-        gtk-clutter-embed.c 		\
-        gtk-clutter-scrollable.c 	\
-        gtk-clutter-util.c 		\
-        gtk-clutter-viewport.c
+libclutter_gtk_0_9_la_SOURCES = \
+	$(srcdir)/gtk-clutter-embed.c 		\
+	$(srcdir)/gtk-clutter-scrollable.c 	\
+	$(srcdir)/gtk-clutter-util.c 		\
+	$(srcdir)/gtk-clutter-viewport.c
 
 libclutter_gtk_0_9_la_LIBADD = $(CLUTTER_LIBS) $(GTK_LIBS)
 
@@ -35,12 +35,12 @@ libclutter_gtk_0_9_la_LDFLAGS = $(CLUTTER_LT_LDFLAGS)
 cluttergtkheadersdir = $(includedir)/clutter-0.9/clutter-gtk
 
 # please, keep the list sorted alphabetically
-cluttergtkheaders_HEADERS = 		\
-        clutter-gtk.h 			\
-        gtk-clutter-embed.h 		\
-        gtk-clutter-scrollable.h 	\
-        gtk-clutter-util.h 		\
-        gtk-clutter-viewport.h
+cluttergtkheaders_HEADERS = \
+	$(top_srcdir)/clutter-gtk/clutter-gtk.h 		\
+	$(top_srcdir)/clutter-gtk/gtk-clutter-embed.h 		\
+	$(top_srcdir)/clutter-gtk/gtk-clutter-scrollable.h 	\
+	$(top_srcdir)/clutter-gtk/gtk-clutter-util.h 		\
+	$(top_srcdir)/clutter-gtk/gtk-clutter-viewport.h
 
 if HAVE_INTROSPECTION
 BUILT_GIRSOURCES =
