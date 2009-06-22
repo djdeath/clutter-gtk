@@ -6,7 +6,8 @@ clutter-gtk-0.9.pc
 clutter-gtk.pc
 .deps/
 .libs/
-/build/autotools/gtk-doc.m4
+/build/autotools/*.m4
+!/build/autotools/shave.m4
 /build/autotools/shave-libtool
 /build/autotools/shave
 /clutter-gtk/*.lo
@@ -48,3 +49,5 @@ missing
 stamp-h1
 /clutter-gtk/GtkClutter-*.gir
 /clutter-gtk/GtkClutter-*.typelib
+*~
+.*.swp
