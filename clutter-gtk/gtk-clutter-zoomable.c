@@ -70,7 +70,7 @@ gtk_clutter_zoomable_get_type (void)
 /**
  * gtk_clutter_zoomable_set_adjustment:
  * @zoomable: a #GtkClutterZoomable
- * @z_adjust: a #GtkAdjustment, or %NULL
+ * @z_adjust: (null-ok): a #GtkAdjustment, or %NULL
  *
  * Sets the adjustment used to determine the zoom factor of
  * the zoomable actor
@@ -98,7 +98,7 @@ gtk_clutter_zoomable_set_adjustment (GtkClutterZoomable *zoomable,
  * Retrieves the adjustment used to determine the zoom factor of
  * the zoomable actor
  *
- * Return value: a #GtkAdjustment
+ * Return value: (transfer none): a #GtkAdjustment
  *
  * Since: 1.0
  */

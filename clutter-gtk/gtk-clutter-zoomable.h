@@ -34,7 +34,8 @@ struct _GtkClutterZoomableIface
 
   /*< public >*/
   void           (* set_adjustment) (GtkClutterZoomable *zoomable,
-                                     GtkAdjustment      *adjustment);
+                                     GtkAdjustment      *z_adjust);
+
   GtkAdjustment *(* get_adjustment) (GtkClutterZoomable *zoomable);
 };
 
