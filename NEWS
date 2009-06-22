@@ -1,3 +1,33 @@
+Clutter-GTK 0.9.1 22/06/2009
+============================
+
+Aaron Bockover (1):
+      [embed] Fix on_stage_queue_redraw signature
+
+Colin Walters (1):
+      Build GObject introspection data for clutter-gtk
+
+Emmanuele Bassi (13):
+      Post-release bump to 0.9.1
+      Update for Clutter 1.0 API changes
+      Updates for 1.0 API changes in Clutter
+      [examples] Use different sized stages
+      Merge branch '1.0-integration'
+      Use clutter_event_get_key_symbol()
+      [build] Use the right inclusion path in the pc file
+      Use variables for the include path and linker flags
+      [doap] Update description and maintainer
+      [build] Remove the reference to introspection.m4
+      [build] Depend on the latest stable release of Clutter
+      [build] Fixes for distcheck
+      [build] Use AS_COMPILER_FLAGS
+
+Neil Roberts (1):
+      [gtk-clutter-test] Update for the clutter timeline changes
+
+Robert Bragg (1):
+      guard against hiding priv->stage when already destroyed during dispose
+
 Clutter-GTK 0.9.0 11/05/2009
 ============================
 
