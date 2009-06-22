@@ -1,18 +1,15 @@
 <Project xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-	xmlns:foaf="http://xmlns.com/foaf/0.1/"
-	xmlns="http://usefulinc.com/ns/doap#">
+         xmlns:foaf="http://xmlns.com/foaf/0.1/"
+         xmlns="http://usefulinc.com/ns/doap#">
 
 	<name>Clutter-Gtk</name>
 	<created>2006-11-29</created>
 
-	<shortdesc xml:lang="en">Clutter-Gtk is a GTK+ widget embedding a Clutter stage</shortdesc>
+	<shortdesc xml:lang="en">Clutter integration with GTK+</shortdesc>
 
-	<description xml:lang="en"> 
-	
-        Clutter-Gtk is a library which allows the embedding of a Clutter
-        canvas (or "stage") into a GTK+ application.
-	
-        </description>
+	<description xml:lang="en">Clutter-Gtk is a library which allows the
+        embedding of a Clutter canvas (or "stage") into a GTK+
+        application.</description>
 
 	<homepage rdf:resource="http://clutter-project.org" />
         <download-page rdf:resource="http://clutter-project.org/sources" />
@@ -29,8 +26,8 @@
 
 	<maintainer>
 		<foaf:Person>
-			<foaf:name>Iain Holmes</foaf:name>
-                        <foaf:mbox rdf:resource="mailto:iain@o-hand.com"/>
+			<foaf:name>Emmanuele Bassi</foaf:name>
+                        <foaf:mbox rdf:resource="mailto:ebassi@linux.intel.com"/>
 		</foaf:Person>
 	</maintainer>
 
