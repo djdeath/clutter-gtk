@@ -6,8 +6,8 @@ flavour=@CLUTTER_GTK_FLAVOUR@
 apiversion=@CLUTTER_GTK_API_VERSION@
 
 Name: clutter-gtk
-Description: GTK+ widget for Clutter
+Description: GTK+ integration for Clutter
 Version: @VERSION@
-Libs: -L${libdir} -lclutter-gtk-0.9
-Cflags: -I${includedir}/clutter-0.9
+Libs: -L${libdir} -lclutter-gtk-${apiversion}
+Cflags: -I${includedir}/clutter-${apiversion}
 Requires: @CLUTTER_GTK_REQUIRES@
