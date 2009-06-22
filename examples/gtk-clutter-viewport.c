@@ -52,7 +52,7 @@ main (int argc, char *argv[])
   stage = gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (embed));
   clutter_stage_set_color (CLUTTER_STAGE (stage), &stage_color);
 
-  viewport = gtk_clutter_viewport_new (NULL, NULL);
+  viewport = gtk_clutter_viewport_new (NULL, NULL, NULL);
   clutter_actor_set_size (viewport, 320, 240);
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), viewport);
 

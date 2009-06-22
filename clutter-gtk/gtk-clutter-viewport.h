@@ -75,7 +75,8 @@ struct _GtkClutterViewportClass
 GType gtk_clutter_viewport_get_type (void) G_GNUC_CONST;
 
 ClutterActor *gtk_clutter_viewport_new         (GtkAdjustment      *h_adjust,
-                                                GtkAdjustment      *v_adjust);
+                                                GtkAdjustment      *v_adjust,
+                                                GtkAdjustment      *z_adjust);
 
 void          gtk_clutter_viewport_get_origin  (GtkClutterViewport *viewport,
                                                 gfloat             *x,
