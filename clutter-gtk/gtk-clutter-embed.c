@@ -41,6 +41,7 @@
 #endif
 
 #include "gtk-clutter-embed.h"
+#include "gtk-clutter-offscreen.h"
 
 #include <glib-object.h>
 
@@ -66,6 +67,7 @@ struct _GtkClutterEmbedPrivate
 {
   ClutterActor *stage;
 
+  GList *children;
   guint queue_redraw_id;
 };
 
@@ -517,14 +519,25 @@ static void
 gtk_clutter_embed_add (GtkContainer	 *container,
 		       GtkWidget	 *widget)
 {
-  g_warning ("GtkClutterEmbed children not yet supported");
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (container)->priv;
+
+  priv->children = g_list_prepend (priv->children, widget);
+  gtk_widget_set_parent (widget, GTK_WIDGET (container));
 }
 
 static void
 gtk_clutter_embed_remove (GtkContainer	 *container,
 			  GtkWidget	 *widget)
 {
-  g_warning ("GtkClutterEmbed children not yet supported");
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (container)->priv;
+  GList *l;
+
+  l = g_list_find (priv->children, widget);
+  if (l)
+    {
+      gtk_widget_unparent (widget);
+      priv->children = g_list_delete_link (priv->children, l);
+    }
 }
 
 static void
@@ -533,13 +546,20 @@ gtk_clutter_embed_forall (GtkContainer	 *container,
 			  GtkCallback	  callback,
 			  gpointer	  callback_data)
 {
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (container)->priv;
+  GList *l;
+
+  if (include_internals)
+    {
+      for (l = priv->children; l != NULL; l = l->next)
+	callback (l->data, callback_data);
+    }
 }
 
 static GType
 gtk_clutter_embed_child_type (GtkContainer *container)
 {
-  /* No children supported yet */
-  return G_TYPE_NONE;
+  return GTK_TYPE_CLUTTER_OFFSCREEN;
 }
 
 static void
@@ -596,6 +616,9 @@ gtk_clutter_embed_init (GtkClutterEmbed *embed)
 
   /* we always create new stages rather than use the default */
   priv->stage = clutter_stage_new ();
+  g_object_set_data (G_OBJECT (priv->stage),
+		     "gtk-clutter-embed",
+		     embed);
 
   /* intercept the queue-redraw signal of the stage to know when
    * Clutter-side requests a redraw; this way we can also request

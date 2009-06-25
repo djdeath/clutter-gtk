@@ -23,7 +23,10 @@ lib_LTLIBRARIES = libclutter-gtk-0.9.la
 
 # please, keep the list sorted alphabetically
 libclutter_gtk_0_9_la_SOURCES = \
+	$(srcdir)/gtk-clutter-actor.c 		\
 	$(srcdir)/gtk-clutter-embed.c 		\
+	$(srcdir)/gtk-clutter-offscreen.c	\
+	$(srcdir)/gtk-clutter-offscreen.h	\
 	$(srcdir)/gtk-clutter-scrollable.c 	\
 	$(srcdir)/gtk-clutter-util.c 		\
 	$(srcdir)/gtk-clutter-viewport.c
@@ -37,6 +40,7 @@ cluttergtkheadersdir = $(includedir)/clutter-0.9/clutter-gtk
 # please, keep the list sorted alphabetically
 cluttergtkheaders_HEADERS = \
 	$(top_srcdir)/clutter-gtk/clutter-gtk.h 		\
+	$(top_srcdir)/clutter-gtk/gtk-clutter-actor.h 		\
 	$(top_srcdir)/clutter-gtk/gtk-clutter-embed.h 		\
 	$(top_srcdir)/clutter-gtk/gtk-clutter-scrollable.h 	\
 	$(top_srcdir)/clutter-gtk/gtk-clutter-util.h 		\
