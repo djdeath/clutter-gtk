@@ -53,7 +53,7 @@ typedef struct _GtkClutterEmbedClass    GtkClutterEmbedClass;
 struct _GtkClutterEmbed
 {
   /*< private >*/
-  GtkWidget parent_instance;
+  GtkContainer parent_instance;
 
   GtkClutterEmbedPrivate *priv;
 };
@@ -68,7 +68,7 @@ struct _GtkClutterEmbed
 struct _GtkClutterEmbedClass
 {
   /*< private >*/
-  GtkWidgetClass parent_class;
+  GtkContainerClass parent_class;
 
   /* padding for future expansion */
   void (*_clutter_gtk_reserved1) (void);

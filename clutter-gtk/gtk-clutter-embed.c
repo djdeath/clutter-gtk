@@ -58,7 +58,7 @@
 
 #endif /* HAVE_CLUTTER_GTK_{X11,WIN32} */
 
-G_DEFINE_TYPE (GtkClutterEmbed, gtk_clutter_embed, GTK_TYPE_WIDGET);
+G_DEFINE_TYPE (GtkClutterEmbed, gtk_clutter_embed, GTK_TYPE_CONTAINER);
 
 #define GTK_CLUTTER_EMBED_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), GTK_CLUTTER_TYPE_EMBED, GtkClutterEmbedPrivate))
 
@@ -514,10 +514,40 @@ gtk_clutter_embed_style_set (GtkWidget *widget,
 }
 
 static void
+gtk_clutter_embed_add (GtkContainer	 *container,
+		       GtkWidget	 *widget)
+{
+  g_warning ("GtkClutterEmbed children not yet supported");
+}
+
+static void
+gtk_clutter_embed_remove (GtkContainer	 *container,
+			  GtkWidget	 *widget)
+{
+  g_warning ("GtkClutterEmbed children not yet supported");
+}
+
+static void
+gtk_clutter_embed_forall (GtkContainer	 *container,
+			  gboolean	  include_internals,
+			  GtkCallback	  callback,
+			  gpointer	  callback_data)
+{
+}
+
+static GType
+gtk_clutter_embed_child_type (GtkContainer *container)
+{
+  /* No children supported yet */
+  return G_TYPE_NONE;
+}
+
+static void
 gtk_clutter_embed_class_init (GtkClutterEmbedClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
+  GtkContainerClass *container_class = GTK_CONTAINER_CLASS (klass);
 
   g_type_class_add_private (klass, sizeof (GtkClutterEmbedPrivate));
 
@@ -542,6 +572,11 @@ gtk_clutter_embed_class_init (GtkClutterEmbedClass *klass)
   widget_class->focus_in_event = gtk_clutter_embed_focus_in;
   widget_class->focus_out_event = gtk_clutter_embed_focus_out;
   widget_class->scroll_event = gtk_clutter_embed_scroll_event;
+
+  container_class->add = gtk_clutter_embed_add;
+  container_class->remove = gtk_clutter_embed_remove;
+  container_class->forall = gtk_clutter_embed_forall;
+  container_class->child_type = gtk_clutter_embed_child_type;
 }
 
 static void
