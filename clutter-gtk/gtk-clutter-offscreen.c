@@ -83,13 +83,6 @@ get_embedding_window (GtkClutterOffscreen *offscreen)
   return embed->window;
 }
 
-static GdkWindow *
-get_offscreen_parent (GdkWindow *offscreen_window,
-		      GtkClutterOffscreen *offscreen)
-{
-  return get_embedding_window (offscreen);
-}
-
 static void
 offscreen_window_to_parent (GdkWindow       *offscreen_window,
 			    double           offscreen_x,
@@ -165,11 +158,9 @@ gtk_clutter_offscreen_realize (GtkWidget *widget)
 				   &attributes, attributes_mask);
   gdk_window_set_user_data (widget->window, widget);
 
-  g_signal_connect (widget->window, "get-offscreen-parent",
-		    G_CALLBACK (get_offscreen_parent), widget);
-  g_signal_connect (widget->window, "to_parent",
+  g_signal_connect (widget->window, "to-embedder",
 		    G_CALLBACK (offscreen_window_to_parent), widget);
-  g_signal_connect (widget->window, "from_parent",
+  g_signal_connect (widget->window, "from-embedder",
 		    G_CALLBACK (offscreen_window_from_parent), widget);
 
   widget->style = gtk_style_attach (widget->style, widget->window);
@@ -250,8 +241,10 @@ gtk_clutter_offscreen_damage (GtkWidget      *widget,
   return TRUE;
 }
 
-void _gtk_clutter_embed_change_active (GtkClutterEmbed *embed,
-				       int delta);
+void
+_gtk_clutter_embedd_set_child_active (GtkClutterEmbed *embed,
+				      GtkWidget *child,
+				      gboolean active);
 
 void
 gtk_clutter_offscreen_set_active (GtkClutterOffscreen *offscreen,
@@ -266,6 +259,8 @@ gtk_clutter_offscreen_set_active (GtkClutterOffscreen *offscreen,
       offscreen->active = active;
       parent = gtk_widget_get_parent (GTK_WIDGET (offscreen));
       if (parent)
-	_gtk_clutter_embed_change_active (GTK_CLUTTER_EMBED (parent), active ? 1 : -1);
+	_gtk_clutter_embedd_set_child_active (GTK_CLUTTER_EMBED (parent),
+					      GTK_WIDGET (offscreen),
+					      active);
     }
 }

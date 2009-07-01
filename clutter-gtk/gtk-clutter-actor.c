@@ -91,7 +91,7 @@ gtk_clutter_actor_realize (ClutterActor *actor)
 		     clutter->priv->widget);
 
   gtk_widget_realize (clutter->priv->widget);
-  clutter->priv->pixmap = gdk_window_get_offscreen_pixmap (clutter->priv->widget->window);
+  clutter->priv->pixmap = gdk_offscreen_window_get_pixmap (clutter->priv->widget->window);
   g_object_ref (clutter->priv->pixmap);
 
   clutter_x11_texture_pixmap_set_pixmap (CLUTTER_X11_TEXTURE_PIXMAP (clutter->priv->texture),
@@ -166,7 +166,7 @@ gtk_clutter_actor_allocate (ClutterActor           *actor,
 
   if (CLUTTER_ACTOR_IS_REALIZED (actor))
     {
-      pixmap = gdk_window_get_offscreen_pixmap (clutter->priv->widget->window);
+      pixmap = gdk_offscreen_window_get_pixmap (clutter->priv->widget->window);
       if (pixmap != clutter->priv->pixmap)
 	{
 	  g_object_unref (clutter->priv->pixmap);

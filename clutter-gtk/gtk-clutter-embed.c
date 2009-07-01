@@ -70,7 +70,7 @@ struct _GtkClutterEmbedPrivate
 
   GList *children;
   int n_active_children;
-  gboolean offscreen_children_changed;
+  gboolean geometry_changed;
   guint queue_redraw_id;
 };
 
@@ -109,7 +109,7 @@ on_stage_queue_redraw (ClutterStage *stage,
   g_signal_stop_emission_by_name (stage, "queue-redraw");
 
   if (GTK_CLUTTER_EMBED (embed)->priv->n_active_children > 0)
-    GTK_CLUTTER_EMBED (embed)->priv->offscreen_children_changed = TRUE;
+    GTK_CLUTTER_EMBED (embed)->priv->geometry_changed = TRUE;
 
   gtk_widget_queue_draw (embed);
 }
@@ -159,9 +159,9 @@ gtk_clutter_embed_hide (GtkWidget *widget)
 }
 
 static GdkWindow *
-pick_offscreen_child (GdkWindow *offscreen_window,
-		      double widget_x, double widget_y,
-		      GtkClutterEmbed *embed)
+pick_embedded_child (GdkWindow *offscreen_window,
+		     double widget_x, double widget_y,
+		     GtkClutterEmbed *embed)
 {
   ClutterActor *a;
   GtkWidget *widget;
@@ -235,8 +235,8 @@ gtk_clutter_embed_realize (GtkWidget *widget)
                                    attributes_mask);
   gdk_window_set_user_data (widget->window, widget);
 
-  g_signal_connect (widget->window, "pick-offscreen-child",
-		    G_CALLBACK (pick_offscreen_child), widget);
+  g_signal_connect (widget->window, "pick-embedded-child",
+		    G_CALLBACK (pick_embedded_child), widget);
 
   widget->style = gtk_style_attach (widget->style, widget->window);
   gtk_style_set_background (widget->style, widget->window, GTK_STATE_NORMAL);
@@ -302,10 +302,10 @@ gtk_clutter_embed_expose_event (GtkWidget *widget,
 {
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
 
-  if (priv->offscreen_children_changed)
+  if (priv->geometry_changed)
     {
-      gdk_window_offscreen_children_changed (widget->window);
-      priv->offscreen_children_changed = FALSE;
+      gdk_window_geometry_changed (widget->window);
+      priv->geometry_changed = FALSE;
     }
 
   /* force a redraw on expose */
@@ -551,13 +551,23 @@ gtk_clutter_embed_style_set (GtkWidget *widget,
 }
 
 void
-_gtk_clutter_embed_change_active (GtkClutterEmbed *embed,
-				  int delta)
+_gtk_clutter_embedd_set_child_active (GtkClutterEmbed *embed,
+				      GtkWidget *child,
+				      gboolean active)
 {
-  embed->priv->n_active_children += delta;
-  if (embed->priv->n_active_children == 1)
-    gdk_window_set_has_offscreen_children (GTK_WIDGET (embed)->window,
-					   TRUE);
+  if (active)
+    {
+      embed->priv->n_active_children++;
+      gdk_offscreen_window_set_embedder (child->window,
+					 GTK_WIDGET (embed)->window);
+    }
+  else
+    {
+      embed->priv->n_active_children--;
+      gdk_offscreen_window_set_embedder (child->window,
+					 NULL);
+    }
+      
 }
 
 static void
@@ -571,7 +581,8 @@ gtk_clutter_embed_add (GtkContainer	 *container,
   priv->children = g_list_prepend (priv->children, widget);
   gtk_widget_set_parent (widget, GTK_WIDGET (container));
   if (GTK_CLUTTER_OFFSCREEN (widget)->active)
-    _gtk_clutter_embed_change_active (GTK_CLUTTER_EMBED (container), 1);
+    _gtk_clutter_embedd_set_child_active (GTK_CLUTTER_EMBED (container),
+					  widget, TRUE);
 }
 
 static void
@@ -585,7 +596,8 @@ gtk_clutter_embed_remove (GtkContainer	 *container,
   if (l)
     {
       if (GTK_CLUTTER_OFFSCREEN (widget)->active)
-	_gtk_clutter_embed_change_active (GTK_CLUTTER_EMBED (container), -1);
+	_gtk_clutter_embedd_set_child_active (GTK_CLUTTER_EMBED (container),
+					      widget, FALSE);
       gtk_widget_unparent (widget);
       priv->children = g_list_delete_link (priv->children, l);
     }
