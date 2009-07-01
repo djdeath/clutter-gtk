@@ -580,9 +580,6 @@ gtk_clutter_embed_add (GtkContainer	 *container,
 
   priv->children = g_list_prepend (priv->children, widget);
   gtk_widget_set_parent (widget, GTK_WIDGET (container));
-  if (GTK_CLUTTER_OFFSCREEN (widget)->active)
-    _gtk_clutter_embedd_set_child_active (GTK_CLUTTER_EMBED (container),
-					  widget, TRUE);
 }
 
 static void
@@ -595,11 +592,8 @@ gtk_clutter_embed_remove (GtkContainer	 *container,
   l = g_list_find (priv->children, widget);
   if (l)
     {
-      if (GTK_CLUTTER_OFFSCREEN (widget)->active)
-	_gtk_clutter_embedd_set_child_active (GTK_CLUTTER_EMBED (container),
-					      widget, FALSE);
-      gtk_widget_unparent (widget);
       priv->children = g_list_delete_link (priv->children, l);
+      gtk_widget_unparent (widget);
     }
 }
 
