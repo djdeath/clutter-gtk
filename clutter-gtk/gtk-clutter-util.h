@@ -47,6 +47,22 @@ typedef enum {
   CLUTTER_INIT_ERROR_GTK  = (CLUTTER_INIT_ERROR_LAST - 1)
 } ClutterGtkInitError;
 
+/**
+ * ClutterGtkTextureError:
+ * @CLUTTER_INVALID_TYPE: Invalid type given as parameter
+ *
+ * An enumeration of error types used in ClutterGtk texture functions
+ *
+ * Since: 1.0
+ * */
+typedef enum {
+  CLUTTER_GTK_TEXTURE_INVALID_STOCK_ID,
+
+  CLUTTER_GTK_TEXTURE_ERROR_LAST
+} ClutterGtkTextureError;
+
+#define CLUTTER_GTK_TEXTURE_ERROR gtk_clutter_texture_error_quark ()
+
 ClutterInitError gtk_clutter_init           (int            *argc,
                                              char         ***argv);
 ClutterInitError gtk_clutter_init_with_args (int            *argc,
@@ -88,16 +104,20 @@ ClutterActor *gtk_clutter_texture_new_from_stock     (GtkWidget      *widget,
 ClutterActor *gtk_clutter_texture_new_from_icon_name (GtkWidget      *widget,
                                                       const gchar    *icon_name,
                                                       GtkIconSize     size);
-void          gtk_clutter_texture_set_from_pixbuf    (ClutterTexture *texture,
-                                                      GdkPixbuf      *pixbuf);
-void          gtk_clutter_texture_set_from_stock     (ClutterTexture *texture,
+GQuark        gtk_clutter_texture_error_quark        (void);
+gboolean      gtk_clutter_texture_set_from_pixbuf    (ClutterTexture *texture,
+                                                      GdkPixbuf      *pixbuf,
+                                                      GError        **error);
+gboolean      gtk_clutter_texture_set_from_stock     (ClutterTexture *texture,
                                                       GtkWidget      *widget,
                                                       const gchar    *stock_id,
-                                                      GtkIconSize     size);
-void          gtk_clutter_texture_set_from_icon_name (ClutterTexture *texture,
+                                                      GtkIconSize     size,
+                                                      GError        **error);
+gboolean      gtk_clutter_texture_set_from_icon_name (ClutterTexture *texture,
                                                       GtkWidget      *widget,
                                                       const gchar    *icon_name,
-                                                      GtkIconSize     size);
+                                                      GtkIconSize     size,
+                                                      GError        **error);
 
 G_END_DECLS
 

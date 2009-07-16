@@ -37,6 +37,7 @@ gtk_clutter_get_mid_color
 gtk_clutter_get_dark_color
 
 <SUBSECTION>
+ClutterGtkTextureError
 gtk_clutter_texture_new_from_pixbuf
 gtk_clutter_texture_new_from_stock
 gtk_clutter_texture_new_from_icon_name

@@ -334,26 +334,33 @@ gtk_clutter_texture_new_from_pixbuf (GdkPixbuf *pixbuf)
   return retval; 
 }
 
+GQuark
+gtk_clutter_texture_error_quark (void)
+{
+  return g_quark_from_static_string ("clutter-gtk-texture-error-quark");
+}
+
 /**
  * gtk_clutter_texture_set_from_pixbuf:
  * @texture: a #ClutterTexture
  * @pixbuf: a #GdkPixbuf
+ * @error: a return location for errors
  *
  * Sets the contents of @texture with a copy of @pixbuf.
  *
+ * Return value: %TRUE on success, %FALSE on failure.
+ *
  * Since: 0.8
  */
-void
+gboolean
 gtk_clutter_texture_set_from_pixbuf (ClutterTexture *texture,
-                                     GdkPixbuf      *pixbuf)
+                                     GdkPixbuf      *pixbuf,
+                                     GError        **error)
 {
-  GError *error;
+  g_return_val_if_fail (CLUTTER_IS_TEXTURE (texture), FALSE);
+  g_return_val_if_fail (GDK_IS_PIXBUF (pixbuf), FALSE);
 
-  g_return_if_fail (CLUTTER_IS_TEXTURE (texture));
-  g_return_if_fail (GDK_IS_PIXBUF (pixbuf));
-
-  error = NULL;
-  clutter_texture_set_from_rgb_data (texture,
+  return clutter_texture_set_from_rgb_data (texture,
                                      gdk_pixbuf_get_pixels (pixbuf),
                                      gdk_pixbuf_get_has_alpha (pixbuf),
                                      gdk_pixbuf_get_width (pixbuf),
@@ -361,12 +368,7 @@ gtk_clutter_texture_set_from_pixbuf (ClutterTexture *texture,
                                      gdk_pixbuf_get_rowstride (pixbuf),
                                      gdk_pixbuf_get_has_alpha (pixbuf) ? 4 : 3,
                                      0,
-                                     &error);
-  if (error)
-    {
-      g_warning ("Unable to set the pixbuf: %s", error->message);
-      g_error_free (error);
-    }
+                                     error);
 }
 
 /**
@@ -412,33 +414,44 @@ gtk_clutter_texture_new_from_stock (GtkWidget   *widget,
  * @widget: a #GtkWidget
  * @stock_id: the stock id of the icon
  * @size: the size of the icon, or -1
+ * @error: a return location for errors
  *
  * Sets the contents of @texture using the stock icon @stock_id, as
  * rendered by @widget.
  *
+ * Return value: %TRUE on success, %FALSE on failure.
+ *
  * Since: 0.8
  */
-void
+gboolean
 gtk_clutter_texture_set_from_stock (ClutterTexture *texture,
                                     GtkWidget      *widget,
                                     const gchar    *stock_id,
-                                    GtkIconSize     size)
+                                    GtkIconSize     size,
+                                    GError        **error)
 {
   GdkPixbuf *pixbuf;
+  gboolean returnval;
 
-  g_return_if_fail (CLUTTER_IS_TEXTURE (texture));
-  g_return_if_fail (GTK_IS_WIDGET (widget));
-  g_return_if_fail (stock_id != NULL);
-  g_return_if_fail (size > GTK_ICON_SIZE_INVALID || size == -1);
+  g_return_val_if_fail (CLUTTER_IS_TEXTURE (texture), FALSE);
+  g_return_val_if_fail (GTK_IS_WIDGET (widget), FALSE);
+  g_return_val_if_fail (stock_id != NULL, FALSE);
+  g_return_val_if_fail ((size > GTK_ICON_SIZE_INVALID) || (size == -1), FALSE);
 
   pixbuf = gtk_widget_render_icon (widget, stock_id, size, NULL);
   if (!pixbuf)
-    pixbuf = gtk_widget_render_icon (widget,
-                                     GTK_STOCK_MISSING_IMAGE, size,
-                                     NULL);
+    {
+      g_set_error (error,
+                   CLUTTER_GTK_TEXTURE_ERROR,
+                   CLUTTER_GTK_TEXTURE_INVALID_STOCK_ID,
+                   "Stock ID '%s' not found", stock_id);
+      return FALSE;
+    }
 
-  gtk_clutter_texture_set_from_pixbuf (texture, pixbuf);
+  returnval = gtk_clutter_texture_set_from_pixbuf (texture, pixbuf, error);
   g_object_unref (pixbuf);
+
+  return returnval;
 }
 
 /**
@@ -524,28 +537,33 @@ gtk_clutter_texture_new_from_icon_name (GtkWidget   *widget,
  * @widget: a #GtkWidget or %NULL
  * @icon_name: the name of the icon
  * @size: the icon size or -1
+ * @error: a return location for errors
  *
  * Sets the contents of @texture using the @icon_name from the
  * current icon theme.
  *
+ * Return value: %TRUE on success, %FALSE on failure.
+ *
  * Since: 0.8
  */
-void
+gboolean
 gtk_clutter_texture_set_from_icon_name (ClutterTexture *texture,
                                         GtkWidget      *widget,
                                         const gchar    *icon_name,
-                                        GtkIconSize     size)
+                                        GtkIconSize     size,
+                                        GError        **error)
 {
+  GError *local_error = NULL;
   GtkSettings *settings;
   GtkIconTheme *icon_theme;
+  gboolean returnval;
   gint width, height;
   GdkPixbuf *pixbuf;
-  GError *error;
 
-  g_return_if_fail (CLUTTER_IS_TEXTURE (texture));
-  g_return_if_fail (widget == NULL || GTK_IS_WIDGET (widget));
-  g_return_if_fail (icon_name != NULL);
-  g_return_if_fail (size > GTK_ICON_SIZE_INVALID || size == -1);
+  g_return_val_if_fail (CLUTTER_IS_TEXTURE (texture), FALSE);
+  g_return_val_if_fail (GTK_IS_WIDGET (widget), FALSE);
+  g_return_val_if_fail (icon_name != NULL, FALSE);
+  g_return_val_if_fail ((size > GTK_ICON_SIZE_INVALID) || (size == -1), FALSE);
 
   if (widget && gtk_widget_has_screen (widget))
     {
@@ -567,30 +585,20 @@ gtk_clutter_texture_set_from_icon_name (ClutterTexture *texture,
       width = height = 48;
     }
 
-  error = NULL;
   pixbuf = gtk_icon_theme_load_icon (icon_theme,
                                      icon_name,
                                      MIN (width, height), 0,
-                                     &error);
-  if (error)
+                                     &local_error);
+  if (local_error)
     {
-      g_warning ("Unable to load the icon `%s' from the theme: %s",
-                 icon_name,
-                 error->message);
-
-      g_error_free (error);
-
-      if (widget)
-        gtk_clutter_texture_set_from_stock (texture,
-                                      widget,
-                                      GTK_STOCK_MISSING_IMAGE,
-                                      size);
-      else
-        return;
+      g_propagate_error (error, local_error);
+      return FALSE;
     }
 
-  gtk_clutter_texture_set_from_pixbuf (texture, pixbuf);
+  returnval = gtk_clutter_texture_set_from_pixbuf (texture, pixbuf, error);
   g_object_unref (pixbuf);
+
+  return returnval;
 }
 
 /**
