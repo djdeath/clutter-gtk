@@ -17,11 +17,12 @@ on_stage2_allocation_changed (ClutterActor           *stage_2,
 int
 main (int argc, char *argv[])
 {
-  ClutterActor    *stage1, *stage2, *tex1, *tex2;
-  GtkWidget       *window, *clutter1, *clutter2;
-  GtkWidget       *vbox;
-  ClutterColor     col1 = { 0xff, 0xff, 0xff, 0xff };
-  ClutterColor     col2 = { 0, 0, 0, 0xff };
+  ClutterActor *stage0, *stage1, *stage2, *tex1, *tex2;
+  GtkWidget *window, *clutter0, *clutter1, *clutter2;
+  GtkWidget *notebook, *vbox;
+  ClutterColor col0 = { 0xdd, 0xff, 0xdd, 0xff };
+  ClutterColor col1 = { 0xff, 0xff, 0xff, 0xff };
+  ClutterColor col2 = {    0,    0,    0, 0xff };
 
   if (gtk_clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
     g_error ("Unable to initialize GtkClutter");
@@ -30,8 +31,19 @@ main (int argc, char *argv[])
   g_signal_connect (window, "destroy",
                     G_CALLBACK (gtk_main_quit), NULL);
 
+  notebook = gtk_notebook_new ();
+  gtk_container_add (GTK_CONTAINER (window), notebook);
+
+  clutter0 = gtk_clutter_embed_new ();
+  gtk_widget_set_size_request (clutter0, 320, 320);
+  gtk_notebook_append_page (GTK_NOTEBOOK (notebook), clutter0,
+                            gtk_label_new ("One stage"));
+  stage0 = gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (clutter0));
+  clutter_stage_set_color (CLUTTER_STAGE (stage0), &col0);
+
   vbox = gtk_vbox_new (FALSE, 6);
-  gtk_container_add (GTK_CONTAINER (window), vbox);
+  gtk_notebook_append_page (GTK_NOTEBOOK (notebook), vbox,
+                            gtk_label_new ("Two stages"));
 
   clutter1 = gtk_clutter_embed_new ();
   gtk_widget_set_size_request (clutter1, 320, 240);
@@ -69,8 +81,6 @@ main (int argc, char *argv[])
                     tex2);
 
   gtk_widget_show_all (window);
-  clutter_actor_show_all (stage1); 
-  clutter_actor_show_all (stage2); 
 
   gtk_main();
 
