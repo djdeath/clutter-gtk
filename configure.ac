@@ -54,7 +54,7 @@ AC_PROG_CC
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 
-m4_define([clutter_req_version], [0.9.4])
+m4_define([clutter_req_version], [0.9.8])
 m4_define([gtk_req_version], [2.12.0])
 m4_define([flavour_default], [x11])
 AC_ARG_WITH([flavour],
