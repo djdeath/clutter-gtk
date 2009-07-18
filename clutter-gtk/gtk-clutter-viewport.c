@@ -23,9 +23,11 @@
 
 #include <cogl/cogl.h>
 
+#include "gtk-clutter-viewport.h"
+
 #include "gtk-clutter-scrollable.h"
 #include "gtk-clutter-util.h"
-#include "gtk-clutter-viewport.h"
+#include "gtk-clutter-zoomable.h"
 
 /* XXX - GtkAdjustment accessors have been added with GTK+ 2.14,
  * but I want Clutter-GTK to be future-proof, so let's do this
@@ -38,6 +40,7 @@
 #define gtk_adjustment_set_step_increment(a,v)  ((a)->step_increment = (v))
 #define gtk_adjustment_set_lower(a,v)           ((a)->lower = (v))
 
+#define gtk_adjustment_get_lower(a)             ((a)->lower)
 #define gtk_adjustment_get_upper(a)             ((a)->upper)
 #define gtk_adjustment_get_page_size(a)         ((a)->page_size)
 #endif
@@ -46,8 +49,15 @@
 
 #define I_(str) (g_intern_static_string ((str)))
 
+typedef enum {
+  VIEWPORT_X_AXIS,
+  VIEWPORT_Y_AXIS,
+  VIEWPORT_Z_AXIS
+} ViewportAxis;
+
 static void clutter_container_iface_init      (gpointer g_iface);
 static void gtk_clutter_scrollable_iface_init (gpointer g_iface);
+static void gtk_clutter_zoomable_iface_init   (gpointer g_iface);
 
 G_DEFINE_TYPE_WITH_CODE (GtkClutterViewport,
                          gtk_clutter_viewport,
@@ -55,7 +65,9 @@ G_DEFINE_TYPE_WITH_CODE (GtkClutterViewport,
                          G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_CONTAINER,
                                                 clutter_container_iface_init)
                          G_IMPLEMENT_INTERFACE (GTK_CLUTTER_TYPE_SCROLLABLE,
-                                                gtk_clutter_scrollable_iface_init));
+                                                gtk_clutter_scrollable_iface_init)
+                         G_IMPLEMENT_INTERFACE (GTK_CLUTTER_TYPE_ZOOMABLE,
+                                                gtk_clutter_zoomable_iface_init));
 
 struct _GtkClutterViewportPrivate
 {
@@ -63,8 +75,9 @@ struct _GtkClutterViewportPrivate
 
   ClutterActor *child;
 
-  GtkAdjustment *h_adjustment;
-  GtkAdjustment *v_adjustment;
+  GtkAdjustment *x_adjustment;
+  GtkAdjustment *y_adjustment;
+  GtkAdjustment *z_adjustment;
 };
 
 enum
@@ -73,8 +86,10 @@ enum
 
   PROP_CHILD,
   PROP_ORIGIN,
+
   PROP_H_ADJUSTMENT,
-  PROP_V_ADJUSTMENT
+  PROP_V_ADJUSTMENT,
+  PROP_Z_ADJUSTMENT
 };
 
 static void
@@ -145,20 +160,27 @@ viewport_adjustment_value_changed (GtkAdjustment      *adjustment,
 
   if (priv->child && CLUTTER_ACTOR_IS_VISIBLE (priv->child))
     {
-      GtkAdjustment *h_adjust = priv->h_adjustment;
-      GtkAdjustment *v_adjust = priv->v_adjustment;
-      gfloat new_x, new_y;
+      GtkAdjustment *x_adjust = priv->x_adjustment;
+      GtkAdjustment *y_adjust = priv->y_adjustment;
+      GtkAdjustment *z_adjust = priv->z_adjustment;
+      gfloat new_x, new_y, new_z;
 
-      new_x = gtk_adjustment_get_value (h_adjust);
-      new_y = gtk_adjustment_get_value (v_adjust);
+      new_x = gtk_adjustment_get_value (x_adjust);
+      new_y = gtk_adjustment_get_value (y_adjust);
+      new_z = gtk_adjustment_get_value (z_adjust);
 
       /* change the origin and queue a relayout */
-      if (new_x != priv->origin.x || new_y != priv->origin.y)
+      if (new_x != priv->origin.x ||
+          new_y != priv->origin.y ||
+          new_z != priv->origin.z)
         {
           priv->origin.x = new_x;
           priv->origin.y = new_y;
+          priv->origin.z = new_z;
 
           clutter_actor_queue_relayout (CLUTTER_ACTOR (viewport));
+
+          g_object_notify (G_OBJECT (viewport), "origin");
         }
     }
 }
@@ -187,7 +209,12 @@ viewport_set_hadjustment_values (GtkClutterViewport *viewport,
                                  gfloat              width)
 {
   GtkClutterViewportPrivate *priv = viewport->priv;
-  GtkAdjustment *h_adjust = priv->h_adjustment;
+  GtkAdjustment *h_adjust = priv->x_adjustment;
+
+  if (width < 0)
+    clutter_actor_get_preferred_width (CLUTTER_ACTOR (viewport), -1,
+                                       NULL,
+                                       &width);
 
   gtk_adjustment_set_page_size (h_adjust, width);
   gtk_adjustment_set_step_increment (h_adjust, width * 0.1);
@@ -215,9 +242,12 @@ viewport_set_vadjustment_values (GtkClutterViewport *viewport,
                                  gfloat              height)
 {
   GtkClutterViewportPrivate *priv = viewport->priv;
-  GtkAdjustment *v_adjust = priv->v_adjustment;
+  GtkAdjustment *v_adjust = priv->y_adjustment;
 
-  height = clutter_actor_get_height (CLUTTER_ACTOR (viewport));
+  if (height < 0)
+    clutter_actor_get_preferred_height (CLUTTER_ACTOR (viewport), -1,
+                                        NULL,
+                                        &height);
 
   gtk_adjustment_set_page_size (v_adjust, height);
   gtk_adjustment_set_step_increment (v_adjust, height * 0.1);
@@ -240,17 +270,71 @@ viewport_set_vadjustment_values (GtkClutterViewport *viewport,
   return viewport_reclamp_adjustment (v_adjust);
 }
 
-static inline void
-disconnect_adjustment (GtkClutterViewport *viewport,
-                       GtkOrientation      orientation)
+static gboolean
+viewport_set_zadjustment_values (GtkClutterViewport *viewport,
+                                 gfloat              width,
+                                 gfloat              height)
 {
   GtkClutterViewportPrivate *priv = viewport->priv;
-  GtkAdjustment **adj_p;
+  GtkAdjustment *z_adjust = priv->z_adjustment;
+  gfloat depth;
 
-  adj_p = (orientation == GTK_ORIENTATION_HORIZONTAL) ? &priv->h_adjustment
-                                                      : &priv->v_adjustment;
+  if (width < 0)
+    clutter_actor_get_preferred_width (CLUTTER_ACTOR (viewport), -1,
+                                       NULL,
+                                       &width);
 
-  if (*adj_p)
+  if (height < 0)
+    clutter_actor_get_preferred_height (CLUTTER_ACTOR (viewport), -1,
+                                        NULL,
+                                        &height);
+
+  depth = clutter_actor_get_depth (CLUTTER_ACTOR (viewport));
+
+  gtk_adjustment_set_page_size (z_adjust, 0.0);
+  gtk_adjustment_set_step_increment (z_adjust, MIN (width, height) * 0.1);
+  gtk_adjustment_set_page_increment (z_adjust, MIN (width, height) * 0.9);
+  gtk_adjustment_set_lower (z_adjust, 0.0);
+  gtk_adjustment_set_upper (z_adjust, MAX (width, height));
+
+#if 0
+  g_debug ("%s: zadjustment: { %.2f lower, %.2f page, %.2f upper }",
+           G_STRLOC,
+           gtk_adjustment_get_lower (z_adjust),
+           gtk_adjustment_get_page_size (z_adjust),
+           gtk_adjustment_get_upper (z_adjust));
+#endif
+
+  return viewport_reclamp_adjustment (z_adjust);
+}
+
+static inline void
+disconnect_adjustment (GtkClutterViewport *viewport,
+                       ViewportAxis        axis)
+{
+  GtkClutterViewportPrivate *priv = viewport->priv;
+  GtkAdjustment **adj_p = NULL;
+
+  switch (axis)
+    {
+    case VIEWPORT_X_AXIS:
+      adj_p = &priv->x_adjustment;
+      break;
+
+    case VIEWPORT_Y_AXIS:
+      adj_p = &priv->y_adjustment;
+      break;
+
+    case VIEWPORT_Z_AXIS:
+      adj_p = &priv->z_adjustment;
+      break;
+
+    default:
+      g_assert_not_reached ();
+      break;
+    }
+
+  if (*adj_p != NULL)
     {
       g_signal_handlers_disconnect_by_func (*adj_p,
                                             viewport_adjustment_value_changed,
@@ -262,16 +346,32 @@ disconnect_adjustment (GtkClutterViewport *viewport,
 
 static inline void
 connect_adjustment (GtkClutterViewport *viewport,
-                    GtkOrientation      orientation,
+                    ViewportAxis        axis,
                     GtkAdjustment      *adjustment)
 {
   GtkClutterViewportPrivate *priv = viewport->priv;
-  GtkAdjustment **adj_p;
+  GtkAdjustment **adj_p = NULL;
   gboolean value_changed = FALSE;
   gfloat width, height;
 
-  adj_p = (orientation == GTK_ORIENTATION_HORIZONTAL) ? &priv->h_adjustment
-                                                      : &priv->v_adjustment;
+  switch (axis)
+    {
+    case VIEWPORT_X_AXIS:
+      adj_p = &priv->x_adjustment;
+      break;
+
+    case VIEWPORT_Y_AXIS:
+      adj_p = &priv->y_adjustment;
+      break;
+
+    case VIEWPORT_Z_AXIS:
+      adj_p = &priv->z_adjustment;
+      break;
+
+    default:
+      g_assert_not_reached ();
+      break;
+    }
 
   if (adjustment && adjustment == *adj_p)
     return;
@@ -279,15 +379,31 @@ connect_adjustment (GtkClutterViewport *viewport,
   if (!adjustment)
     adjustment = GTK_ADJUSTMENT (gtk_adjustment_new (0, 0, 0, 0, 0, 0));
 
-  disconnect_adjustment (viewport, orientation);
+  disconnect_adjustment (viewport, axis);
   *adj_p = g_object_ref_sink (adjustment);
 
   clutter_actor_get_size (CLUTTER_ACTOR (viewport), &width, &height);
 
-  if (orientation == GTK_ORIENTATION_HORIZONTAL)
-    value_changed = viewport_set_hadjustment_values (viewport, width);
-  else
-    value_changed = viewport_set_vadjustment_values (viewport, height);
+  switch (axis)
+    {
+    case VIEWPORT_X_AXIS:
+      value_changed = viewport_set_hadjustment_values (viewport, width);
+      break;
+
+    case VIEWPORT_Y_AXIS:
+      value_changed = viewport_set_vadjustment_values (viewport, height);
+      break;
+
+    case VIEWPORT_Z_AXIS:
+      value_changed = viewport_set_zadjustment_values (viewport,
+                                                       width,
+                                                       height);
+      break;
+
+    default:
+      g_assert_not_reached ();
+      break;
+    }
 
   g_signal_connect (adjustment, "value-changed",
                     G_CALLBACK (viewport_adjustment_value_changed),
@@ -300,41 +416,55 @@ connect_adjustment (GtkClutterViewport *viewport,
   else
     viewport_adjustment_value_changed (adjustment, viewport);
 
-  if (orientation == GTK_ORIENTATION_HORIZONTAL)
-    g_object_notify (G_OBJECT (viewport), "hadjustment");
-  else
-    g_object_notify (G_OBJECT (viewport), "vadjustment");
+  switch (axis)
+    {
+    case VIEWPORT_X_AXIS:
+      g_object_notify (G_OBJECT (viewport), "hadjustment");
+      break;
+
+    case VIEWPORT_Y_AXIS:
+      g_object_notify (G_OBJECT (viewport), "vadjustment");
+      break;
+
+    case VIEWPORT_Z_AXIS:
+      g_object_notify (G_OBJECT (viewport), "zadjustment");
+      break;
+
+    default:
+      g_assert_not_reached ();
+      break;
+    }
 }
 
 static void
-gtk_clutter_viewport_set_adjustments (GtkClutterScrollable *scrollable,
-                                      GtkAdjustment        *h_adjust,
-                                      GtkAdjustment        *v_adjust)
+scrollable_set_adjustments (GtkClutterScrollable *scrollable,
+                            GtkAdjustment        *h_adjust,
+                            GtkAdjustment        *v_adjust)
 {
   g_object_freeze_notify (G_OBJECT (scrollable));
 
   connect_adjustment (GTK_CLUTTER_VIEWPORT (scrollable),
-                      GTK_ORIENTATION_HORIZONTAL,
+                      VIEWPORT_X_AXIS,
                       h_adjust);
   connect_adjustment (GTK_CLUTTER_VIEWPORT (scrollable),
-                      GTK_ORIENTATION_VERTICAL,
+                      VIEWPORT_Y_AXIS,
                       v_adjust);
 
   g_object_thaw_notify (G_OBJECT (scrollable));
 }
 
 static void
-gtk_clutter_viewport_get_adjustments (GtkClutterScrollable  *scrollable,
-                                      GtkAdjustment        **h_adjust,
-                                      GtkAdjustment        **v_adjust)
+scrollable_get_adjustments (GtkClutterScrollable  *scrollable,
+                            GtkAdjustment        **h_adjust,
+                            GtkAdjustment        **v_adjust)
 {
   GtkClutterViewportPrivate *priv = GTK_CLUTTER_VIEWPORT (scrollable)->priv;
 
   if (h_adjust)
-    *h_adjust = priv->h_adjustment;
+    *h_adjust = priv->x_adjustment;
 
   if (v_adjust)
-    *v_adjust = priv->v_adjustment;
+    *v_adjust = priv->y_adjustment;
 }
 
 static void
@@ -342,8 +472,38 @@ gtk_clutter_scrollable_iface_init (gpointer g_iface)
 {
   GtkClutterScrollableIface *iface = g_iface;
 
-  iface->set_adjustments = gtk_clutter_viewport_set_adjustments;
-  iface->get_adjustments = gtk_clutter_viewport_get_adjustments;
+  iface->set_adjustments = scrollable_set_adjustments;
+  iface->get_adjustments = scrollable_get_adjustments;
+}
+
+static void
+zoomable_set_adjustment (GtkClutterZoomable *zoomable,
+                         GtkAdjustment      *adjust)
+{
+  g_object_freeze_notify (G_OBJECT (zoomable));
+
+  connect_adjustment (GTK_CLUTTER_VIEWPORT (zoomable),
+                      VIEWPORT_Z_AXIS,
+                      adjust);
+
+  g_object_thaw_notify (G_OBJECT (zoomable));
+}
+
+static GtkAdjustment *
+zoomable_get_adjustment (GtkClutterZoomable *zoomable)
+{
+  GtkClutterViewportPrivate *priv = GTK_CLUTTER_VIEWPORT (zoomable)->priv;
+
+  return priv->z_adjustment;
+}
+
+static void
+gtk_clutter_zoomable_iface_init (gpointer g_iface)
+{
+  GtkClutterZoomableIface *iface = g_iface;
+
+  iface->set_adjustment = zoomable_set_adjustment;
+  iface->get_adjustment = zoomable_get_adjustment;
 }
 
 static void
@@ -374,13 +534,19 @@ gtk_clutter_viewport_set_property (GObject      *gobject,
 
     case PROP_H_ADJUSTMENT:
       connect_adjustment (GTK_CLUTTER_VIEWPORT (gobject),
-                          GTK_ORIENTATION_HORIZONTAL,
+                          VIEWPORT_X_AXIS,
                           g_value_get_object (value));
       break;
 
     case PROP_V_ADJUSTMENT:
       connect_adjustment (GTK_CLUTTER_VIEWPORT (gobject),
-                          GTK_ORIENTATION_VERTICAL,
+                          VIEWPORT_Y_AXIS,
+                          g_value_get_object (value));
+      break;
+
+    case PROP_Z_ADJUSTMENT:
+      connect_adjustment (GTK_CLUTTER_VIEWPORT (gobject),
+                          VIEWPORT_Z_AXIS,
                           g_value_get_object (value));
       break;
 
@@ -409,11 +575,15 @@ gtk_clutter_viewport_get_property (GObject    *gobject,
       break;
 
     case PROP_H_ADJUSTMENT:
-      g_value_set_object (value, priv->h_adjustment);
+      g_value_set_object (value, priv->x_adjustment);
       break;
 
     case PROP_V_ADJUSTMENT:
-      g_value_set_object (value, priv->v_adjustment);
+      g_value_set_object (value, priv->y_adjustment);
+      break;
+
+    case PROP_Z_ADJUSTMENT:
+      g_value_set_object (value, priv->z_adjustment);
       break;
 
     default:
@@ -434,9 +604,11 @@ gtk_clutter_viewport_dispose (GObject *gobject)
     }
 
   disconnect_adjustment (GTK_CLUTTER_VIEWPORT (gobject),
-                         GTK_ORIENTATION_HORIZONTAL);
+                         VIEWPORT_X_AXIS);
   disconnect_adjustment (GTK_CLUTTER_VIEWPORT (gobject),
-                         GTK_ORIENTATION_VERTICAL);
+                         VIEWPORT_Y_AXIS);
+  disconnect_adjustment (GTK_CLUTTER_VIEWPORT (gobject),
+                         VIEWPORT_Z_AXIS);
 
   G_OBJECT_CLASS (gtk_clutter_viewport_parent_class)->dispose (gobject);
 }
@@ -501,7 +673,9 @@ gtk_clutter_viewport_allocate (ClutterActor           *actor,
   GtkClutterViewport *viewport = GTK_CLUTTER_VIEWPORT (actor);
   GtkClutterViewportPrivate *priv = viewport->priv;
   ClutterActorClass *parent_class;
-  gboolean h_adjustment_value_changed, v_adjustment_value_changed;
+  gboolean x_adjustment_value_changed;
+  gboolean y_adjustment_value_changed;
+  gboolean z_adjustment_value_changed;
   gfloat width, height;
 
   parent_class = CLUTTER_ACTOR_CLASS (gtk_clutter_viewport_parent_class);
@@ -510,10 +684,12 @@ gtk_clutter_viewport_allocate (ClutterActor           *actor,
   width  = box->x2 - box->x1;
   height = box->y2 - box->y1;
 
-  h_adjustment_value_changed =
+  x_adjustment_value_changed =
     viewport_set_hadjustment_values (viewport, width);
-  v_adjustment_value_changed =
+  y_adjustment_value_changed =
     viewport_set_vadjustment_values (viewport, height);
+  z_adjustment_value_changed =
+    viewport_set_zadjustment_values (viewport, width, height);
 
   if (priv->child && CLUTTER_ACTOR_IS_VISIBLE (priv->child))
     {
@@ -527,24 +703,29 @@ gtk_clutter_viewport_allocate (ClutterActor           *actor,
        */
       clutter_actor_get_preferred_size (priv->child,
                                         NULL, NULL,
-                                        &alloc_width, &alloc_height);
+                                        &alloc_width,
+                                        &alloc_height);
 
-      child_allocation.x1 = clutter_actor_get_x (priv->child);
-      child_allocation.y1 = clutter_actor_get_y (priv->child);
+      child_allocation.x1 = 0;
+      child_allocation.y1 = 0;
       child_allocation.x2 = child_allocation.x1 + alloc_width;
       child_allocation.y2 = child_allocation.y1 + alloc_height;
 
       clutter_actor_allocate (priv->child, &child_allocation, flags);
     }
 
-  gtk_adjustment_changed (priv->h_adjustment);
-  gtk_adjustment_changed (priv->v_adjustment);
+  gtk_adjustment_changed (priv->x_adjustment);
+  gtk_adjustment_changed (priv->y_adjustment);
+  gtk_adjustment_changed (priv->z_adjustment);
 
-  if (h_adjustment_value_changed)
-    gtk_adjustment_value_changed (priv->h_adjustment);
+  if (x_adjustment_value_changed)
+    gtk_adjustment_value_changed (priv->x_adjustment);
 
-  if (v_adjustment_value_changed)
-    gtk_adjustment_value_changed (priv->v_adjustment);
+  if (y_adjustment_value_changed)
+    gtk_adjustment_value_changed (priv->y_adjustment);
+
+  if (z_adjustment_value_changed)
+    gtk_adjustment_value_changed (priv->z_adjustment);
 }
 
 static void
@@ -623,7 +804,9 @@ gtk_clutter_viewport_class_init (GtkClutterViewportClass *klass)
   /**
    * GtkClutterViewport:origin:
    *
-   * The current origin of the viewport.
+   * The current origin of the viewport. You should use the
+   * vertex to convert event coordinates for the child of the
+   * viewport.
    *
    * Since: 1.0
    */
@@ -635,8 +818,17 @@ gtk_clutter_viewport_class_init (GtkClutterViewportClass *klass)
   g_object_class_install_property (gobject_class, PROP_ORIGIN, pspec);
 
   /* GtkClutterScrollable properties */
-  g_object_class_override_property (gobject_class, PROP_H_ADJUSTMENT, "hadjustment");
-  g_object_class_override_property (gobject_class, PROP_V_ADJUSTMENT, "vadjustment");
+  g_object_class_override_property (gobject_class,
+                                    PROP_H_ADJUSTMENT,
+                                    "hadjustment");
+  g_object_class_override_property (gobject_class,
+                                    PROP_V_ADJUSTMENT,
+                                    "vadjustment");
+
+  /* GtkClutterZoomable properties */
+  g_object_class_override_property (gobject_class,
+                                    PROP_Z_ADJUSTMENT,
+                                    "zadjustment");
 }
 
 static void
@@ -651,6 +843,7 @@ gtk_clutter_viewport_init (GtkClutterViewport *viewport)
  * gtk_clutter_viewport_new:
  * @h_adjust: horizontal adjustment, or %NULL
  * @v_adjust: vertical adjustment, or %NULL
+ * @z_adjust: zoom adjustment, or %NULL
  *
  * Creates a new #GtkClutterViewport with the given adjustments.
  *
@@ -660,11 +853,13 @@ gtk_clutter_viewport_init (GtkClutterViewport *viewport)
  */
 ClutterActor *
 gtk_clutter_viewport_new (GtkAdjustment *h_adjust,
-                          GtkAdjustment *v_adjust)
+                          GtkAdjustment *v_adjust,
+                          GtkAdjustment *z_adjust)
 {
   return g_object_new (GTK_CLUTTER_TYPE_VIEWPORT,
                        "hadjustment", h_adjust,
                        "vadjustment", v_adjust,
+                       "zadjustment", z_adjust,
                        NULL);
 }
 

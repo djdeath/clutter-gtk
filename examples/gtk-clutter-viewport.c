@@ -10,10 +10,21 @@ on_load_finished (ClutterTexture *texture,
                   const GError   *error,
                   gpointer        user_data)
 {
+  if (error)
+    g_warning ("Unable to load texture: %s", error->message);
+
   if (timer)
     g_print ("%s: load time: %.3f secs\n",
              G_STRLOC,
              g_timer_elapsed (timer, NULL));
+}
+
+static void
+on_size_change (ClutterTexture *texture,
+                gint            width,
+                gint            height)
+{
+  g_print ("%s: tex.size = %d, %d\n", G_STRLOC, width, height);
 }
 
 int
@@ -21,9 +32,9 @@ main (int argc, char *argv[])
 {
   ClutterActor    *stage, *viewport, *tex;
   ClutterColor     stage_color = { 0x61, 0x64, 0x8c, 0xff };
-  GtkWidget       *window, *embed; 
-  GtkWidget       *table, *scrollbar;
-  GtkAdjustment   *h_adjustment, *v_adjustment;
+  GtkWidget       *window, *embed;
+  GtkWidget       *table, *scrollbar, *slider;
+  GtkAdjustment   *h_adjustment, *v_adjustment, *z_adjustment;
 
   g_thread_init (NULL);
   gdk_threads_init ();
@@ -35,7 +46,7 @@ main (int argc, char *argv[])
   window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   g_signal_connect (window, "destroy", G_CALLBACK (gtk_main_quit), NULL);
 
-  table = gtk_table_new (2, 2, FALSE);
+  table = gtk_table_new (3, 2, FALSE);
   gtk_container_add (GTK_CONTAINER (window), table);
   gtk_widget_show (table);
 
@@ -52,7 +63,7 @@ main (int argc, char *argv[])
   stage = gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (embed));
   clutter_stage_set_color (CLUTTER_STAGE (stage), &stage_color);
 
-  viewport = gtk_clutter_viewport_new (NULL, NULL);
+  viewport = gtk_clutter_viewport_new (NULL, NULL, NULL);
   clutter_actor_set_size (viewport, 320, 240);
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), viewport);
 
@@ -65,7 +76,10 @@ main (int argc, char *argv[])
       GError *error = NULL;
 
       tex = clutter_texture_new ();
-      g_object_set (G_OBJECT (tex), "load-async", TRUE, NULL);
+      clutter_texture_set_load_async (CLUTTER_TEXTURE (tex), TRUE);
+      g_signal_connect (tex,
+                        "size-change", G_CALLBACK (on_size_change),
+                        NULL);
       g_signal_connect (tex,
                         "load-finished", G_CALLBACK (on_load_finished),
                         NULL);
@@ -110,6 +124,17 @@ main (int argc, char *argv[])
                     GTK_EXPAND | GTK_FILL, 0,
                     0, 0);
   gtk_widget_show (scrollbar);
+
+  z_adjustment =
+    gtk_clutter_zoomable_get_adjustment (GTK_CLUTTER_ZOOMABLE (viewport));
+
+  slider = gtk_hscale_new (z_adjustment);
+  gtk_table_attach (GTK_TABLE (table), slider,
+                    0, 1,
+                    2, 3,
+                    GTK_EXPAND | GTK_FILL, 0,
+                    0, 0);
+  gtk_widget_show (slider);
 
   gtk_widget_show (window);
 

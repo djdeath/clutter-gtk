@@ -2,7 +2,6 @@ CLEANFILES=
 INCLUDES = \
 	-I$(srcdir) 				\
 	-I$(top_srcdir) 			\
-	$(CLUTTER_CFLAGS)			\
 	-DG_LOG_DOMAIN=\"Clutter-Gtk\" 		\
 	-DPREFIX=\""$(prefix)"\" 		\
 	-DLIBDIR=\""$(libdir)"\" 		\
@@ -26,7 +25,8 @@ libclutter_gtk_0_9_la_SOURCES = \
 	$(srcdir)/gtk-clutter-embed.c 		\
 	$(srcdir)/gtk-clutter-scrollable.c 	\
 	$(srcdir)/gtk-clutter-util.c 		\
-	$(srcdir)/gtk-clutter-viewport.c
+	$(srcdir)/gtk-clutter-viewport.c	\
+	$(srcdir)/gtk-clutter-zoomable.c
 
 libclutter_gtk_0_9_la_LIBADD = $(CLUTTER_LIBS) $(GTK_LIBS)
 
@@ -40,7 +40,8 @@ cluttergtkheaders_HEADERS = \
 	$(top_srcdir)/clutter-gtk/gtk-clutter-embed.h 		\
 	$(top_srcdir)/clutter-gtk/gtk-clutter-scrollable.h 	\
 	$(top_srcdir)/clutter-gtk/gtk-clutter-util.h 		\
-	$(top_srcdir)/clutter-gtk/gtk-clutter-viewport.h
+	$(top_srcdir)/clutter-gtk/gtk-clutter-viewport.h	\
+	$(top_srcdir)/clutter-gtk/gtk-clutter-zoomable.h
 
 if HAVE_INTROSPECTION
 BUILT_GIRSOURCES =
