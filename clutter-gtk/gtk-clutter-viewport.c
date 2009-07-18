@@ -548,35 +548,42 @@ gtk_clutter_viewport_allocate (ClutterActor           *actor,
 }
 
 static void
+gtk_clutter_viewport_apply_transform (ClutterActor *actor,
+                                      CoglMatrix   *matrix)
+{
+  GtkClutterViewportPrivate *priv = GTK_CLUTTER_VIEWPORT (actor)->priv;
+  ClutterActorClass *parent_class;
+
+  parent_class = CLUTTER_ACTOR_CLASS (gtk_clutter_viewport_parent_class);
+  parent_class->apply_transform (actor, matrix);
+
+  cogl_matrix_translate (matrix,
+                         priv->origin.x * -1,
+                         priv->origin.y * -1,
+                         priv->origin.z * -1);
+}
+
+static void
 gtk_clutter_viewport_paint (ClutterActor *actor)
 {
   GtkClutterViewportPrivate *priv = GTK_CLUTTER_VIEWPORT (actor)->priv;
 
-  cogl_push_matrix ();
-
-  /* translate the paint environment by the same amount
-   * defined by the origin value
-   */
-  cogl_translate (priv->origin.x * -1,
-                  priv->origin.y * -1,
-                  priv->origin.z * -1);
-
-  /* the child will be painted in the new frame of reference */
-  if (priv->child && CLUTTER_ACTOR_IS_VISIBLE (priv->child))
+  if (priv->child)
     clutter_actor_paint (priv->child);
-
-  cogl_pop_matrix ();
 }
 
 static void
 gtk_clutter_viewport_pick (ClutterActor       *actor,
                            const ClutterColor *pick_color)
 {
-  /* chain up to get the default pick */
-  CLUTTER_ACTOR_CLASS (gtk_clutter_viewport_parent_class)->pick (actor, pick_color);
+  GtkClutterViewportPrivate *priv = GTK_CLUTTER_VIEWPORT (actor)->priv;
+  ClutterActorClass *parent_class;
 
-  /* this will cause the child (if any) to be painted in pick mode */
-  gtk_clutter_viewport_paint (actor);
+  parent_class = CLUTTER_ACTOR_CLASS (gtk_clutter_viewport_parent_class);
+  parent_class->pick (actor, pick_color);
+
+  if (priv->child)
+    clutter_actor_paint (priv->child);
 }
 
 static void
@@ -595,6 +602,7 @@ gtk_clutter_viewport_class_init (GtkClutterViewportClass *klass)
   actor_class->get_preferred_width = gtk_clutter_viewport_get_preferred_width;
   actor_class->get_preferred_height = gtk_clutter_viewport_get_preferred_height;
   actor_class->allocate = gtk_clutter_viewport_allocate;
+  actor_class->apply_transform = gtk_clutter_viewport_apply_transform;
   actor_class->paint = gtk_clutter_viewport_paint;
   actor_class->pick = gtk_clutter_viewport_pick;
 
