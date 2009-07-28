@@ -1,3 +1,28 @@
+Clutter-GTK 0.10  29/07/2009
+============================
+
+Alexander Larsson (1):
+      Make GtkClutterEmbed derive from GtkContainer
+
+Chris Lord (1):
+      [util] Add error arguments to texture functions
+
+Emmanuele Bassi (14):
+      [zoomable] Add Zoomable interface
+      [zoomable] Fix Introspection data generation
+      [viewport] Implement Zoomable
+      Update the Viewport example
+      [git ignore] Ignore backup and m4 files
+      Post-release bump to 0.9.3
+      Bump up the required Clutter version
+      [examples] Add a Notebook case
+      [viewport] Use the ::apply_transform vfunc
+      Merge branch 'zoomable'
+      [build] Use symbolic values for clutter-gtk version
+      [build] Depend on Clutter 1.0.0
+      [docs] Update the API Reference
+      [docs] Update the Since tags
+
 Clutter-GTK 0.9.1 22/06/2009
 ============================
 
