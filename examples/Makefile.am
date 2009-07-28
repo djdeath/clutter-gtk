@@ -13,10 +13,10 @@ INCLUDES = \
 AM_CPPFLAGS = $(MAINTAINER_CFLAGS) $(CLUTTER_CFLAGS) $(GTK_CFLAGS)
 
 common_deps = \
-	$(top_builddir)/clutter-gtk/libclutter-gtk-0.9.la
+	$(top_builddir)/clutter-gtk/libclutter-gtk-@CLUTTER_GTK_API_VERSION@.la
 
 common_ldadd = \
-	$(top_builddir)/clutter-gtk/libclutter-gtk-0.9.la \
+	$(top_builddir)/clutter-gtk/libclutter-gtk-@CLUTTER_GTK_API_VERSION@.la \
 	$(CLUTTER_LIBS)	\
 	$(GTK_LIBS)
 

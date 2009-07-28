@@ -6,13 +6,13 @@ QUIET_GEN = $(Q:@=@echo '  GEN   '$@;)
 
 SUBDIRS = build clutter-gtk doc examples
 
-clutter-gtk-0.9.pc: clutter-gtk.pc
-	$(QUIET_GEN)cp -f clutter-gtk.pc clutter-gtk-0.9.pc
+clutter-gtk-@CLUTTER_GTK_API_VERSION@.pc: clutter-gtk.pc
+	$(QUIET_GEN)cp -f clutter-gtk.pc clutter-gtk-$(CLUTTER_GTK_API_VERSION).pc
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = clutter-gtk-0.9.pc
+pkgconfig_DATA = clutter-gtk-$(CLUTTER_GTK_API_VERSION).pc
 
-CLEANFILES = clutter-gtk-0.9.pc
+CLEANFILES = clutter-gtk-$(CLUTTER_GTK_API_VERSION).pc
 
 DISTCLEANFILES = clutter-gtk.pc
 
