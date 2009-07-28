@@ -651,7 +651,7 @@ gtk_clutter_init (int    *argc,
  * Return value: %CLUTTER_INIT_SUCCESS on success, a negative integer
  *   on failure.
  *
- * Since: 1.0
+ * Since: 0.10
  */
 ClutterInitError
 gtk_clutter_init_with_args (int            *argc,

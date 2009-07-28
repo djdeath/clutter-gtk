@@ -53,7 +53,7 @@ typedef enum {
  *
  * An enumeration of error types used in ClutterGtk texture functions
  *
- * Since: 1.0
+ * Since: 0.10
  * */
 typedef enum {
   CLUTTER_GTK_TEXTURE_INVALID_STOCK_ID,

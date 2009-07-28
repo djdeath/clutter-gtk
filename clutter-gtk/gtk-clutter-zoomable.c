@@ -10,7 +10,9 @@
  * SECTION:gtk-clutter-zoomable
  * @short_description: Interface for zoomable actors
  *
- * FIXME
+ * #GtkClutterZoomable is an interface for zoomable actors, using, like
+ * #GtkClutterScrollable, the #GtkAdjustment objects from GTK+ to drive
+ * the zoom factor.
  *
  * #GtkClutterZoomable is available since Clutter-GTK 1.0
  */
@@ -30,7 +32,7 @@ gtk_clutter_zoomable_base_init (gpointer g_iface)
        * The #GtkAdjustment that determines the value of
        * the zoom factor for this zoomable actor
        *
-       * Since: 1.0
+       * Since: 0.10
        */
       pspec = g_param_spec_object ("zadjustment",
                                    "Zoom Adjustment",
@@ -75,7 +77,7 @@ gtk_clutter_zoomable_get_type (void)
  * Sets the adjustment used to determine the zoom factor of
  * the zoomable actor
  *
- * Since: 1.0
+ * Since: 0.10
  */
 void
 gtk_clutter_zoomable_set_adjustment (GtkClutterZoomable *zoomable,
@@ -100,7 +102,7 @@ gtk_clutter_zoomable_set_adjustment (GtkClutterZoomable *zoomable,
  *
  * Return value: (transfer none): a #GtkAdjustment
  *
- * Since: 1.0
+ * Since: 0.10
  */
 GtkAdjustment *
 gtk_clutter_zoomable_get_adjustment (GtkClutterZoomable *zoomable)

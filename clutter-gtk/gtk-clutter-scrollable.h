@@ -54,7 +54,7 @@ typedef struct _GtkClutterScrollableIface       GtkClutterScrollableIface;
  * The #GtkClutterScrollableIface structure contains only private data
  * and should be accessed using the provided functions.
  *
- * Since: 0.8.2
+ * Since: 0.10
  */
 struct _GtkClutterScrollableIface
 {

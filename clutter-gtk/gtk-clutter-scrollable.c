@@ -10,9 +10,10 @@
  * SECTION:gtk-clutter-scrollable
  * @short_description: Interface for scrollable actors
  *
- * FIXME
+ * #GtkClutterScrollable is an interface for scrollable actors, reusing
+ * the #GtkAdjustment objects from GTK+ do drive the scrolling.
  *
- * #GtkClutterScrollable is available since Clutter-GTK 1.0
+ * #GtkClutterScrollable is available since Clutter-GTK 0.10
  */
 
 static void
@@ -30,7 +31,7 @@ gtk_clutter_scrollable_base_init (gpointer g_iface)
        * The #GtkAdjustment that determines the value of the
        * horizontal position for this scrollable actor.
        *
-       * Since: 1.0
+       * Since: 0.10
        */
       pspec = g_param_spec_object ("hadjustment",
                                    "Horizontal adjustment",
@@ -47,7 +48,7 @@ gtk_clutter_scrollable_base_init (gpointer g_iface)
        * The #GtkAdjustment that determines the value of the
        * vertical position for this scrollable actor.
        *
-       * Since: 1.0
+       * Since: 0.10
        */
       pspec = g_param_spec_object ("vadjustment",
                                    "Vertical adjustment",
@@ -93,7 +94,7 @@ gtk_clutter_scrollable_get_type (void)
  * Sets the horizontal and vertical adjustments used to determine
  * the position of the scrollable actor.
  *
- * Since: 1.0
+ * Since: 0.10
  */
 void
 gtk_clutter_scrollable_set_adjustments (GtkClutterScrollable *scrollable,
@@ -119,7 +120,7 @@ gtk_clutter_scrollable_set_adjustments (GtkClutterScrollable *scrollable,
  * Retrieves the horizontal and vertical adjustments used to
  * determine the position of the scrollable actor.
  *
- * Since: 1.0
+ * Since: 0.10
  */
 void
 gtk_clutter_scrollable_get_adjustments (GtkClutterScrollable  *scrollable,

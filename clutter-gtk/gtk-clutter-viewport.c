@@ -14,7 +14,7 @@
  * The #GtkClutterViewport can be used inside any #ClutterContainer
  * implementation.
  *
- * #GtkClutterViewport is available since Clutter-GTK 1.0
+ * #GtkClutterViewport is available since Clutter-GTK 0.10
  */
 
 #ifdef HAVE_CONFIG_H
@@ -792,7 +792,7 @@ gtk_clutter_viewport_class_init (GtkClutterViewportClass *klass)
    *
    * The #ClutterActor inside the viewport.
    *
-   * Since: 1.0
+   * Since: 0.10
    */
   pspec = g_param_spec_object ("child",
                                "Child",
@@ -808,7 +808,7 @@ gtk_clutter_viewport_class_init (GtkClutterViewportClass *klass)
    * vertex to convert event coordinates for the child of the
    * viewport.
    *
-   * Since: 1.0
+   * Since: 0.10
    */
   pspec = g_param_spec_boxed ("origin",
                               "Origin",
@@ -849,7 +849,7 @@ gtk_clutter_viewport_init (GtkClutterViewport *viewport)
  *
  * Return value: the newly created viewport actor
  *
- * Since: 1.0
+ * Since: 0.10
  */
 ClutterActor *
 gtk_clutter_viewport_new (GtkAdjustment *h_adjust,
@@ -873,7 +873,7 @@ gtk_clutter_viewport_new (GtkAdjustment *h_adjust,
  * Retrieves the current translation factor ("origin") used when
  * displaying the child of @viewport.
  *
- * Since: 1.0.
+ * Since: 0.10
  */
 void
 gtk_clutter_viewport_get_origin (GtkClutterViewport *viewport,
