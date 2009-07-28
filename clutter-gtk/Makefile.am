@@ -31,7 +31,7 @@ libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_SOURCES = \
 libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_LIBADD = $(CLUTTER_LIBS) $(GTK_LIBS)
 libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_LDFLAGS = $(CLUTTER_LT_LDFLAGS)
 
-cluttergtkheadersdir = $(includedir)/clutter-0.9/clutter-gtk
+cluttergtkheadersdir = $(includedir)/clutter-1.0/clutter-gtk
 
 # please, keep the list sorted alphabetically
 cluttergtkheaders_HEADERS = \
@@ -50,13 +50,13 @@ GtkClutter-@CLUTTER_GTK_API_VERSION@.gir: $(INTROSPECTION_SCANNER) libclutter-gt
 		--namespace GtkClutter --nsversion=@CLUTTER_GTK_API_VERSION@ \
 		$(INCLUDES) \
 		--add-include-path=$(srcdir) --add-include=path=. \
-		--include=Clutter-0.9 \
+		--include=Clutter-1.0 \
 		--include=Gtk-2.0 \
 		--library=clutter-gtk-@CLUTTER_GTK_API_VERSION@ \
 		--libtool="$(top_builddir)/libtool" \
 		--output $@ \
 		--pkg gobject-2.0 \
-		--pkg clutter-0.9 \
+		--pkg clutter-1.0 \
 		--pkg gtk+-2.0 \
 		$(cluttergtkheaders_HEADERS) \
 		$(libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_SOURCES)

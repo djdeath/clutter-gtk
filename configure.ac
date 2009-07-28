@@ -54,7 +54,7 @@ AC_PROG_CC
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 
-m4_define([clutter_req_version], [0.9.8])
+m4_define([clutter_req_version], [1.0.0])
 m4_define([gtk_req_version], [2.12.0])
 m4_define([flavour_default], [x11])
 AC_ARG_WITH([flavour],
@@ -66,16 +66,16 @@ AC_ARG_WITH([flavour],
 AS_CASE([$with_flavour],
         [x11], [
           AC_DEFINE([HAVE_CLUTTER_GTK_X11], 1, [Using the X11 flavour])
-          PKG_CHECK_MODULES(CLUTTER, clutter-x11-0.9 >= clutter_req_version)
+          PKG_CHECK_MODULES(CLUTTER, clutter-x11-1.0 >= clutter_req_version)
           PKG_CHECK_MODULES(GTK, gtk+-x11-2.0 >= gtk_req_version)
-          CLUTTER_GTK_REQUIRES="clutter-x11-0.9 gtk+-x11-2.0"
+          CLUTTER_GTK_REQUIRES="clutter-x11-1.0 gtk+-x11-2.0"
         ],
 
         [win32], [
           AC_DEFINE([HAVE_CLUTTER_GTK_WIN32], 1, [Using the Win32 flavour])
-          PKG_CHECK_MODULES(CLUTTER, clutter-win32-0.9 >= $CLUTTER_REQUIRED)
+          PKG_CHECK_MODULES(CLUTTER, clutter-win32-1.0 >= $CLUTTER_REQUIRED)
           PKG_CHECK_MODULES(GTK, gtk+-win32-2.0 >= gtk_req_version)
-          CLUTTER_GTK_REQUIRES="clutter-win32-0.9 gtk+-win32-2.0"
+          CLUTTER_GTK_REQUIRES="clutter-win32-1.0 gtk+-win32-2.0"
         ]
 
         [AC_MSG_ERROR([Invalid argument for --with-flavour])]
