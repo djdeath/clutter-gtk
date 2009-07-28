@@ -59,6 +59,7 @@
     <title>Clutter-Gtk Actors</title>
 
     <xi:include href="xml/gtk-clutter-scrollable.xml"/>
+    <xi:include href="xml/gtk-clutter-zoomable.xml"/>
     <xi:include href="xml/gtk-clutter-viewport.xml"/>
   </chapter>
 
@@ -72,8 +73,8 @@
     <title>Index</title>
   </index>
 
-  <index role="1.0">
-    <title>Index of new symbols in 1.0</title>
+  <index role="0.10">
+    <title>Index of new symbols in 0.10</title>
   </index>
 
   <index role="0.8">
