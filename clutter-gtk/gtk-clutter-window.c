@@ -56,6 +56,25 @@ gtk_clutter_window_finalize (GObject *self)
 }
 
 static void
+gtk_clutter_window_size_request (GtkWidget      *self,
+                                 GtkRequisition *requisition)
+{
+    GtkClutterWindowPrivate *priv;
+    GtkWidget *bin;
+
+    g_return_if_fail (GTK_CLUTTER_IS_WINDOW (self));
+    priv = GTK_CLUTTER_WINDOW (self)->priv;
+
+    bin = gtk_clutter_actor_get_widget (GTK_CLUTTER_ACTOR (priv->actor));
+
+    /* find out what the preferred size of the bin contents are, since we
+     * can't ask Clutter for some reason (it always returns the allocated
+     * size -- why?). This means things like any scaling applied to the actor
+     * won't make the window change size (feature?) */
+    gtk_widget_size_request (gtk_bin_get_child (GTK_BIN (bin)), requisition);
+}
+
+static void
 gtk_clutter_window_add (GtkContainer *self,
                         GtkWidget    *widget)
 {
@@ -66,20 +85,153 @@ gtk_clutter_window_add (GtkContainer *self,
     priv = GTK_CLUTTER_WINDOW (self)->priv;
 
     bin = gtk_clutter_actor_get_widget (GTK_CLUTTER_ACTOR (priv->actor));
-    gtk_container_add (GTK_CONTAINER (bin), widget);
+    GTK_CONTAINER_GET_CLASS (bin)->add (GTK_CONTAINER (bin), widget);
+}
+
+static void
+gtk_clutter_window_remove (GtkContainer *self,
+                           GtkWidget    *widget)
+{
+    GtkClutterWindowPrivate *priv;
+    GtkWidget *bin;
+
+    g_return_if_fail (GTK_CLUTTER_IS_WINDOW (self));
+    priv = GTK_CLUTTER_WINDOW (self)->priv;
+
+    bin = gtk_clutter_actor_get_widget (GTK_CLUTTER_ACTOR (priv->actor));
+    GTK_CONTAINER_GET_CLASS (bin)->remove (GTK_CONTAINER (bin), widget);
+}
+
+static void
+gtk_clutter_window_forall (GtkContainer *self,
+                           gboolean      include_internals,
+                           GtkCallback   callback,
+                           gpointer      callback_data)
+{
+    GtkClutterWindowPrivate *priv;
+    GtkWidget *bin;
+
+    g_return_if_fail (GTK_CLUTTER_IS_WINDOW (self));
+    priv = GTK_CLUTTER_WINDOW (self)->priv;
+
+    /* this is particularly dodgy -- if we have asked to include_internals
+     * let's only return the internals, on the assumption that when events
+     * are sent to those internals, the child container will be iterated;
+     * otherwise, we don't want anyone to know about the container, so we
+     * return the contents of the bin */
+    if (include_internals)
+    {
+        GTK_CONTAINER_CLASS (gtk_clutter_window_parent_class)->forall (self,
+                include_internals, callback, callback_data);
+    }
+    else
+    {
+        bin = gtk_clutter_actor_get_widget (GTK_CLUTTER_ACTOR (priv->actor));
+        GTK_CONTAINER_GET_CLASS (bin)->forall (GTK_CONTAINER (bin),
+                include_internals, callback, callback_data);
+    }
+}
+
+static void
+gtk_clutter_window_set_focus_child (GtkContainer *self,
+                                    GtkWidget    *widget)
+{
+    GtkClutterWindowPrivate *priv;
+    GtkWidget *bin;
+
+    g_return_if_fail (GTK_CLUTTER_IS_WINDOW (self));
+    priv = GTK_CLUTTER_WINDOW (self)->priv;
+
+    bin = gtk_clutter_actor_get_widget (GTK_CLUTTER_ACTOR (priv->actor));
+    GTK_CONTAINER_GET_CLASS (bin)->set_focus_child (GTK_CONTAINER (bin), widget);
+}
+
+static GType
+gtk_clutter_window_child_type (GtkContainer *self)
+{
+    GtkClutterWindowPrivate *priv;
+    GtkWidget *bin;
+
+    g_return_if_fail (GTK_CLUTTER_IS_WINDOW (self));
+    priv = GTK_CLUTTER_WINDOW (self)->priv;
+
+    bin = gtk_clutter_actor_get_widget (GTK_CLUTTER_ACTOR (priv->actor));
+    return GTK_CONTAINER_GET_CLASS (bin)->child_type (GTK_CONTAINER (bin));
+}
+
+static char *
+gtk_clutter_window_composite_name (GtkContainer *self,
+                                   GtkWidget    *widget)
+{
+    GtkClutterWindowPrivate *priv;
+    GtkWidget *bin;
+
+    g_return_if_fail (GTK_CLUTTER_IS_WINDOW (self));
+    priv = GTK_CLUTTER_WINDOW (self)->priv;
+
+    bin = gtk_clutter_actor_get_widget (GTK_CLUTTER_ACTOR (priv->actor));
+    return GTK_CONTAINER_GET_CLASS (bin)->composite_name (GTK_CONTAINER (bin), widget);
+}
+
+static void
+gtk_clutter_window_set_child_property (GtkContainer *self,
+                                       GtkWidget    *widget,
+                                       guint         property_id,
+                                       const GValue *value,
+                                       GParamSpec   *pspec)
+{
+    GtkClutterWindowPrivate *priv;
+    GtkWidget *bin;
+
+    g_return_if_fail (GTK_CLUTTER_IS_WINDOW (self));
+    priv = GTK_CLUTTER_WINDOW (self)->priv;
+
+    bin = gtk_clutter_actor_get_widget (GTK_CLUTTER_ACTOR (priv->actor));
+    GTK_CONTAINER_GET_CLASS (bin)->set_child_property (GTK_CONTAINER (bin),
+            widget, property_id, value, pspec);
+}
+
+static void
+gtk_clutter_window_get_child_property (GtkContainer *self,
+                                       GtkWidget    *widget,
+                                       guint         property_id,
+                                       GValue       *value,
+                                       GParamSpec   *pspec)
+{
+    GtkClutterWindowPrivate *priv;
+    GtkWidget *bin;
+
+    g_return_if_fail (GTK_CLUTTER_IS_WINDOW (self));
+    priv = GTK_CLUTTER_WINDOW (self)->priv;
+
+    bin = gtk_clutter_actor_get_widget (GTK_CLUTTER_ACTOR (priv->actor));
+    GTK_CONTAINER_GET_CLASS (bin)->get_child_property (GTK_CONTAINER (bin),
+            widget, property_id, value, pspec);
 }
 
 static void
 gtk_clutter_window_class_init (GtkClutterWindowClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+  GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
   GtkContainerClass *container_class = GTK_CONTAINER_CLASS (klass);
 
   g_type_class_add_private (klass, sizeof (GtkClutterWindowPrivate));
 
   gobject_class->finalize = gtk_clutter_window_finalize;
 
-  container_class->add = gtk_clutter_window_add;
+  widget_class->size_request = gtk_clutter_window_size_request;
+
+  /* connect all of the container methods up to our bin */
+  container_class->add             = gtk_clutter_window_add;
+  container_class->remove          = gtk_clutter_window_remove;
+  // container_class->check_resize    = gtk_clutter_window_check_resize;
+  container_class->forall          = gtk_clutter_window_forall;
+  container_class->set_focus_child = gtk_clutter_window_set_focus_child;
+  container_class->child_type      = gtk_clutter_window_child_type;
+  container_class->composite_name  = gtk_clutter_window_composite_name;
+  container_class->set_child_property = gtk_clutter_window_set_child_property;
+  container_class->get_child_property = gtk_clutter_window_get_child_property;
 }
 
 static void
@@ -108,6 +260,7 @@ gtk_clutter_window_init (GtkClutterWindow *self)
 
   GTK_CONTAINER_CLASS (gtk_clutter_window_parent_class)->add (
           GTK_CONTAINER (self), priv->embed);
+  gtk_widget_show (priv->embed);
 
   priv->actor = gtk_clutter_actor_new ();
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), priv->actor);
