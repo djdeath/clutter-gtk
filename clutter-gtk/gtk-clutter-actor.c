@@ -157,15 +157,15 @@ gtk_clutter_actor_allocate (ClutterActor           *actor,
 
   gtk_widget_size_allocate (clutter->priv->widget, &child_allocation);
 
-  /* The former size allocate may have queued exposed, we then need to
-     process them immediately, since we will paint the pixmap when this
-     returns (as size allocation is done from clutter_redraw which is
-     called from gtk_clutter_expose_event(). If we don't do this we
-     may see an intermediate state of the pixmap, causing flicker */
-  gdk_window_process_updates (clutter->priv->widget->window, TRUE);
-
   if (CLUTTER_ACTOR_IS_REALIZED (actor))
     {
+      /* The former size allocate may have queued exposed, we then need to
+	 process them immediately, since we will paint the pixmap when this
+	 returns (as size allocation is done from clutter_redraw which is
+	 called from gtk_clutter_expose_event(). If we don't do this we
+	 may see an intermediate state of the pixmap, causing flicker */
+      gdk_window_process_updates (clutter->priv->widget->window, TRUE);
+
       pixmap = gdk_offscreen_window_get_pixmap (clutter->priv->widget->window);
       if (pixmap != clutter->priv->pixmap)
 	{
