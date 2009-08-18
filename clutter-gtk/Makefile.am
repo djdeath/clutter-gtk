@@ -34,6 +34,7 @@ libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_SOURCES = \
 	$(srcdir)/gtk-clutter-scrollable.c 	\
 	$(srcdir)/gtk-clutter-util.c 		\
 	$(srcdir)/gtk-clutter-viewport.c	\
+	$(srcdir)/gtk-clutter-window.c		\
 	$(srcdir)/gtk-clutter-zoomable.c	\
 	$(NULL)
 
@@ -50,6 +51,7 @@ cluttergtkheaders_HEADERS = \
 	$(top_srcdir)/clutter-gtk/gtk-clutter-scrollable.h 	\
 	$(top_srcdir)/clutter-gtk/gtk-clutter-util.h 		\
 	$(top_srcdir)/clutter-gtk/gtk-clutter-viewport.h	\
+	$(top_srcdir)/clutter-gtk/gtk-clutter-window.h		\
 	$(top_srcdir)/clutter-gtk/gtk-clutter-zoomable.h
 
 if HAVE_INTROSPECTION
