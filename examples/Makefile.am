@@ -7,7 +7,8 @@ noinst_PROGRAMS = \
 	gtk-clutter-multistage \
 	gtk-clutter-test \
 	gtk-clutter-test-actor \
-        gtk-clutter-viewport
+        gtk-clutter-viewport \
+	gtk-clutter-window-test
 
 INCLUDES = -I$(srcdir) -I$(top_srcdir)
 
@@ -40,5 +41,9 @@ gtk_clutter_multistage_LDADD = $(common_ldadd)
 gtk_clutter_viewport_SOURCES = gtk-clutter-viewport.c
 gtk_clutter_viewport_DEPENDENCIES = $(common_deps)
 gtk_clutter_viewport_LDADD = $(common_ldadd)
+
+gtk_clutter_window_test_SOURCES = gtk-clutter-window-test.c
+gtk_clutter_window_test_DEPENDENCIES = $(common_deps)
+gtk_clutter_window_test_LDADD = $(common_ldadd)
 
 EXTRA_DIST = redhand.png
