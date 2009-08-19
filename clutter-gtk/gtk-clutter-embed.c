@@ -578,7 +578,7 @@ gtk_clutter_embed_add (GtkContainer	 *container,
 {
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (container)->priv;
 
-  g_assert (GTK_IS_CLUTTER_OFFSCREEN (widget));
+  g_assert (GTK_CLUTTER_IS_OFFSCREEN (widget));
 
   priv->children = g_list_prepend (priv->children, widget);
   gtk_widget_set_parent (widget, GTK_WIDGET (container));
