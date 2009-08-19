@@ -49,6 +49,13 @@ main (int argc, char **argv)
 
     gtk_container_add (GTK_CONTAINER (window), table);
     gtk_widget_show_all (window);
-    // gtk_widget_show_all (table);
+
+    /* add a rotation to our actor */
+    ClutterAnimation *animation = clutter_actor_animate (texture,
+            CLUTTER_LINEAR, 800,
+            "rotation-angle-y", 360.,
+            NULL);
+    clutter_animation_set_loop (animation, TRUE);
+
     gtk_main ();
 }
