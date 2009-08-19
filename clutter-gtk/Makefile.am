@@ -32,6 +32,7 @@ libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_SOURCES = \
 	$(srcdir)/gtk-clutter-offscreen.c	\
 	$(srcdir)/gtk-clutter-offscreen.h	\
 	$(srcdir)/gtk-clutter-scrollable.c 	\
+	$(srcdir)/gtk-clutter-standin.c 	\
 	$(srcdir)/gtk-clutter-util.c 		\
 	$(srcdir)/gtk-clutter-viewport.c	\
 	$(srcdir)/gtk-clutter-window.c		\
@@ -49,6 +50,7 @@ cluttergtkheaders_HEADERS = \
 	$(top_srcdir)/clutter-gtk/gtk-clutter-actor.h 		\
 	$(top_srcdir)/clutter-gtk/gtk-clutter-embed.h 		\
 	$(top_srcdir)/clutter-gtk/gtk-clutter-scrollable.h 	\
+	$(top_srcdir)/clutter-gtk/gtk-clutter-standin.h 	\
 	$(top_srcdir)/clutter-gtk/gtk-clutter-util.h 		\
 	$(top_srcdir)/clutter-gtk/gtk-clutter-viewport.h	\
 	$(top_srcdir)/clutter-gtk/gtk-clutter-window.h		\
