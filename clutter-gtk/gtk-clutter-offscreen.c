@@ -34,6 +34,26 @@ gtk_clutter_offscreen_expose (GtkWidget      *widget,
 }
 
 static void
+gtk_clutter_offscreen_add (GtkContainer *container,
+                           GtkWidget    *child)
+{
+  GtkClutterOffscreen *offscreen;
+
+  g_return_if_fail (GTK_CLUTTER_IS_OFFSCREEN (container));
+
+  offscreen = GTK_CLUTTER_OFFSCREEN (container);
+
+  GTK_CONTAINER_CLASS (gtk_clutter_offscreen_parent_class)->add (container,
+          child);
+
+  if (CLUTTER_ACTOR_IS_VISIBLE (offscreen->actor))
+  {
+    /* force a relayout */
+      clutter_actor_queue_relayout (offscreen->actor);
+  }
+}
+
+static void
 gtk_clutter_offscreen_check_resize (GtkContainer *container)
 {
   GtkClutterOffscreen *offscreen = GTK_CLUTTER_OFFSCREEN (container);
@@ -53,6 +73,7 @@ gtk_clutter_offscreen_class_init (GtkClutterOffscreenClass *klass)
   widget_class->size_request = gtk_clutter_offscreen_size_request;
   widget_class->size_allocate = gtk_clutter_offscreen_size_allocate;
 
+  container_class->add = gtk_clutter_offscreen_add;
   container_class->check_resize = gtk_clutter_offscreen_check_resize;
 
   g_signal_override_class_closure (g_signal_lookup ("damage-event", GTK_TYPE_WIDGET),
