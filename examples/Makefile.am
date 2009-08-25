@@ -3,6 +3,7 @@ include $(top_srcdir)/build/autotools/Makefile.am.silent
 NULL =
 
 noinst_PROGRAMS = \
+	animated-notebook \
 	gtk-clutter-events \
 	gtk-clutter-multistage \
 	gtk-clutter-standin-test \
@@ -25,6 +26,10 @@ common_ldadd = \
 	$(top_builddir)/clutter-gtk/libclutter-gtk-@CLUTTER_GTK_API_VERSION@.la \
 	$(CLUTTER_LIBS)	\
 	$(GTK_LIBS)
+
+animated_notebook_SOURCES = animated-notebook.c
+animated_notebook_DEPENDENCIES = $(common_deps)
+animated_notebook_LDADD = $(common_ldadd)
 
 gtk_clutter_test_SOURCES = gtk-clutter-test.c
 gtk_clutter_test_DEPENDENCIES = $(common_deps)
@@ -66,4 +71,6 @@ reparenting_test_SOURCES = reparenting-test.c
 reparenting_test_DEPENDENCIES = $(common_deps)
 reparenting_test_LDADD = $(common_ldadd)
 
-EXTRA_DIST = redhand.png
+EXTRA_DIST = \
+	animated-notebook.ui \
+	redhand.png
