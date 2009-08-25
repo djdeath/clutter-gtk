@@ -42,6 +42,13 @@ depcomp
 /examples/gtk-clutter-test
 /examples/gtk-clutter-test-actor
 /examples/gtk-clutter-viewport
+/examples/animated-notebook
+/examples/gtk-clutter-standin-test
+/examples/gtk-clutter-test-actor
+/examples/gtk-clutter-window-test
+/examples/gtk-clutter-window-test2
+/examples/refcounting-test
+/examples/reparenting-test
 gtk-doc.make
 install-sh
 libtool
