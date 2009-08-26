@@ -226,6 +226,16 @@ gtk_clutter_offscreen_size_allocate (GtkWidget     *widget,
   GtkClutterOffscreen *offscreen;
   gint border_width;
 
+  /* some widgets call gtk_widget_queue_resize() which triggers a
+   * size-request/size-allocate cycle.
+   * Calling gdk_window_move_resize() triggers an expose-event of the entire
+   * widget tree, so we only want to do it if the allocation has changed in
+   * some way, otherwise we can just ignore it. */
+  if (memcmp (&widget->allocation, allocation, sizeof (GtkAllocation)) == 0)
+  {
+    return;
+  }
+
   widget->allocation = *allocation;
   offscreen = GTK_CLUTTER_OFFSCREEN (widget);
 
