@@ -235,7 +235,7 @@ gtk_clutter_standin_size_request (GtkWidget      *self,
   GtkClutterStandinPrivate *priv = GTK_CLUTTER_STANDIN (self)->priv;
   float w, h;
 
-  clutter_actor_get_preferred_size (priv->actor, NULL, NULL, &w, &h);
+  clutter_actor_get_preferred_size (priv->actor, &w, &h, NULL, NULL);
   requisition->width = ceil (w);
   requisition->height = ceil (h);
 }
