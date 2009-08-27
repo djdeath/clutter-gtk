@@ -31,6 +31,7 @@
 #endif
 
 #include "gtk-clutter-standin.h"
+#include "gtk-clutter-standin-bin.h"
 #include "gtk-clutter-offscreen.h"
 
 #include <glib-object.h>
@@ -48,6 +49,7 @@ enum
 
 struct _GtkClutterStandinPrivate
 {
+  ClutterActor *bin;
   ClutterActor *actor;
   gboolean actor_on_stage;
 };
@@ -74,7 +76,7 @@ gtk_clutter_standin_put_actor_on_stage (GtkClutterStandin *self)
     ClutterActor *stage = clutter_actor_get_stage (
             GTK_CLUTTER_OFFSCREEN (parent)->actor);
 
-    clutter_container_add_actor (CLUTTER_CONTAINER (stage), priv->actor);
+    clutter_container_add_actor (CLUTTER_CONTAINER (stage), priv->bin);
     priv->actor_on_stage = TRUE;
 }
 
@@ -129,6 +131,8 @@ gtk_clutter_standin_set_property (GObject      *self,
     {
         case PROP_ACTOR:
             priv->actor = g_value_dup_object (value);
+            clutter_container_add_actor (CLUTTER_CONTAINER (priv->bin),
+                    priv->actor);
             break;
 
         default:
@@ -144,6 +148,9 @@ gtk_clutter_standin_dispose (GObject *gobject)
 
   g_object_unref (priv->actor);
 
+  clutter_container_remove_actor (CLUTTER_CONTAINER (priv->bin), priv->actor);
+  clutter_actor_destroy (priv->bin);
+
   G_OBJECT_CLASS (gtk_clutter_standin_parent_class)->dispose (gobject);
 }
 
@@ -154,7 +161,7 @@ gtk_clutter_standin_show (GtkWidget *widget)
 
   if (GTK_WIDGET_REALIZED (widget))
   {
-    clutter_actor_show (priv->actor);
+    clutter_actor_show (priv->bin);
   }
 
   GTK_WIDGET_CLASS (gtk_clutter_standin_parent_class)->show (widget);
@@ -169,7 +176,7 @@ gtk_clutter_standin_hide (GtkWidget *widget)
    * have already disposed priv->stage. */
   if (priv->actor)
   {
-    clutter_actor_hide (priv->actor);
+    clutter_actor_hide (priv->bin);
   }
 
   GTK_WIDGET_CLASS (gtk_clutter_standin_parent_class)->hide (widget);
@@ -208,11 +215,11 @@ gtk_clutter_standin_realize (GtkWidget *widget)
 
   gdk_window_set_back_pixmap (widget->window, NULL, FALSE);
 
-  clutter_actor_realize (priv->actor);
+  clutter_actor_realize (priv->bin);
 
   if (GTK_WIDGET_VISIBLE (widget))
   {
-    clutter_actor_show (priv->actor);
+    clutter_actor_show (priv->bin);
   }
 
   gtk_clutter_standin_send_configure (GTK_CLUTTER_STANDIN (widget));
@@ -223,7 +230,7 @@ gtk_clutter_standin_unrealize (GtkWidget *widget)
 {
   GtkClutterStandinPrivate *priv = GTK_CLUTTER_STANDIN (widget)->priv;
 
-  clutter_actor_hide (priv->actor);
+  clutter_actor_hide (priv->bin);
 
   GTK_WIDGET_CLASS (gtk_clutter_standin_parent_class)->unrealize (widget);
 }
@@ -235,7 +242,7 @@ gtk_clutter_standin_size_request (GtkWidget      *self,
   GtkClutterStandinPrivate *priv = GTK_CLUTTER_STANDIN (self)->priv;
   float w, h;
 
-  clutter_actor_get_preferred_size (priv->actor, &w, &h, NULL, NULL);
+  clutter_actor_get_preferred_size (priv->bin, NULL, NULL, &w, &h);
   requisition->width = ceil (w);
   requisition->height = ceil (h);
 }
@@ -257,10 +264,10 @@ gtk_clutter_standin_size_allocate (GtkWidget     *widget,
       gtk_clutter_standin_send_configure (GTK_CLUTTER_STANDIN (widget));
     }
 
-  clutter_actor_set_position (priv->actor,
+  clutter_actor_set_position (priv->bin,
                               allocation->x,
                               allocation->y);
-  clutter_actor_set_size (priv->actor,
+  clutter_actor_set_size (priv->bin,
                           allocation->width,
                           allocation->height);
 }
@@ -271,7 +278,7 @@ gtk_clutter_standin_map (GtkWidget *widget)
   GtkClutterStandinPrivate *priv = GTK_CLUTTER_STANDIN (widget)->priv;
 
   gtk_clutter_standin_put_actor_on_stage (GTK_CLUTTER_STANDIN (widget));
-  clutter_actor_map (priv->actor);
+  clutter_actor_map (priv->bin);
 
   GTK_WIDGET_CLASS (gtk_clutter_standin_parent_class)->map (widget);
 }
@@ -281,7 +288,7 @@ gtk_clutter_standin_unmap (GtkWidget *widget)
 {
   GtkClutterStandinPrivate *priv = GTK_CLUTTER_STANDIN (widget)->priv;
 
-  clutter_actor_unmap (priv->actor);
+  clutter_actor_unmap (priv->bin);
 
   GTK_WIDGET_CLASS (gtk_clutter_standin_parent_class)->unmap (widget);
 }
@@ -329,11 +336,14 @@ gtk_clutter_standin_class_init (GtkClutterStandinClass *klass)
 }
 
 static void
-gtk_clutter_standin_init (GtkClutterStandin *embed)
+gtk_clutter_standin_init (GtkClutterStandin *self)
 {
   GtkClutterStandinPrivate *priv;
 
-  embed->priv = priv = GTK_CLUTTER_STANDIN_GET_PRIVATE (embed);
+  self->priv = priv = GTK_CLUTTER_STANDIN_GET_PRIVATE (self);
+
+  priv->bin = g_object_new (GTK_CLUTTER_TYPE_STANDIN_BIN, NULL);
+  GTK_CLUTTER_STANDIN_BIN (priv->bin)->standin = GTK_WIDGET (self);
 }
 
 /**
