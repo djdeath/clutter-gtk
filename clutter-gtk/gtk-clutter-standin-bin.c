@@ -59,7 +59,6 @@ gtk_clutter_standin_bin_get_preferred_width (ClutterActor *actor,
     standin = GTK_CLUTTER_STANDIN_BIN (actor)->standin;
     if (*natural_width_p != standin->requisition.width)
     {
-        g_print ("width changed (%g)\n", *natural_width_p);
         g_object_set (actor, "natural-width-set", FALSE, NULL);
         gtk_widget_queue_resize (standin);
     }
@@ -82,7 +81,6 @@ gtk_clutter_standin_bin_get_preferred_height (ClutterActor *actor,
     standin = GTK_CLUTTER_STANDIN_BIN (actor)->standin;
     if (*natural_height_p != standin->requisition.height)
     {
-        g_print ("height changed\n");
         g_object_set (actor, "natural-height-set", FALSE, NULL);
         gtk_widget_queue_resize (standin);
     }
