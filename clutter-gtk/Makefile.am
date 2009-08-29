@@ -52,7 +52,7 @@ GtkClutter-@CLUTTER_GTK_API_VERSION@.gir: $(INTROSPECTION_SCANNER) libclutter-gt
 		--add-include-path=$(srcdir) --add-include=path=. \
 		--include=Clutter-1.0 \
 		--include=Gtk-2.0 \
-		--library=clutter-gtk-@CLUTTER_GTK_API_VERSION@ \
+		--library=libclutter-gtk-@CLUTTER_GTK_API_VERSION@.la \
 		--libtool="$(top_builddir)/libtool" \
 		--output $@ \
 		--pkg gobject-2.0 \
@@ -72,7 +72,13 @@ typelibsdir = $(libdir)/girepository-1.0/
 typelibs_DATA = $(BUILT_GIRSOURCES:.gir=.typelib)
 
 %.typelib: %.gir $(INTROSPECTION_COMPILER)
-	$(QUIET_GEN)$(INTROSPECTION_COMPILER) --includedir=$(srcdir) --includedir=. $(INTROSPECTION_COMPILER_OPTS) $< -o $(builddir)/$(@F)
+	$(QUIET_GEN)\
+	LD_LIBRARY_PATH=.libs$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH} \
+	$(INTROSPECTION_COMPILER) \
+		--includedir=$(srcdir) \
+		--includedir=. \
+		$(INTROSPECTION_COMPILER_OPTS) \
+	$< -o $(builddir)/$(@F)
 
 CLEANFILES += $(BUILT_GIRSOURCES) $(typelibs_DATA)
 endif

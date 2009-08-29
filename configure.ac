@@ -156,7 +156,7 @@ AC_SUBST(CLUTTER_PREFIX)
 
 GTK_DOC_CHECK([1.11])
 
-GOBJECT_INTROSPECTION_CHECK([0.6.3])
+GOBJECT_INTROSPECTION_CHECK([0.6.4])
 
 dnl ========================================================================
 
