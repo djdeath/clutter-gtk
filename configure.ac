@@ -55,7 +55,7 @@ AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 
 m4_define([clutter_req_version], [1.0.0])
-m4_define([gtk_req_version], [2.12.0])
+m4_define([gtk_req_version], [2.17.2])
 m4_define([flavour_default], [x11])
 AC_ARG_WITH([flavour],
             [AC_HELP_STRING([--with-flavour=@<:@x11/win32@:>@],
