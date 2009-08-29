@@ -147,7 +147,7 @@ G_PREFIX=`$PKG_CONFIG --variable=prefix glib-2.0`
 GDK_PREFIX=`$PKG_CONFIG --variable=prefix gdk-2.0`
 GTK_PREFIX=`$PKG_CONFIG --variable=prefix gtk+-2.0`
 GDK_PIXBUF_PREFIX=`$PKG_CONFIG --variable=prefix gdk-pixbuf-2.0`
-CLUTTER_PREFIX=`$PKG_CONFIG --variable=prefix clutter-0.9`
+CLUTTER_PREFIX=`$PKG_CONFIG --variable=prefix clutter-1.0`
 AC_SUBST(G_PREFIX)
 AC_SUBST(GDK_PREFIX)
 AC_SUBST(GTK_PREFIX)
