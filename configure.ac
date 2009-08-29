@@ -2,8 +2,8 @@
 # An odd micro number indicates in-progress development, (eg. from git)
 # An even micro number indicates a released version.
 m4_define([clutter_gtk_major], [0])
-m4_define([clutter_gtk_minor], [10])
-m4_define([clutter_gtk_micro], [3])
+m4_define([clutter_gtk_minor], [90])
+m4_define([clutter_gtk_micro], [1])
 
 m4_define([clutter_gtk_api_version], [clutter_gtk_major.clutter_gtk_minor])
 m4_define([clutter_gtk_version], [clutter_gtk_major.clutter_gtk_minor.clutter_gtk_micro])
