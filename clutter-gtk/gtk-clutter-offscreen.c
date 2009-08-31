@@ -49,11 +49,10 @@ gtk_clutter_offscreen_add (GtkContainer *container,
   if (CLUTTER_ACTOR_IS_VISIBLE (offscreen->actor))
   {
     /* force a relayout */
-    g_object_set (offscreen->actor,
-            "min-width-set", FALSE,
-            "min-height-set", FALSE,
-            NULL);
+    clutter_actor_set_size (offscreen->actor, -1, -1);
+    clutter_actor_queue_relayout (offscreen->actor);
   }
+
 }
 
 static void
@@ -72,10 +71,8 @@ gtk_clutter_offscreen_remove (GtkContainer *container,
   if (CLUTTER_ACTOR_IS_VISIBLE (offscreen->actor))
   {
     /* force a relayout */
-    g_object_set (offscreen->actor,
-            "min-width-set", FALSE,
-            "min-height-set", FALSE,
-            NULL);
+    clutter_actor_set_size (offscreen->actor, -1, -1);
+    clutter_actor_queue_relayout (offscreen->actor);
   }
 }
 

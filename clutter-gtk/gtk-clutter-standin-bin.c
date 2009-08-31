@@ -27,6 +27,7 @@
 #include "gtk-clutter-standin.h"
 
 #include <glib-object.h>
+#include <math.h>
 
 static void clutter_container_iface_init (ClutterContainerIface *iface);
 
@@ -59,7 +60,7 @@ gtk_clutter_standin_bin_get_preferred_width (ClutterActor *actor,
     standin = GTK_CLUTTER_STANDIN_BIN (actor)->standin;
     if (*natural_width_p != standin->requisition.width)
     {
-        g_object_set (actor, "natural-width-set", FALSE, NULL);
+        clutter_actor_set_width (actor, -1);
         gtk_widget_queue_resize (standin);
     }
 }
@@ -81,9 +82,98 @@ gtk_clutter_standin_bin_get_preferred_height (ClutterActor *actor,
     standin = GTK_CLUTTER_STANDIN_BIN (actor)->standin;
     if (*natural_height_p != standin->requisition.height)
     {
-        g_object_set (actor, "natural-height-set", FALSE, NULL);
+        clutter_actor_set_height (actor, -1);
         gtk_widget_queue_resize (standin);
     }
+}
+
+static void
+gtk_clutter_standin_bin_allocate (ClutterActor          *self,
+                                  const ClutterActorBox *box,
+                                  ClutterAllocationFlags flags)
+{
+    /* we only want to accept allocations from GTK+, thus allocation is
+     * done by calling gtk_clutter_standin_bin_gtk_allocate() */
+}
+
+void
+gtk_clutter_standin_bin_gtk_size_request (GtkClutterStandinBin *self,
+                                          GtkRequisition       *requisition)
+{
+  ClutterRequestMode request_mode;
+  float width, height;
+
+  g_object_get (self, "request-mode", &request_mode, NULL);
+
+  if (request_mode == CLUTTER_REQUEST_HEIGHT_FOR_WIDTH)
+    {
+      gtk_clutter_standin_bin_get_preferred_width (CLUTTER_ACTOR (self),
+                                         -1, NULL, &width);
+
+      gtk_clutter_standin_bin_get_preferred_height (CLUTTER_ACTOR (self),
+                                          width, NULL, &height);
+    }
+  else
+    {
+      gtk_clutter_standin_bin_get_preferred_height (CLUTTER_ACTOR (self),
+                                          -1, NULL, &height);
+
+      gtk_clutter_standin_bin_get_preferred_width (CLUTTER_ACTOR (self),
+                                         height, NULL, &width);
+    }
+
+  requisition->width = ceil (width);
+  requisition->height = ceil (height);
+}
+
+void
+gtk_clutter_standin_bin_gtk_size_allocate (GtkClutterStandinBin  *self,
+                                           GtkAllocation         *allocation)
+{
+  ClutterRequestMode request_mode;
+  ClutterActorBox box;
+  float width, height;
+  float min_width, natural_width;
+  float min_height, natural_height;
+
+  g_object_get (self, "request-mode", &request_mode, NULL);
+
+  if (request_mode == CLUTTER_REQUEST_HEIGHT_FOR_WIDTH)
+    {
+      gtk_clutter_standin_bin_get_preferred_width (CLUTTER_ACTOR (self),
+                                         (float) allocation->height,
+                                         &min_width,
+                                         &natural_width);
+      width = CLAMP (natural_width, min_width, (float) allocation->width);
+
+      gtk_clutter_standin_bin_get_preferred_height (CLUTTER_ACTOR (self),
+                                          width,
+                                          &min_height,
+                                          &natural_height);
+      height = CLAMP (natural_height, min_height, (float) allocation->height);
+    }
+  else
+    {
+      gtk_clutter_standin_bin_get_preferred_height (CLUTTER_ACTOR (self),
+                                          (float) allocation->width,
+                                          &min_height,
+                                          &natural_height);
+      height = CLAMP (natural_height, min_height, (float) allocation->height);
+
+      gtk_clutter_standin_bin_get_preferred_width (CLUTTER_ACTOR (self),
+                                         height,
+                                         &min_width,
+                                         &natural_width);
+      width = CLAMP (natural_width, min_width, (float) allocation->width);
+    }
+
+  box.x1 = (float) allocation->x;
+  box.y1 = (float) allocation->y;
+  box.x2 = box.x1 + width;
+  box.y2 = box.y1 + height;
+
+  CLUTTER_ACTOR_CLASS (gtk_clutter_standin_bin_parent_class)->allocate (
+            CLUTTER_ACTOR (self), &box, CLUTTER_ALLOCATION_NONE);
 }
 
 static void
@@ -94,6 +184,7 @@ gtk_clutter_standin_bin_class_init (GtkClutterStandinBinClass *klass)
 
   actor_class->get_preferred_width  = gtk_clutter_standin_bin_get_preferred_width;
   actor_class->get_preferred_height = gtk_clutter_standin_bin_get_preferred_height;
+  actor_class->allocate = gtk_clutter_standin_bin_allocate;
 
   gobject_class->finalize = gtk_clutter_standin_bin_finalize;
 }

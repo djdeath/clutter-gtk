@@ -240,11 +240,9 @@ gtk_clutter_standin_size_request (GtkWidget      *self,
                                   GtkRequisition *requisition)
 {
   GtkClutterStandinPrivate *priv = GTK_CLUTTER_STANDIN (self)->priv;
-  float w, h;
 
-  clutter_actor_get_preferred_size (priv->bin, NULL, NULL, &w, &h);
-  requisition->width = ceil (w);
-  requisition->height = ceil (h);
+  gtk_clutter_standin_bin_gtk_size_request (
+          GTK_CLUTTER_STANDIN_BIN (priv->bin), requisition);
 }
 
 static void
@@ -264,12 +262,9 @@ gtk_clutter_standin_size_allocate (GtkWidget     *widget,
       gtk_clutter_standin_send_configure (GTK_CLUTTER_STANDIN (widget));
     }
 
-  clutter_actor_set_position (priv->bin,
-                              allocation->x,
-                              allocation->y);
-  clutter_actor_set_size (priv->bin,
-                          allocation->width,
-                          allocation->height);
+  gtk_clutter_standin_bin_gtk_size_allocate (
+          GTK_CLUTTER_STANDIN_BIN (priv->bin),
+          allocation);
 }
 
 static void
