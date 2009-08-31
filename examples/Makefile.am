@@ -4,6 +4,7 @@ NULL =
 
 noinst_PROGRAMS = \
 	animated-notebook \
+	expose-test \
 	gtk-clutter-events \
 	gtk-clutter-multistage \
 	gtk-clutter-standin-test \
@@ -30,6 +31,10 @@ common_ldadd = \
 animated_notebook_SOURCES = animated-notebook.c
 animated_notebook_DEPENDENCIES = $(common_deps)
 animated_notebook_LDADD = $(common_ldadd)
+
+expose_test_SOURCES = expose-test.c
+expose_test_DEPENDENCIES = $(common_deps)
+expose_test_LDADD = $(common_ldadd)
 
 gtk_clutter_test_SOURCES = gtk-clutter-test.c
 gtk_clutter_test_DEPENDENCIES = $(common_deps)
