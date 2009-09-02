@@ -130,9 +130,8 @@ gtk_clutter_standin_set_property (GObject      *self,
     switch (property_id)
     {
         case PROP_ACTOR:
-            priv->actor = g_value_dup_object (value);
-            clutter_container_add_actor (CLUTTER_CONTAINER (priv->bin),
-                    priv->actor);
+            gtk_clutter_standin_set_actor (GTK_CLUTTER_STANDIN (self),
+                    g_value_get_object (value));
             break;
 
         default:
@@ -342,8 +341,38 @@ gtk_clutter_standin_init (GtkClutterStandin *self)
 }
 
 /**
+ * gtk_clutter_standin_set_actor:
+ * @self: the #GtkClutterStandin
+ * @actor: a #ClutterActor to stand in for (or NULL)
+ */
+void
+gtk_clutter_standin_set_actor (GtkClutterStandin *self,
+                               ClutterActor      *actor)
+{
+    GtkClutterStandinPrivate *priv;
+
+    g_return_if_fail (GTK_CLUTTER_IS_STANDIN (self));
+    g_return_if_fail (actor == NULL || CLUTTER_IS_ACTOR (actor));
+
+    priv = GTK_CLUTTER_STANDIN (self)->priv;
+
+    if (priv->actor != NULL)
+    {
+        clutter_container_remove_actor (CLUTTER_CONTAINER (priv->bin), priv->actor);
+        g_object_unref (priv->actor);
+        priv->actor == NULL;
+    }
+
+    if (actor != NULL)
+    {
+        priv->actor = g_object_ref (actor);
+        clutter_container_add_actor (CLUTTER_CONTAINER (priv->bin), actor);
+    }
+}
+
+/**
  * gtk_clutter_standin_new:
- * @actor: the #ClutterActor to stand-in for
+ * @actor: the #ClutterActor to stand-in for (or NULL)
  *
  * Creates a new #GtkClutterStandin widget. This widget is used as a stand-in
  * in the GTK+ widget tree for a widget that is sitting as a separate actor
@@ -358,9 +387,16 @@ gtk_clutter_standin_init (GtkClutterStandin *self)
 GtkWidget *
 gtk_clutter_standin_new (ClutterActor *actor)
 {
-  g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), NULL);
+  GtkWidget *self;
 
-  return g_object_new (GTK_CLUTTER_TYPE_STANDIN,
-          "actor", actor,
-          NULL);
+  g_return_val_if_fail (actor == NULL || CLUTTER_IS_ACTOR (actor), NULL);
+
+  self = g_object_new (GTK_CLUTTER_TYPE_STANDIN, NULL);
+
+  if (actor != NULL)
+  {
+      gtk_clutter_standin_set_actor (GTK_CLUTTER_STANDIN (self), actor);
+  }
+
+  return self;
 }
