@@ -68,6 +68,34 @@ release_monitor (GtkWidget *widget, GdkEventExpose *event, char *str)
     return FALSE;
 }
 
+static gboolean
+enter_monitor (GtkWidget *widget, GdkEventCrossing *event, char *str)
+{
+    print_time ();
+    g_print ("enter (%s)\n", str);
+
+    return FALSE;
+}
+
+static gboolean
+leave_monitor (GtkWidget *widget, GdkEventCrossing *event, char *str)
+{
+    print_time ();
+    g_print ("leave (%s)\n", str);
+
+    return FALSE;
+}
+
+static gboolean
+focus_monitor (GtkWidget *widget, GdkEventFocus *event, char *str)
+{
+    print_time ();
+    g_print ("focus (%s)\n", str);
+
+    return FALSE;
+}
+
+
 static void
 paint_monitor (ClutterActor *actor, char *str)
 {
@@ -91,6 +119,14 @@ add_button (GtkTable *table, char *stock_id, int row)
             G_CALLBACK (press_monitor), stock_id);
     g_signal_connect (button, "button-release-event",
             G_CALLBACK (release_monitor), stock_id);
+    g_signal_connect (button, "enter-notify-event",
+            G_CALLBACK (enter_monitor), stock_id);
+    g_signal_connect (button, "leave-notify-event",
+            G_CALLBACK (leave_monitor), stock_id);
+    g_signal_connect (button, "focus-in-event",
+            G_CALLBACK (focus_monitor), stock_id);
+    g_signal_connect (button, "focus-out-event",
+            G_CALLBACK (focus_monitor), stock_id);
 
     return button;
 }
