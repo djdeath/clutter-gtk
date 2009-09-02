@@ -9,15 +9,27 @@
 #include <clutter/clutter.h>
 #include <clutter-gtk/clutter-gtk.h>
 
+#include <sys/time.h>
+
+static void inline
+print_time (void)
+{
+    struct timeval tv;
+    gettimeofday (&tv, NULL);
+    g_print ("[%ld.%.6ld] ", tv.tv_sec, tv.tv_usec);
+}
+
 static void
 button_clicked (GtkButton *button, char *stock_id)
 {
+    print_time ();
     g_print ("button clicked: %s\n", stock_id);
 }
 
 static gboolean
 expose_monitor (GtkWidget *widget, GdkEventExpose *event, char *str)
 {
+    print_time ();
     g_print ("expose (%s) - (%i, %i, %i, %i)\n",
             str,
             event->area.x, event->area.y,
@@ -29,6 +41,7 @@ expose_monitor (GtkWidget *widget, GdkEventExpose *event, char *str)
 static gboolean
 damage_monitor (GtkWidget *widget, GdkEventExpose *event, char *str)
 {
+    print_time ();
     g_print ("damage (%s) - (%i, %i, %i, %i)\n",
             str,
             event->area.x, event->area.y,
@@ -40,6 +53,7 @@ damage_monitor (GtkWidget *widget, GdkEventExpose *event, char *str)
 static gboolean
 press_monitor (GtkWidget *widget, GdkEventExpose *event, char *str)
 {
+    print_time ();
     g_print ("press (%s)\n", str);
 
     return FALSE;
@@ -48,6 +62,7 @@ press_monitor (GtkWidget *widget, GdkEventExpose *event, char *str)
 static gboolean
 release_monitor (GtkWidget *widget, GdkEventExpose *event, char *str)
 {
+    print_time ();
     g_print ("release (%s)\n", str);
 
     return FALSE;
@@ -56,6 +71,7 @@ release_monitor (GtkWidget *widget, GdkEventExpose *event, char *str)
 static void
 paint_monitor (ClutterActor *actor, char *str)
 {
+    print_time ();
     g_print ("paint (%s)\n", str);
 }
 
