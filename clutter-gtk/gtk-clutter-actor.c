@@ -303,6 +303,37 @@ gtk_clutter_actor_new (void)
   return g_object_new (GTK_CLUTTER_TYPE_ACTOR, NULL);
 }
 
+/**
+ * gtk_clutter_actor_new_with_contents:
+ * @contents: a #GtkWidget to pack into this #ClutterActor
+ *
+ * Creates a new #GtkClutterActor widget. This widget can be
+ * used to embed a Gtk widget into a clutter scene.
+ *
+ * This function is shorthand for:
+ * <example><programlisting>
+ * ClutterActor *actor = gtk_clutter_actor_new ();
+ * GtkWidget *bin = gtk_clutter_actor_get_widget (GTK_CLUTTER_ACTOR (actor));
+ * gtk_container_add (GTK_CONTAINER (bin), contents);
+ * </programlisting></example>
+ *
+ * Return value: the newly created #GtkClutterActor
+ *
+ * Since: 1.0
+ */
+ClutterActor *
+gtk_clutter_actor_new_with_contents (GtkWidget *contents)
+{
+  ClutterActor *actor;
+
+  g_return_val_if_fail (GTK_IS_WIDGET (contents), NULL);
+
+  actor = g_object_new (GTK_CLUTTER_TYPE_ACTOR, NULL);
+  gtk_container_add (GTK_CONTAINER (GTK_CLUTTER_ACTOR (actor)->priv->widget),
+          contents);
+
+  return actor;
+}
 
 void
 gtk_clutter_actor_set_receives_events (GtkClutterActor *actor,

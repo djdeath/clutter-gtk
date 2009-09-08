@@ -80,6 +80,7 @@ struct _GtkClutterActorClass
 
 GType         gtk_clutter_actor_get_type            (void) G_GNUC_CONST;
 ClutterActor *gtk_clutter_actor_new                 (void);
+ClutterActor *gtk_clutter_actor_new_with_contents   (GtkWidget *contents);
 void          gtk_clutter_actor_set_receives_events (GtkClutterActor *actor,
 						     gboolean         recieves_events);
 gboolean      gtk_clutter_actor_get_receives_events (GtkClutterActor *actor);
