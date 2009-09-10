@@ -95,12 +95,6 @@ main (int argc, char **argv)
 
     /* Widget 2 is a toolbar */
     ClutterActor *stage = gtk_clutter_window_get_stage (GTK_CLUTTER_WINDOW (window));
-    ClutterActor *actor = gtk_clutter_actor_new ();
-
-    // FIXME: resize to window width
-    clutter_actor_set_width (actor, 200.);
-
-    GtkWidget *bin = gtk_clutter_actor_get_widget (GTK_CLUTTER_ACTOR (actor));
 
     GtkWidget *toolbar = gtk_toolbar_new ();
     add_toolbar_items (GTK_TOOLBAR (toolbar),
@@ -112,8 +106,11 @@ main (int argc, char **argv)
             GTK_STOCK_CONVERT,
             NULL);
 
-    gtk_container_add (GTK_CONTAINER (bin), toolbar);
     gtk_widget_show_all (toolbar);
+    ClutterActor *actor = gtk_clutter_actor_new_with_contents (toolbar);
+
+    // FIXME: resize to window width
+    clutter_actor_set_width (actor, 200.);
 
     clutter_container_add_actor (CLUTTER_CONTAINER (stage), actor);
     clutter_actor_set_opacity (actor, 0xa0);
