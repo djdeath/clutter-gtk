@@ -177,6 +177,24 @@ gtk_clutter_standin_bin_gtk_size_allocate (GtkClutterStandinBin  *self,
 }
 
 static void
+gtk_clutter_standin_bin_show_all (ClutterActor *actor)
+{
+  clutter_container_foreach (CLUTTER_CONTAINER (actor),
+                             CLUTTER_CALLBACK (clutter_actor_show_all),
+                             NULL);
+  clutter_actor_show (actor);
+}
+
+static void
+gtk_clutter_standin_bin_hide_all (ClutterActor *actor)
+{
+  clutter_actor_hide (actor);
+  clutter_container_foreach (CLUTTER_CONTAINER (actor),
+                             CLUTTER_CALLBACK (clutter_actor_hide_all),
+                             NULL);
+}
+
+static void
 gtk_clutter_standin_bin_class_init (GtkClutterStandinBinClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
@@ -185,6 +203,10 @@ gtk_clutter_standin_bin_class_init (GtkClutterStandinBinClass *klass)
   actor_class->get_preferred_width  = gtk_clutter_standin_bin_get_preferred_width;
   actor_class->get_preferred_height = gtk_clutter_standin_bin_get_preferred_height;
   actor_class->allocate = gtk_clutter_standin_bin_allocate;
+  /* FIXME: I'm not wild about needing to reimplement show_all and hide_all,
+   * I think this is an issue in Clutter and should be fixed there */
+  actor_class->show_all = gtk_clutter_standin_bin_show_all;
+  actor_class->hide_all = gtk_clutter_standin_bin_hide_all;
 
   gobject_class->finalize = gtk_clutter_standin_bin_finalize;
 }

@@ -193,6 +193,46 @@ gtk_clutter_actor_paint (ClutterActor *actor)
 }
 
 static void
+gtk_clutter_actor_show (ClutterActor *self)
+{
+    /* proxy this call through to GTK+ */
+    GtkWidget *widget = gtk_bin_get_child (GTK_BIN (GTK_CLUTTER_ACTOR (self)->priv->widget));
+    if (widget != NULL) gtk_widget_show (widget);
+
+    CLUTTER_ACTOR_CLASS (gtk_clutter_actor_parent_class)->show (self);
+}
+
+static void
+gtk_clutter_actor_show_all (ClutterActor *self)
+{
+    /* proxy this call through to GTK+ */
+    GtkWidget *widget = gtk_bin_get_child (GTK_BIN (GTK_CLUTTER_ACTOR (self)->priv->widget));
+    if (widget != NULL) gtk_widget_show_all (widget);
+
+    CLUTTER_ACTOR_CLASS (gtk_clutter_actor_parent_class)->show_all (self);
+}
+
+static void
+gtk_clutter_actor_hide (ClutterActor *self)
+{
+    /* proxy this call through to GTK+ */
+    GtkWidget *widget = gtk_bin_get_child (GTK_BIN (GTK_CLUTTER_ACTOR (self)->priv->widget));
+    if (widget != NULL) gtk_widget_hide (widget);
+
+    CLUTTER_ACTOR_CLASS (gtk_clutter_actor_parent_class)->hide (self);
+}
+
+static void
+gtk_clutter_actor_hide_all (ClutterActor *self)
+{
+    /* proxy this call through to GTK+ */
+    GtkWidget *widget = gtk_bin_get_child (GTK_BIN (GTK_CLUTTER_ACTOR (self)->priv->widget));
+    if (widget != NULL) gtk_widget_hide_all (widget);
+
+    CLUTTER_ACTOR_CLASS (gtk_clutter_actor_parent_class)->hide_all (self);
+}
+
+static void
 gtk_clutter_actor_class_init (GtkClutterActorClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
@@ -200,10 +240,13 @@ gtk_clutter_actor_class_init (GtkClutterActorClass *klass)
 
   g_type_class_add_private (klass, sizeof (GtkClutterActorPrivate));
 
-  actor_class->paint = gtk_clutter_actor_paint;
-  actor_class->realize = gtk_clutter_actor_realize;
+  actor_class->paint     = gtk_clutter_actor_paint;
+  actor_class->realize   = gtk_clutter_actor_realize;
   actor_class->unrealize = gtk_clutter_actor_unrealize;
-
+  actor_class->show      = gtk_clutter_actor_show;
+  actor_class->show_all  = gtk_clutter_actor_show_all;
+  actor_class->hide      = gtk_clutter_actor_hide;
+  actor_class->hide_all  = gtk_clutter_actor_hide_all;
   actor_class->get_preferred_width  = gtk_clutter_actor_get_preferred_width;
   actor_class->get_preferred_height = gtk_clutter_actor_get_preferred_height;
   actor_class->allocate             = gtk_clutter_actor_allocate;
