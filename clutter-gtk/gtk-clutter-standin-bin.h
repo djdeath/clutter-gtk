@@ -16,7 +16,7 @@
  * License along with this library. If not see <http://www.fsf.org/licensing>.
  *
  * Authors:
- *   Davyd Madeley <davyd.madeley@collabora.co.uk>
+ *   Danielle Madeley <danielle.madeley@collabora.co.uk>
  */
 
 #ifndef __GTK_CLUTTER_STANDIN_BIN_H__

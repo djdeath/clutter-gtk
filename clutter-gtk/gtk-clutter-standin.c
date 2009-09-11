@@ -16,7 +16,7 @@
  * License along with this library. If not see <http://www.fsf.org/licensing>.
  *
  * Authors:
- *   Davyd Madeley  <davyd.madeley@collabora.co.uk>
+ *   Danielle Madeley  <danielle.madeley@collabora.co.uk>
  */
 
 /**
@@ -73,10 +73,10 @@ gtk_clutter_standin_put_actor_on_stage (GtkClutterStandin *self)
     if (parent == NULL) return;
     g_return_if_fail (GTK_CLUTTER_IS_OFFSCREEN (parent));
 
-    ClutterActor *stage = clutter_actor_get_stage (
-            GTK_CLUTTER_OFFSCREEN (parent)->actor);
-
-    clutter_container_add_actor (CLUTTER_CONTAINER (stage), priv->bin);
+    /* GtkClutterActor can accept a GtkClutterStandin as a child */
+    clutter_container_add_actor (
+            CLUTTER_CONTAINER (GTK_CLUTTER_OFFSCREEN (parent)->actor),
+            priv->bin);
     priv->actor_on_stage = TRUE;
 }
 
@@ -280,13 +280,13 @@ gtk_clutter_standin_size_allocate (GtkWidget     *widget,
   widget->allocation = *allocation;
 
   if (GTK_WIDGET_REALIZED (widget))
-    {
+  {
       gdk_window_move_resize (widget->window,
                               allocation->x, allocation->y,
                               allocation->width, allocation->height);
 
       gtk_clutter_standin_send_configure (GTK_CLUTTER_STANDIN (widget));
-    }
+  }
 
   gtk_clutter_standin_bin_gtk_size_allocate (
           GTK_CLUTTER_STANDIN_BIN (priv->bin),

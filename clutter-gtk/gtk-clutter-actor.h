@@ -52,7 +52,7 @@ typedef struct _GtkClutterActorClass    GtkClutterActorClass;
 struct _GtkClutterActor
 {
   /*< private >*/
-  ClutterActor parent_instance;
+  ClutterGroup parent_instance;
 
   GtkClutterActorPrivate *priv;
 };
@@ -67,7 +67,7 @@ struct _GtkClutterActor
 struct _GtkClutterActorClass
 {
   /*< private >*/
-  ClutterActorClass parent_class;
+  ClutterGroupClass parent_class;
 
   /* padding for future expansion */
   void (*_clutter_gtk_reserved1) (void);

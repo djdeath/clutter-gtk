@@ -1,4 +1,4 @@
-/* gtk-clutter-actor.h: Gtk widget ClutterActor
+/* gtk-clutter-actor.c: Gtk widget ClutterActor
  *
  * Copyright (C) 2009 Red Hat, Inc
  *
@@ -17,6 +17,7 @@
  *
  * Authors:
  *   Alexander Larsson <alexl@redhat.com>
+ *   Danielle Madeley <danielle.madeley@collabora.co.uk>
  */
 
 /**
@@ -33,6 +34,7 @@
 
 #include "gtk-clutter-actor.h"
 #include "gtk-clutter-offscreen.h"
+#include "gtk-clutter-standin-bin.h"
 
 #include <glib-object.h>
 
@@ -57,7 +59,7 @@ static void clutter_container_iface_init (ClutterContainerIface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (GtkClutterActor,
 			 gtk_clutter_actor,
-			 CLUTTER_TYPE_ACTOR,
+			 CLUTTER_TYPE_GROUP,
 			 G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_CONTAINER,
 						clutter_container_iface_init));
 
@@ -190,6 +192,8 @@ gtk_clutter_actor_paint (ClutterActor *actor)
 {
   GtkClutterActor *clutter = GTK_CLUTTER_ACTOR (actor);
   clutter_actor_paint (clutter->priv->texture);
+
+  CLUTTER_ACTOR_CLASS (gtk_clutter_actor_parent_class)->paint (actor);
 }
 
 static void
@@ -275,32 +279,41 @@ gtk_clutter_actor_init (GtkClutterActor *actor)
 
 static void
 gtk_clutter_actor_add (ClutterContainer *container,
-		       ClutterActor     *actor)
+                       ClutterActor     *actor)
 {
-  g_warning ("Can't add children to GtkClutterActor");
-}
+    ClutterContainerIface *parent_iface;
 
-static void
-gtk_clutter_actor_remove (ClutterContainer *container,
-			  ClutterActor     *actor)
-{
-}
+    /* we only accept one kind of child, GtkClutterStandinBin, this means
+     * that transforms that are applied to us are also applied to our child */
+    if (!GTK_CLUTTER_IS_STANDIN_BIN (actor))
+    {
+        g_warning ("Can't add children to GtkClutterActor");
+        return;
+    }
 
-static void
-gtk_clutter_actor_foreach (ClutterContainer *container,
-			   ClutterCallback   callback,
-			   gpointer          user_data)
-{
+    parent_iface = g_type_interface_peek_parent (CLUTTER_CONTAINER_GET_IFACE (container));
+    parent_iface->add (container, actor);
 }
 
 static void
 gtk_clutter_actor_foreach_with_internals (ClutterContainer *container,
-					  ClutterCallback   callback,
-					  gpointer          user_data)
+                                          ClutterCallback   callback,
+                                          gpointer          user_data)
 {
   GtkClutterActor *clutter = GTK_CLUTTER_ACTOR (container);
+  ClutterContainerIface *parent_iface;
 
   callback (clutter->priv->texture, user_data);
+
+  parent_iface = g_type_interface_peek_parent (CLUTTER_CONTAINER_GET_IFACE (container));
+  if (parent_iface->foreach_with_internals != NULL)
+  {
+      parent_iface->foreach_with_internals (container, callback, user_data);
+  }
+  else
+  {
+      parent_iface->foreach (container, callback, user_data);
+  }
 }
 
 GtkWidget *
@@ -325,8 +338,8 @@ static void
 clutter_container_iface_init (ClutterContainerIface *iface)
 {
   iface->add = gtk_clutter_actor_add;
-  iface->remove = gtk_clutter_actor_remove;
-  iface->foreach = gtk_clutter_actor_foreach;
+  // iface->remove = gtk_clutter_actor_remove;
+  // iface->foreach = gtk_clutter_actor_foreach;
   iface->foreach_with_internals = gtk_clutter_actor_foreach_with_internals;
 }
 
