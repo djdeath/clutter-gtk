@@ -54,7 +54,7 @@ main (int argc, char **argv)
             G_CALLBACK (g_print), "show button standin (%p)\n");
 
     gtk_notebook_append_page (GTK_NOTEBOOK (nb),
-            standin, gtk_label_new ("Page 1"));
+            standin, gtk_label_new ("Standins"));
 
     /* image */
     GtkWidget *image = gtk_image_new_from_file ("redhand.png");
@@ -69,6 +69,17 @@ main (int argc, char **argv)
             G_CALLBACK (g_print), "show image standin (%p\n");
 
     gtk_container_add (GTK_CONTAINER (button), standin);
+
+    /* Page 2 */
+    button = gtk_button_new ();
+    g_signal_connect_swapped (button, "clicked",
+           G_CALLBACK (g_print), "clicked\n");
+
+    gtk_notebook_append_page (GTK_NOTEBOOK (nb),
+            button, gtk_label_new ("No Standins"));
+
+    image = gtk_image_new_from_file ("redhand.png");
+    gtk_container_add (GTK_CONTAINER (button), image);
 
     g_print (" --- show all ---\n");
     gtk_widget_show_all (window);
