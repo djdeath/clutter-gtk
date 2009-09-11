@@ -58,12 +58,13 @@ static void
 gtk_clutter_standin_put_actor_on_stage (GtkClutterStandin *self)
 {
     GtkClutterStandinPrivate *priv = GTK_CLUTTER_STANDIN (self)->priv;
+    GtkWidget *parent;
 
     if (priv->actor_on_stage) return;
 
     /* find the stage that this stand-in is placed upon and place our actor
      * upon it */
-    GtkWidget *parent = GTK_WIDGET (self);
+    parent = GTK_WIDGET (self);
 
     while ((parent = gtk_widget_get_parent (parent)))
     {
