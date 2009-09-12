@@ -47,11 +47,11 @@ gtk_clutter_offscreen_add (GtkContainer *container,
           child);
 
   if (CLUTTER_ACTOR_IS_VISIBLE (offscreen->actor))
-  {
-    /* force a relayout */
-    clutter_actor_set_size (offscreen->actor, -1, -1);
-    clutter_actor_queue_relayout (offscreen->actor);
-  }
+    {
+      /* force a relayout */
+      clutter_actor_set_size (offscreen->actor, -1, -1);
+      clutter_actor_queue_relayout (offscreen->actor);
+    }
 
 }
 
@@ -69,11 +69,11 @@ gtk_clutter_offscreen_remove (GtkContainer *container,
           child);
 
   if (CLUTTER_ACTOR_IS_VISIBLE (offscreen->actor))
-  {
-    /* force a relayout */
-    clutter_actor_set_size (offscreen->actor, -1, -1);
-    clutter_actor_queue_relayout (offscreen->actor);
-  }
+    {
+      /* force a relayout */
+      clutter_actor_set_size (offscreen->actor, -1, -1);
+      clutter_actor_queue_relayout (offscreen->actor);
+    }
 }
 
 static void
@@ -126,11 +126,11 @@ gtk_clutter_offscreen_new (ClutterActor *actor)
 
 static void
 offscreen_window_to_parent (GdkWindow       *offscreen_window,
-			    double           offscreen_x,
-			    double           offscreen_y,
-			    double          *parent_x,
-			    double          *parent_y,
-			    GtkClutterOffscreen *offscreen)
+                            double           offscreen_x,
+                            double           offscreen_y,
+                            double          *parent_x,
+                            double          *parent_y,
+                            GtkClutterOffscreen *offscreen)
 {
   ClutterVertex point, vertex;
 
@@ -144,17 +144,17 @@ offscreen_window_to_parent (GdkWindow       *offscreen_window,
 
 static void
 offscreen_window_from_parent (GdkWindow       *window,
-			      double           parent_x,
-			      double           parent_y,
-			      double          *offscreen_x,
-			      double          *offscreen_y,
-			      GtkClutterOffscreen *offscreen)
+                              double           parent_x,
+                              double           parent_y,
+                              double          *offscreen_x,
+                              double          *offscreen_y,
+                              GtkClutterOffscreen *offscreen)
 {
   gfloat x, y;
   if (clutter_actor_transform_stage_point (offscreen->actor,
-					   parent_x,
-					   parent_y,
-					   &x, &y))
+                                           parent_x,
+                                           parent_y,
+                                           &x, &y))
     {
       *offscreen_x = x;
       *offscreen_y = y;
@@ -262,12 +262,12 @@ gtk_clutter_offscreen_size_allocate (GtkWidget     *widget,
        allocation->y != widget->allocation.y ||
        allocation->width != widget->allocation.width ||
        allocation->height != widget->allocation.height))
-  {
-    gdk_window_move_resize (widget->window,
-			    0, 0,
-			    allocation->width,
-			    allocation->height);
-  }
+    {
+      gdk_window_move_resize (widget->window,
+                              0, 0,
+                              allocation->width,
+                              allocation->height);
+    }
 
   widget->allocation = *allocation;
   border_width = GTK_CONTAINER (widget)->border_width;
@@ -295,17 +295,17 @@ gtk_clutter_offscreen_damage (GtkWidget      *widget,
   GtkClutterOffscreen *offscreen = GTK_CLUTTER_OFFSCREEN (widget);
 
   _gtk_clutter_actor_update (GTK_CLUTTER_ACTOR (offscreen->actor),
-			     event->area.x,
-			     event->area.y,
-			     event->area.width,
-			     event->area.height);
+                             event->area.x,
+                             event->area.y,
+                             event->area.width,
+                             event->area.height);
 
   return TRUE;
 }
 
 void
 gtk_clutter_offscreen_set_active (GtkClutterOffscreen *offscreen,
-				  gboolean      active)
+                                  gboolean             active)
 {
   GtkWidget *parent;
 
