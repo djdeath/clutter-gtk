@@ -43,8 +43,8 @@ G_DEFINE_TYPE (GtkClutterStandin, gtk_clutter_standin, GTK_TYPE_WIDGET);
 
 enum
 {
-    PROP_0,
-    PROP_ACTOR
+  PROP_0,
+  PROP_ACTOR
 };
 
 struct _GtkClutterStandinPrivate
@@ -67,9 +67,9 @@ gtk_clutter_standin_put_actor_on_stage (GtkClutterStandin *self)
     parent = GTK_WIDGET (self);
 
     while ((parent = gtk_widget_get_parent (parent)))
-    {
+      {
         if (GTK_CLUTTER_IS_OFFSCREEN (parent)) break;
-    }
+      }
 
     if (parent == NULL) return;
     g_return_if_fail (GTK_CLUTTER_IS_OFFSCREEN (parent));
@@ -109,7 +109,7 @@ gtk_clutter_standin_get_property (GObject    *self,
     GtkClutterStandinPrivate *priv = GTK_CLUTTER_STANDIN (self)->priv;
 
     switch (property_id)
-    {
+      {
         case PROP_ACTOR:
             g_value_set_object (value, priv->actor);
             break;
@@ -117,7 +117,7 @@ gtk_clutter_standin_get_property (GObject    *self,
         default:
             G_OBJECT_WARN_INVALID_PROPERTY_ID (self, property_id, pspec);
             break;
-    }
+      }
 }
 
 static void
@@ -129,7 +129,7 @@ gtk_clutter_standin_set_property (GObject      *self,
     GtkClutterStandinPrivate *priv = GTK_CLUTTER_STANDIN (self)->priv;
 
     switch (property_id)
-    {
+      {
         case PROP_ACTOR:
             gtk_clutter_standin_set_actor (GTK_CLUTTER_STANDIN (self),
                     g_value_get_object (value));
@@ -138,7 +138,7 @@ gtk_clutter_standin_set_property (GObject      *self,
         default:
             G_OBJECT_WARN_INVALID_PROPERTY_ID (self, property_id, pspec);
             break;
-    }
+      }
 }
 
 static void
@@ -183,13 +183,14 @@ gtk_clutter_standin_hide (GtkWidget *widget)
   /* gtk emits a hide signal during dispose, so it's possible we may
    * have already disposed priv->stage. */
   if (priv->bin)
-  {
-    clutter_actor_hide (priv->bin);
-  }
+    {
+      clutter_actor_hide (priv->bin);
+    }
+
   if (priv->actor)
-  {
-    clutter_actor_hide (priv->actor);
-  }
+    {
+      clutter_actor_hide (priv->actor);
+    }
 
   GTK_WIDGET_CLASS (gtk_clutter_standin_parent_class)->hide (widget);
 }
@@ -202,9 +203,9 @@ gtk_clutter_standin_hide_all (GtkWidget *widget)
   /* gtk emits a hide signal during dispose, so it's possible we may
    * have already disposed priv->stage. */
   if (priv->bin)
-  {
-    clutter_actor_hide_all (priv->bin);
-  }
+    {
+      clutter_actor_hide_all (priv->bin);
+    }
 
   GTK_WIDGET_CLASS (gtk_clutter_standin_parent_class)->hide_all (widget);
 }
@@ -245,9 +246,9 @@ gtk_clutter_standin_realize (GtkWidget *widget)
   clutter_actor_realize (priv->bin);
 
   if (GTK_WIDGET_VISIBLE (widget))
-  {
-    clutter_actor_show (priv->bin);
-  }
+    {
+      clutter_actor_show (priv->bin);
+    }
 
   gtk_clutter_standin_send_configure (GTK_CLUTTER_STANDIN (widget));
 }
@@ -281,13 +282,13 @@ gtk_clutter_standin_size_allocate (GtkWidget     *widget,
   widget->allocation = *allocation;
 
   if (GTK_WIDGET_REALIZED (widget))
-  {
+    {
       gdk_window_move_resize (widget->window,
                               allocation->x, allocation->y,
                               allocation->width, allocation->height);
 
       gtk_clutter_standin_send_configure (GTK_CLUTTER_STANDIN (widget));
-  }
+    }
 
   gtk_clutter_standin_bin_gtk_size_allocate (
           GTK_CLUTTER_STANDIN_BIN (priv->bin),
@@ -431,9 +432,9 @@ gtk_clutter_standin_new (ClutterActor *actor)
   self = g_object_new (GTK_CLUTTER_TYPE_STANDIN, NULL);
 
   if (actor != NULL)
-  {
+    {
       gtk_clutter_standin_set_actor (GTK_CLUTTER_STANDIN (self), actor);
-  }
+    }
 
   return self;
 }
