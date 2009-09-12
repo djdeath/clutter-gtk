@@ -93,11 +93,13 @@ gtk_clutter_actor_realize (ClutterActor *actor)
 		     clutter->priv->widget);
 
   gtk_widget_realize (clutter->priv->widget);
-  clutter->priv->pixmap = gdk_offscreen_window_get_pixmap (clutter->priv->widget->window);
+  clutter->priv->pixmap = gdk_offscreen_window_get_pixmap (
+           clutter->priv->widget->window);
   g_object_ref (clutter->priv->pixmap);
 
-  clutter_x11_texture_pixmap_set_pixmap (CLUTTER_X11_TEXTURE_PIXMAP (clutter->priv->texture),
-					 GDK_PIXMAP_XID (clutter->priv->pixmap));
+  clutter_x11_texture_pixmap_set_pixmap (
+            CLUTTER_X11_TEXTURE_PIXMAP (clutter->priv->texture),
+            GDK_PIXMAP_XID (clutter->priv->pixmap));
 }
 
 static void
@@ -162,22 +164,23 @@ gtk_clutter_actor_allocate (ClutterActor           *actor,
   if (CLUTTER_ACTOR_IS_REALIZED (actor))
     {
       /* The former size allocate may have queued exposed, we then need to
-	 process them immediately, since we will paint the pixmap when this
-	 returns (as size allocation is done from clutter_redraw which is
-	 called from gtk_clutter_expose_event(). If we don't do this we
-	 may see an intermediate state of the pixmap, causing flicker */
+       * process them immediately, since we will paint the pixmap when this
+       * returns (as size allocation is done from clutter_redraw which is
+       * called from gtk_clutter_expose_event(). If we don't do this we
+       * may see an intermediate state of the pixmap, causing flicker */
       gdk_window_process_updates (clutter->priv->widget->window, TRUE);
 
       pixmap = gdk_offscreen_window_get_pixmap (clutter->priv->widget->window);
       if (pixmap != clutter->priv->pixmap)
-	{
-	  g_object_unref (clutter->priv->pixmap);
-	  clutter->priv->pixmap = pixmap;
-	  g_object_ref (clutter->priv->pixmap);
+        {
+          g_object_unref (clutter->priv->pixmap);
+          clutter->priv->pixmap = pixmap;
+          g_object_ref (clutter->priv->pixmap);
 
-	  clutter_x11_texture_pixmap_set_pixmap (CLUTTER_X11_TEXTURE_PIXMAP (clutter->priv->texture),
-						 GDK_PIXMAP_XID (clutter->priv->pixmap));
-	}
+          clutter_x11_texture_pixmap_set_pixmap (
+              CLUTTER_X11_TEXTURE_PIXMAP (clutter->priv->texture),
+              GDK_PIXMAP_XID (clutter->priv->pixmap));
+        }
     }
 
   child_box.x1 = 0;
@@ -286,10 +289,10 @@ gtk_clutter_actor_add (ClutterContainer *container,
     /* we only accept one kind of child, GtkClutterStandinBin, this means
      * that transforms that are applied to us are also applied to our child */
     if (!GTK_CLUTTER_IS_STANDIN_BIN (actor))
-    {
+      {
         g_warning ("Can't add children to GtkClutterActor");
         return;
-    }
+      }
 
     parent_iface = g_type_interface_peek_parent (CLUTTER_CONTAINER_GET_IFACE (container));
     parent_iface->add (container, actor);
@@ -307,13 +310,13 @@ gtk_clutter_actor_foreach_with_internals (ClutterContainer *container,
 
   parent_iface = g_type_interface_peek_parent (CLUTTER_CONTAINER_GET_IFACE (container));
   if (parent_iface->foreach_with_internals != NULL)
-  {
+    {
       parent_iface->foreach_with_internals (container, callback, user_data);
-  }
+    }
   else
-  {
+    {
       parent_iface->foreach (container, callback, user_data);
-  }
+    }
 }
 
 GtkWidget *
