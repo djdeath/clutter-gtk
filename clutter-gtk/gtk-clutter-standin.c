@@ -57,28 +57,28 @@ struct _GtkClutterStandinPrivate
 static void
 gtk_clutter_standin_put_actor_on_stage (GtkClutterStandin *self)
 {
-    GtkClutterStandinPrivate *priv = GTK_CLUTTER_STANDIN (self)->priv;
-    GtkWidget *parent;
+  GtkClutterStandinPrivate *priv = GTK_CLUTTER_STANDIN (self)->priv;
+  GtkWidget *parent;
 
-    if (priv->actor_on_stage) return;
+  if (priv->actor_on_stage) return;
 
-    /* find the stage that this stand-in is placed upon and place our actor
-     * upon it */
-    parent = GTK_WIDGET (self);
+  /* find the stage that this stand-in is placed upon and place our actor
+   * upon it */
+  parent = GTK_WIDGET (self);
 
-    while ((parent = gtk_widget_get_parent (parent)))
-      {
-        if (GTK_CLUTTER_IS_OFFSCREEN (parent)) break;
-      }
+  while ((parent = gtk_widget_get_parent (parent)))
+    {
+      if (GTK_CLUTTER_IS_OFFSCREEN (parent)) break;
+    }
 
-    if (parent == NULL) return;
-    g_return_if_fail (GTK_CLUTTER_IS_OFFSCREEN (parent));
+  if (parent == NULL) return;
+  g_return_if_fail (GTK_CLUTTER_IS_OFFSCREEN (parent));
 
-    /* GtkClutterActor can accept a GtkClutterStandin as a child */
-    clutter_container_add_actor (
-            CLUTTER_CONTAINER (GTK_CLUTTER_OFFSCREEN (parent)->actor),
-            priv->bin);
-    priv->actor_on_stage = TRUE;
+  /* GtkClutterActor can accept a GtkClutterStandin as a child */
+  clutter_container_add_actor (
+          CLUTTER_CONTAINER (GTK_CLUTTER_OFFSCREEN (parent)->actor),
+          priv->bin);
+  priv->actor_on_stage = TRUE;
 }
 
 static void
@@ -106,18 +106,18 @@ gtk_clutter_standin_get_property (GObject    *self,
                                   GValue     *value,
                                   GParamSpec *pspec)
 {
-    GtkClutterStandinPrivate *priv = GTK_CLUTTER_STANDIN (self)->priv;
+  GtkClutterStandinPrivate *priv = GTK_CLUTTER_STANDIN (self)->priv;
 
-    switch (property_id)
-      {
-        case PROP_ACTOR:
-            g_value_set_object (value, priv->actor);
-            break;
+  switch (property_id)
+    {
+      case PROP_ACTOR:
+          g_value_set_object (value, priv->actor);
+          break;
 
-        default:
-            G_OBJECT_WARN_INVALID_PROPERTY_ID (self, property_id, pspec);
-            break;
-      }
+      default:
+          G_OBJECT_WARN_INVALID_PROPERTY_ID (self, property_id, pspec);
+          break;
+    }
 }
 
 static void
@@ -126,19 +126,19 @@ gtk_clutter_standin_set_property (GObject      *self,
                                   const GValue *value,
                                   GParamSpec   *pspec)
 {
-    GtkClutterStandinPrivate *priv = GTK_CLUTTER_STANDIN (self)->priv;
+  GtkClutterStandinPrivate *priv = GTK_CLUTTER_STANDIN (self)->priv;
 
-    switch (property_id)
-      {
-        case PROP_ACTOR:
-            gtk_clutter_standin_set_actor (GTK_CLUTTER_STANDIN (self),
-                    g_value_get_object (value));
-            break;
+  switch (property_id)
+    {
+      case PROP_ACTOR:
+          gtk_clutter_standin_set_actor (GTK_CLUTTER_STANDIN (self),
+                  g_value_get_object (value));
+          break;
 
-        default:
-            G_OBJECT_WARN_INVALID_PROPERTY_ID (self, property_id, pspec);
-            break;
-      }
+      default:
+          G_OBJECT_WARN_INVALID_PROPERTY_ID (self, property_id, pspec);
+          break;
+    }
 }
 
 static void
@@ -320,10 +320,10 @@ static void
 gtk_clutter_standin_parent_set (GtkWidget *self,
                                 GtkWidget *old_parent)
 {
-    GtkClutterStandinPrivate *priv = GTK_CLUTTER_STANDIN (self)->priv;
+  GtkClutterStandinPrivate *priv = GTK_CLUTTER_STANDIN (self)->priv;
 
-    priv->actor_on_stage = FALSE;
-    gtk_clutter_standin_put_actor_on_stage (GTK_CLUTTER_STANDIN (self));
+  priv->actor_on_stage = FALSE;
+  gtk_clutter_standin_put_actor_on_stage (GTK_CLUTTER_STANDIN (self));
 }
 
 static void
@@ -381,31 +381,31 @@ void
 gtk_clutter_standin_set_actor (GtkClutterStandin *self,
                                ClutterActor      *actor)
 {
-    GtkClutterStandinPrivate *priv;
+  GtkClutterStandinPrivate *priv;
 
-    g_return_if_fail (GTK_CLUTTER_IS_STANDIN (self));
-    g_return_if_fail (actor == NULL || CLUTTER_IS_ACTOR (actor));
-    g_return_if_fail (actor == NULL || clutter_actor_get_parent (actor) == NULL);
+  g_return_if_fail (GTK_CLUTTER_IS_STANDIN (self));
+  g_return_if_fail (actor == NULL || CLUTTER_IS_ACTOR (actor));
+  g_return_if_fail (actor == NULL || clutter_actor_get_parent (actor) == NULL);
 
-    priv = GTK_CLUTTER_STANDIN (self)->priv;
+  priv = GTK_CLUTTER_STANDIN (self)->priv;
 
-    if (priv->actor != NULL)
-    {
-        clutter_container_remove_actor (CLUTTER_CONTAINER (priv->bin), priv->actor);
-        g_object_unref (priv->actor);
-        priv->actor == NULL;
-    }
+  if (priv->actor != NULL)
+  {
+      clutter_container_remove_actor (CLUTTER_CONTAINER (priv->bin), priv->actor);
+      g_object_unref (priv->actor);
+      priv->actor == NULL;
+  }
 
-    if (actor != NULL)
-    {
-        /* ensure the actor is hidden; this ensures it won't be shown when
-         * we parent it */
-        clutter_actor_hide (actor);
+  if (actor != NULL)
+  {
+      /* ensure the actor is hidden; this ensures it won't be shown when
+       * we parent it */
+      clutter_actor_hide (actor);
 
-        priv->actor = g_object_ref (actor);
+      priv->actor = g_object_ref (actor);
 
-        clutter_container_add_actor (CLUTTER_CONTAINER (priv->bin), actor);
-    }
+      clutter_container_add_actor (CLUTTER_CONTAINER (priv->bin), actor);
+  }
 }
 
 /**

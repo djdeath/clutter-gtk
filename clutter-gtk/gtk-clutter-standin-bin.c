@@ -32,10 +32,10 @@
 static void clutter_container_iface_init (ClutterContainerIface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (GtkClutterStandinBin,
-			 gtk_clutter_standin_bin,
-			 CLUTTER_TYPE_GROUP,
-			 G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_CONTAINER,
-						clutter_container_iface_init));
+                         gtk_clutter_standin_bin,
+                         CLUTTER_TYPE_GROUP,
+                         G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_CONTAINER,
+                           clutter_container_iface_init));
 
 static void
 gtk_clutter_standin_bin_finalize (GObject *object)
@@ -49,19 +49,19 @@ gtk_clutter_standin_bin_get_preferred_width (ClutterActor *actor,
                                              gfloat       *min_width_p,
                                              gfloat       *natural_width_p)
 {
-    GtkWidget *standin;
+  GtkWidget *standin;
 
-    CLUTTER_ACTOR_CLASS (gtk_clutter_standin_bin_parent_class)->get_preferred_width (
-            actor, for_height, min_width_p, natural_width_p);
+  CLUTTER_ACTOR_CLASS (gtk_clutter_standin_bin_parent_class)->get_preferred_width (
+          actor, for_height, min_width_p, natural_width_p);
 
-    /* determine if this container has changed size compared to the current
-     * requisition of the GtkClutterStandin it belongs to, and if required,
-     * queue a resize */
-    standin = GTK_CLUTTER_STANDIN_BIN (actor)->standin;
-    if (*natural_width_p != standin->requisition.width)
+  /* determine if this container has changed size compared to the current
+   * requisition of the GtkClutterStandin it belongs to, and if required,
+   * queue a resize */
+  standin = GTK_CLUTTER_STANDIN_BIN (actor)->standin;
+  if (*natural_width_p != standin->requisition.width)
     {
-        clutter_actor_set_width (actor, -1);
-        gtk_widget_queue_resize (standin);
+      clutter_actor_set_width (actor, -1);
+      gtk_widget_queue_resize (standin);
     }
 }
 
@@ -71,19 +71,19 @@ gtk_clutter_standin_bin_get_preferred_height (ClutterActor *actor,
                                               gfloat       *min_height_p,
                                               gfloat       *natural_height_p)
 {
-    GtkWidget *standin;
+  GtkWidget *standin;
 
-    CLUTTER_ACTOR_CLASS (gtk_clutter_standin_bin_parent_class)->get_preferred_height (
-            actor, for_width, min_height_p, natural_height_p);
+  CLUTTER_ACTOR_CLASS (gtk_clutter_standin_bin_parent_class)->get_preferred_height (
+          actor, for_width, min_height_p, natural_height_p);
 
-    /* determine if this container has changed size compared to the current
-     * requisition of the GtkClutterStandin it belongs to, and if required,
-     * queue a resize */
-    standin = GTK_CLUTTER_STANDIN_BIN (actor)->standin;
-    if (*natural_height_p != standin->requisition.height)
+  /* determine if this container has changed size compared to the current
+   * requisition of the GtkClutterStandin it belongs to, and if required,
+   * queue a resize */
+  standin = GTK_CLUTTER_STANDIN_BIN (actor)->standin;
+  if (*natural_height_p != standin->requisition.height)
     {
-        clutter_actor_set_height (actor, -1);
-        gtk_widget_queue_resize (standin);
+      clutter_actor_set_height (actor, -1);
+      gtk_widget_queue_resize (standin);
     }
 }
 
@@ -92,8 +92,8 @@ gtk_clutter_standin_bin_allocate (ClutterActor          *self,
                                   const ClutterActorBox *box,
                                   ClutterAllocationFlags flags)
 {
-    /* we only want to accept allocations from GTK+, thus allocation is
-     * done by calling gtk_clutter_standin_bin_gtk_allocate() */
+  /* we only want to accept allocations from GTK+, thus allocation is
+   * done by calling gtk_clutter_standin_bin_gtk_allocate() */
 }
 
 void
@@ -220,30 +220,30 @@ static void
 gtk_clutter_standin_bin_add (ClutterContainer *self,
                              ClutterActor     *actor)
 {
-    ClutterContainerIface *parent_iface;
+  ClutterContainerIface *parent_iface;
 
-    g_return_if_fail (GTK_CLUTTER_STANDIN_BIN (self)->child == NULL);
+  g_return_if_fail (GTK_CLUTTER_STANDIN_BIN (self)->child == NULL);
 
-    GTK_CLUTTER_STANDIN_BIN (self)->child = actor;
+  GTK_CLUTTER_STANDIN_BIN (self)->child = actor;
 
-    parent_iface = g_type_interface_peek_parent (
-            CLUTTER_CONTAINER_GET_IFACE (self));
-    parent_iface->add (self, actor);
+  parent_iface = g_type_interface_peek_parent (
+          CLUTTER_CONTAINER_GET_IFACE (self));
+  parent_iface->add (self, actor);
 }
 
 static void
 gtk_clutter_standin_bin_remove (ClutterContainer *self,
                                 ClutterActor     *actor)
 {
-    ClutterContainerIface *parent_iface;
+  ClutterContainerIface *parent_iface;
 
-    g_return_if_fail (GTK_CLUTTER_STANDIN_BIN (self)->child != actor);
+  g_return_if_fail (GTK_CLUTTER_STANDIN_BIN (self)->child != actor);
 
-    parent_iface = g_type_interface_peek_parent (
-            CLUTTER_CONTAINER_GET_IFACE (self));
-    parent_iface->remove (self, actor);
+  parent_iface = g_type_interface_peek_parent (
+          CLUTTER_CONTAINER_GET_IFACE (self));
+  parent_iface->remove (self, actor);
 
-    GTK_CLUTTER_STANDIN_BIN (self)->child = NULL;
+  GTK_CLUTTER_STANDIN_BIN (self)->child = NULL;
 }
 
 static void

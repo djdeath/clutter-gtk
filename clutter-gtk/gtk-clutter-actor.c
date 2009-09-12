@@ -58,10 +58,10 @@
 static void clutter_container_iface_init (ClutterContainerIface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (GtkClutterActor,
-			 gtk_clutter_actor,
-			 CLUTTER_TYPE_GROUP,
-			 G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_CONTAINER,
-						clutter_container_iface_init));
+                         gtk_clutter_actor,
+                         CLUTTER_TYPE_GROUP,
+                         G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_CONTAINER,
+                           clutter_container_iface_init));
 
 #define GTK_CLUTTER_ACTOR_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), GTK_CLUTTER_TYPE_ACTOR, GtkClutterActorPrivate))
 
@@ -202,41 +202,41 @@ gtk_clutter_actor_paint (ClutterActor *actor)
 static void
 gtk_clutter_actor_show (ClutterActor *self)
 {
-    /* proxy this call through to GTK+ */
-    GtkWidget *widget = gtk_bin_get_child (GTK_BIN (GTK_CLUTTER_ACTOR (self)->priv->widget));
-    if (widget != NULL) gtk_widget_show (widget);
+  /* proxy this call through to GTK+ */
+  GtkWidget *widget = gtk_bin_get_child (GTK_BIN (GTK_CLUTTER_ACTOR (self)->priv->widget));
+  if (widget != NULL) gtk_widget_show (widget);
 
-    CLUTTER_ACTOR_CLASS (gtk_clutter_actor_parent_class)->show (self);
+  CLUTTER_ACTOR_CLASS (gtk_clutter_actor_parent_class)->show (self);
 }
 
 static void
 gtk_clutter_actor_show_all (ClutterActor *self)
 {
-    /* proxy this call through to GTK+ */
-    GtkWidget *widget = gtk_bin_get_child (GTK_BIN (GTK_CLUTTER_ACTOR (self)->priv->widget));
-    if (widget != NULL) gtk_widget_show_all (widget);
+  /* proxy this call through to GTK+ */
+  GtkWidget *widget = gtk_bin_get_child (GTK_BIN (GTK_CLUTTER_ACTOR (self)->priv->widget));
+  if (widget != NULL) gtk_widget_show_all (widget);
 
-    CLUTTER_ACTOR_CLASS (gtk_clutter_actor_parent_class)->show_all (self);
+  CLUTTER_ACTOR_CLASS (gtk_clutter_actor_parent_class)->show_all (self);
 }
 
 static void
 gtk_clutter_actor_hide (ClutterActor *self)
 {
-    /* proxy this call through to GTK+ */
-    GtkWidget *widget = gtk_bin_get_child (GTK_BIN (GTK_CLUTTER_ACTOR (self)->priv->widget));
-    if (widget != NULL) gtk_widget_hide (widget);
+  /* proxy this call through to GTK+ */
+  GtkWidget *widget = gtk_bin_get_child (GTK_BIN (GTK_CLUTTER_ACTOR (self)->priv->widget));
+  if (widget != NULL) gtk_widget_hide (widget);
 
-    CLUTTER_ACTOR_CLASS (gtk_clutter_actor_parent_class)->hide (self);
+  CLUTTER_ACTOR_CLASS (gtk_clutter_actor_parent_class)->hide (self);
 }
 
 static void
 gtk_clutter_actor_hide_all (ClutterActor *self)
 {
-    /* proxy this call through to GTK+ */
-    GtkWidget *widget = gtk_bin_get_child (GTK_BIN (GTK_CLUTTER_ACTOR (self)->priv->widget));
-    if (widget != NULL) gtk_widget_hide_all (widget);
+  /* proxy this call through to GTK+ */
+  GtkWidget *widget = gtk_bin_get_child (GTK_BIN (GTK_CLUTTER_ACTOR (self)->priv->widget));
+  if (widget != NULL) gtk_widget_hide_all (widget);
 
-    CLUTTER_ACTOR_CLASS (gtk_clutter_actor_parent_class)->hide_all (self);
+  CLUTTER_ACTOR_CLASS (gtk_clutter_actor_parent_class)->hide_all (self);
 }
 
 static void
@@ -284,18 +284,18 @@ static void
 gtk_clutter_actor_add (ClutterContainer *container,
                        ClutterActor     *actor)
 {
-    ClutterContainerIface *parent_iface;
+  ClutterContainerIface *parent_iface;
 
-    /* we only accept one kind of child, GtkClutterStandinBin, this means
-     * that transforms that are applied to us are also applied to our child */
-    if (!GTK_CLUTTER_IS_STANDIN_BIN (actor))
-      {
-        g_warning ("Can't add children to GtkClutterActor");
-        return;
-      }
+  /* we only accept one kind of child, GtkClutterStandinBin, this means
+   * that transforms that are applied to us are also applied to our child */
+  if (!GTK_CLUTTER_IS_STANDIN_BIN (actor))
+    {
+      g_warning ("Can't add children to GtkClutterActor");
+      return;
+    }
 
-    parent_iface = g_type_interface_peek_parent (CLUTTER_CONTAINER_GET_IFACE (container));
-    parent_iface->add (container, actor);
+  parent_iface = g_type_interface_peek_parent (CLUTTER_CONTAINER_GET_IFACE (container));
+  parent_iface->add (container, actor);
 }
 
 static void
@@ -396,7 +396,7 @@ gtk_clutter_actor_new_with_contents (GtkWidget *contents)
 
 void
 gtk_clutter_actor_set_receives_events (GtkClutterActor *actor,
-				       gboolean         recieves_events)
+                                       gboolean         recieves_events)
 {
   gtk_clutter_offscreen_set_active (GTK_CLUTTER_OFFSCREEN (actor->priv->widget),
 				    recieves_events);
