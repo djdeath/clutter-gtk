@@ -222,9 +222,17 @@ gtk_clutter_actor_pick (ClutterActor       *actor,
 static void
 gtk_clutter_actor_show (ClutterActor *self)
 {
+  GtkClutterActorPrivate *priv = GTK_CLUTTER_ACTOR (self)->priv;
+  GList *l;
+
   /* proxy this call through to GTK+ */
-  GtkWidget *widget = gtk_bin_get_child (GTK_BIN (GTK_CLUTTER_ACTOR (self)->priv->widget));
+  GtkWidget *widget = gtk_bin_get_child (GTK_BIN (priv->widget));
   if (widget != NULL) gtk_widget_show (widget);
+
+  for (l = priv->children; l != NULL; l = l->next)
+    {
+      clutter_actor_show (CLUTTER_ACTOR (l->data));
+    }
 
   CLUTTER_ACTOR_CLASS (gtk_clutter_actor_parent_class)->show (self);
 }
@@ -232,9 +240,17 @@ gtk_clutter_actor_show (ClutterActor *self)
 static void
 gtk_clutter_actor_show_all (ClutterActor *self)
 {
+  GtkClutterActorPrivate *priv = GTK_CLUTTER_ACTOR (self)->priv;
+  GList *l;
+
   /* proxy this call through to GTK+ */
-  GtkWidget *widget = gtk_bin_get_child (GTK_BIN (GTK_CLUTTER_ACTOR (self)->priv->widget));
+  GtkWidget *widget = gtk_bin_get_child (GTK_BIN (priv->widget));
   if (widget != NULL) gtk_widget_show_all (widget);
+
+  for (l = priv->children; l != NULL; l = l->next)
+    {
+      clutter_actor_show_all (CLUTTER_ACTOR (l->data));
+    }
 
   CLUTTER_ACTOR_CLASS (gtk_clutter_actor_parent_class)->show_all (self);
 }
@@ -242,9 +258,17 @@ gtk_clutter_actor_show_all (ClutterActor *self)
 static void
 gtk_clutter_actor_hide (ClutterActor *self)
 {
+  GtkClutterActorPrivate *priv = GTK_CLUTTER_ACTOR (self)->priv;
+  GList *l;
+
   /* proxy this call through to GTK+ */
-  GtkWidget *widget = gtk_bin_get_child (GTK_BIN (GTK_CLUTTER_ACTOR (self)->priv->widget));
+  GtkWidget *widget = gtk_bin_get_child (GTK_BIN (priv->widget));
   if (widget != NULL) gtk_widget_hide (widget);
+
+  for (l = priv->children; l != NULL; l = l->next)
+    {
+      clutter_actor_hide (CLUTTER_ACTOR (l->data));
+    }
 
   CLUTTER_ACTOR_CLASS (gtk_clutter_actor_parent_class)->hide (self);
 }
@@ -252,9 +276,17 @@ gtk_clutter_actor_hide (ClutterActor *self)
 static void
 gtk_clutter_actor_hide_all (ClutterActor *self)
 {
+  GtkClutterActorPrivate *priv = GTK_CLUTTER_ACTOR (self)->priv;
+  GList *l;
+
   /* proxy this call through to GTK+ */
   GtkWidget *widget = gtk_bin_get_child (GTK_BIN (GTK_CLUTTER_ACTOR (self)->priv->widget));
   if (widget != NULL) gtk_widget_hide_all (widget);
+
+  for (l = priv->children; l != NULL; l = l->next)
+    {
+      clutter_actor_hide_all (CLUTTER_ACTOR (l->data));
+    }
 
   CLUTTER_ACTOR_CLASS (gtk_clutter_actor_parent_class)->hide_all (self);
 }
