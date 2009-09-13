@@ -206,6 +206,20 @@ gtk_clutter_actor_paint (ClutterActor *actor)
 }
 
 static void
+gtk_clutter_actor_pick (ClutterActor       *actor,
+                        const ClutterColor *color)
+{
+  GList *l;
+
+  CLUTTER_ACTOR_CLASS (gtk_clutter_actor_parent_class)->pick (actor, color);
+
+  for (l = GTK_CLUTTER_ACTOR (actor)->priv->children; l != NULL; l = l->next)
+    {
+      clutter_actor_paint (CLUTTER_ACTOR (l->data));
+    }
+}
+
+static void
 gtk_clutter_actor_show (ClutterActor *self)
 {
   /* proxy this call through to GTK+ */
@@ -254,6 +268,7 @@ gtk_clutter_actor_class_init (GtkClutterActorClass *klass)
   g_type_class_add_private (klass, sizeof (GtkClutterActorPrivate));
 
   actor_class->paint     = gtk_clutter_actor_paint;
+  actor_class->pick      = gtk_clutter_actor_pick;
   actor_class->realize   = gtk_clutter_actor_realize;
   actor_class->unrealize = gtk_clutter_actor_unrealize;
   actor_class->show      = gtk_clutter_actor_show;
