@@ -33,7 +33,7 @@ static void clutter_container_iface_init (ClutterContainerIface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (GtkClutterStandinBin,
                          gtk_clutter_standin_bin,
-                         CLUTTER_TYPE_GROUP,
+                         CLUTTER_TYPE_ACTOR,
                          G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_CONTAINER,
                            clutter_container_iface_init));
 
@@ -51,8 +51,9 @@ gtk_clutter_standin_bin_get_preferred_width (ClutterActor *actor,
 {
   GtkWidget *standin;
 
-  CLUTTER_ACTOR_CLASS (gtk_clutter_standin_bin_parent_class)->get_preferred_width (
-          actor, for_height, min_width_p, natural_width_p);
+  clutter_actor_get_preferred_width (
+          GTK_CLUTTER_STANDIN_BIN (actor)->child,
+          for_height, min_width_p, natural_width_p);
 
   /* determine if this container has changed size compared to the current
    * requisition of the GtkClutterStandin it belongs to, and if required,
@@ -73,8 +74,9 @@ gtk_clutter_standin_bin_get_preferred_height (ClutterActor *actor,
 {
   GtkWidget *standin;
 
-  CLUTTER_ACTOR_CLASS (gtk_clutter_standin_bin_parent_class)->get_preferred_height (
-          actor, for_width, min_height_p, natural_height_p);
+  clutter_actor_get_preferred_height (
+          GTK_CLUTTER_STANDIN_BIN (actor)->child,
+          for_width, min_height_p, natural_height_p);
 
   /* determine if this container has changed size compared to the current
    * requisition of the GtkClutterStandin it belongs to, and if required,
@@ -172,8 +174,32 @@ gtk_clutter_standin_bin_gtk_size_allocate (GtkClutterStandinBin  *self,
   box.x2 = box.x1 + width;
   box.y2 = box.y1 + height;
 
-  CLUTTER_ACTOR_CLASS (gtk_clutter_standin_bin_parent_class)->allocate (
-            CLUTTER_ACTOR (self), &box, CLUTTER_ALLOCATION_NONE);
+  clutter_actor_allocate (GTK_CLUTTER_STANDIN_BIN (self)->child,
+                          &box, CLUTTER_ALLOCATION_NONE);
+}
+
+static void
+gtk_clutter_standin_bin_paint (ClutterActor *self)
+{
+  clutter_actor_paint (GTK_CLUTTER_STANDIN_BIN (self)->child);
+}
+
+static void
+gtk_clutter_standin_bin_pick (ClutterActor       *self,
+                              const ClutterColor *color)
+{
+  CLUTTER_ACTOR_CLASS (gtk_clutter_standin_bin_parent_class)->pick (self,
+                                                                    color);
+  clutter_actor_paint (GTK_CLUTTER_STANDIN_BIN (self)->child);
+}
+
+static void
+gtk_clutter_standin_bin_show (ClutterActor *actor)
+{
+  clutter_container_foreach (CLUTTER_CONTAINER (actor),
+                             CLUTTER_CALLBACK (clutter_actor_show),
+                             NULL);
+  CLUTTER_ACTOR_CLASS (gtk_clutter_standin_bin_parent_class)->show (actor);
 }
 
 static void
@@ -182,7 +208,16 @@ gtk_clutter_standin_bin_show_all (ClutterActor *actor)
   clutter_container_foreach (CLUTTER_CONTAINER (actor),
                              CLUTTER_CALLBACK (clutter_actor_show_all),
                              NULL);
-  clutter_actor_show (actor);
+  CLUTTER_ACTOR_CLASS (gtk_clutter_standin_bin_parent_class)->show (actor);
+}
+
+static void
+gtk_clutter_standin_bin_hide (ClutterActor *actor)
+{
+  clutter_actor_hide (actor);
+  clutter_container_foreach (CLUTTER_CONTAINER (actor),
+                             CLUTTER_CALLBACK (clutter_actor_hide),
+                             NULL);
 }
 
 static void
@@ -203,9 +238,11 @@ gtk_clutter_standin_bin_class_init (GtkClutterStandinBinClass *klass)
   actor_class->get_preferred_width  = gtk_clutter_standin_bin_get_preferred_width;
   actor_class->get_preferred_height = gtk_clutter_standin_bin_get_preferred_height;
   actor_class->allocate = gtk_clutter_standin_bin_allocate;
-  /* FIXME: I'm not wild about needing to reimplement show_all and hide_all,
-   * I think this is an issue in Clutter and should be fixed there */
+  actor_class->paint    = gtk_clutter_standin_bin_paint;
+  actor_class->pick     = gtk_clutter_standin_bin_pick;
+  actor_class->show     = gtk_clutter_standin_bin_show;
   actor_class->show_all = gtk_clutter_standin_bin_show_all;
+  actor_class->hide     = gtk_clutter_standin_bin_hide;
   actor_class->hide_all = gtk_clutter_standin_bin_hide_all;
 
   gobject_class->finalize = gtk_clutter_standin_bin_finalize;
@@ -220,35 +257,46 @@ static void
 gtk_clutter_standin_bin_add (ClutterContainer *self,
                              ClutterActor     *actor)
 {
-  ClutterContainerIface *parent_iface;
-
   g_return_if_fail (GTK_CLUTTER_STANDIN_BIN (self)->child == NULL);
 
-  GTK_CLUTTER_STANDIN_BIN (self)->child = actor;
+  g_object_ref (actor);
 
-  parent_iface = g_type_interface_peek_parent (
-          CLUTTER_CONTAINER_GET_IFACE (self));
-  parent_iface->add (self, actor);
+  GTK_CLUTTER_STANDIN_BIN (self)->child = actor;
+  clutter_actor_set_parent (actor, CLUTTER_ACTOR (self));
+
+  clutter_actor_queue_relayout (CLUTTER_ACTOR (self));
+
+  g_object_unref (actor);
 }
 
 static void
 gtk_clutter_standin_bin_remove (ClutterContainer *self,
                                 ClutterActor     *actor)
 {
-  ClutterContainerIface *parent_iface;
-
   g_return_if_fail (GTK_CLUTTER_STANDIN_BIN (self)->child != actor);
 
-  parent_iface = g_type_interface_peek_parent (
-          CLUTTER_CONTAINER_GET_IFACE (self));
-  parent_iface->remove (self, actor);
+  g_object_ref (actor);
 
   GTK_CLUTTER_STANDIN_BIN (self)->child = NULL;
+  clutter_actor_unparent (actor);
+
+  clutter_actor_queue_relayout (CLUTTER_ACTOR (self));
+
+  g_object_unref (actor);
+}
+
+static void
+gtk_clutter_standin_bin_foreach (ClutterContainer *self,
+                                 ClutterCallback   callback,
+                                 gpointer          user_data)
+{
+  callback (GTK_CLUTTER_STANDIN_BIN (self)->child, user_data);
 }
 
 static void
 clutter_container_iface_init (ClutterContainerIface *iface)
 {
-  iface->add    = gtk_clutter_standin_bin_add;
-  iface->remove = gtk_clutter_standin_bin_remove;
+  iface->add     = gtk_clutter_standin_bin_add;
+  iface->remove  = gtk_clutter_standin_bin_remove;
+  iface->foreach = gtk_clutter_standin_bin_foreach;
 }

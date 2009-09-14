@@ -40,7 +40,7 @@ typedef struct _GtkClutterStandinBinClass    GtkClutterStandinBinClass;
 struct _GtkClutterStandinBin
 {
   /*< private >*/
-  ClutterGroup parent_instance;
+  ClutterActor parent_instance;
 
   GtkWidget    *standin;
   ClutterActor *child;
@@ -49,7 +49,7 @@ struct _GtkClutterStandinBin
 struct _GtkClutterStandinBinClass
 {
   /*< private >*/
-  ClutterGroupClass parent_class;
+  ClutterActorClass parent_class;
 };
 
 GType gtk_clutter_standin_bin_get_type            (void) G_GNUC_CONST;
