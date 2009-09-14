@@ -287,7 +287,7 @@ static void
 gtk_clutter_standin_bin_remove (ClutterContainer *self,
                                 ClutterActor     *actor)
 {
-  g_return_if_fail (GTK_CLUTTER_STANDIN_BIN (self)->child != actor);
+  g_return_if_fail (GTK_CLUTTER_STANDIN_BIN (self)->child == actor);
 
   g_object_ref (actor);
 
