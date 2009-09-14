@@ -54,12 +54,27 @@ typedef enum {
  * An enumeration of error types used in ClutterGtk texture functions
  *
  * Since: 0.10
- * */
+ */
 typedef enum {
   CLUTTER_GTK_TEXTURE_INVALID_STOCK_ID,
 
   CLUTTER_GTK_TEXTURE_ERROR_LAST
 } ClutterGtkTextureError;
+
+/**
+ * GtkClutterBindDirection
+ * @GTK_CLUTTER_BIND_HORIZONTAL: bind horizontal size
+ * @GTK_CLUTTER_BIND_VERTICAL: bind vertical size
+ * @GTK_CLUTTER_BIND_BOTH: bind both vertical and horizontal size
+ *
+ * Since: 1.0
+ */
+typedef enum {
+  GTK_CLUTTER_BIND_HORIZONTAL = 1 << 0,
+  GTK_CLUTTER_BIND_VERTICAL   = 1 << 1,
+
+  GTK_CLUTTER_BIND_BOTH       = 3
+} GtkClutterBindDirection;
 
 #define CLUTTER_GTK_TEXTURE_ERROR gtk_clutter_texture_error_quark ()
 
@@ -118,6 +133,9 @@ gboolean      gtk_clutter_texture_set_from_icon_name (ClutterTexture *texture,
                                                       const gchar    *icon_name,
                                                       GtkIconSize     size,
                                                       GError        **error);
+void gtk_clutter_bind_dimensions (ClutterActor            *src,
+                                  ClutterActor            *dest,
+                                  GtkClutterBindDirection  dir);
 
 G_END_DECLS
 

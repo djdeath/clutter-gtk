@@ -34,6 +34,7 @@
 #include "gtk-clutter-window.h"
 #include "gtk-clutter-actor.h"
 #include "gtk-clutter-embed.h"
+#include "gtk-clutter-util.h"
 
 #include <glib-object.h>
 
@@ -236,19 +237,6 @@ gtk_clutter_window_class_init (GtkClutterWindowClass *klass)
 }
 
 static void
-gtk_clutter_window_stage_dimensions_changed (GtkClutterWindow *self,
-                                             GParamSpec      *pspec,
-                                             ClutterActor    *stage)
-{
-  GtkClutterWindowPrivate *priv = self->priv;
-  float w, h;
-
-  /* push these dimensions to the actor */
-  clutter_actor_get_size (stage, &w, &h);
-  clutter_actor_set_size (priv->actor, w, h);
-}
-
-static void
 gtk_clutter_window_init (GtkClutterWindow *self)
 {
   GtkClutterWindowPrivate *priv;
@@ -266,10 +254,8 @@ gtk_clutter_window_init (GtkClutterWindow *self)
   priv->actor = gtk_clutter_actor_new ();
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), priv->actor);
 
-  g_signal_connect_swapped (stage, "notify::width",
-          G_CALLBACK (gtk_clutter_window_stage_dimensions_changed), self);
-  g_signal_connect_swapped (stage, "notify::height",
-          G_CALLBACK (gtk_clutter_window_stage_dimensions_changed), self);
+  gtk_clutter_bind_dimensions (stage, priv->actor,
+                               GTK_CLUTTER_BIND_BOTH);
 }
 
 /**

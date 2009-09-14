@@ -108,9 +108,7 @@ main (int argc, char **argv)
 
     gtk_widget_show_all (toolbar);
     ClutterActor *actor = gtk_clutter_actor_new_with_contents (toolbar);
-
-    // FIXME: resize to window width
-    clutter_actor_set_width (actor, 200.);
+    gtk_clutter_bind_dimensions (stage, actor, GTK_CLUTTER_BIND_HORIZONTAL);
 
     clutter_container_add_actor (CLUTTER_CONTAINER (stage), actor);
     clutter_actor_set_opacity (actor, 0xa0);

@@ -685,3 +685,56 @@ gtk_clutter_init_with_args (int            *argc,
                                  NULL,
                                  error);
 }
+
+static void
+gtk_clutter_bind_dimensions_width_changed (ClutterActor *src,
+                                           GParamSpec   *pspec,
+                                           ClutterActor *dest)
+{
+  /* push these dimensions to the actor */
+  clutter_actor_set_width (dest, clutter_actor_get_width (src));
+}
+
+static void
+gtk_clutter_bind_dimensions_height_changed (ClutterActor *src,
+                                            GParamSpec   *pspec,
+                                            ClutterActor *dest)
+{
+  /* push these dimensions to the actor */
+  clutter_actor_set_height (dest, clutter_actor_get_height (src));
+}
+
+/**
+ * gtk_clutter_bind_dimensions:
+ * @src: actor to copy the dimensions from
+ * @dest: actor to copy the dimensions to
+ * @dir: the direction to copy the dimensions in
+ *
+ * This utility function copies the width/height from the actor @src to the
+ * actor @dest.
+ *
+ * The primary use for this function is for packing actors in the
+ * top-level #GtkClutterWindow, and having them resize with the window.
+ */
+void
+gtk_clutter_bind_dimensions (ClutterActor            *src,
+                             ClutterActor            *dest,
+                             GtkClutterBindDirection  dir)
+{
+  g_return_if_fail (CLUTTER_IS_ACTOR (src));
+  g_return_if_fail (CLUTTER_IS_ACTOR (dest));
+
+  if (dir & GTK_CLUTTER_BIND_HORIZONTAL)
+    {
+      gtk_clutter_bind_dimensions_width_changed (src, NULL, dest);
+      g_signal_connect_object (src, "notify::width",
+          G_CALLBACK (gtk_clutter_bind_dimensions_width_changed), dest, 0);
+    }
+
+  if (dir & GTK_CLUTTER_BIND_VERTICAL)
+    {
+      gtk_clutter_bind_dimensions_height_changed (src, NULL, dest);
+      g_signal_connect_object (src, "notify::height",
+          G_CALLBACK (gtk_clutter_bind_dimensions_height_changed), dest, 0);
+    }
+}
