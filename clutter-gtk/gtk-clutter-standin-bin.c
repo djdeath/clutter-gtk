@@ -44,6 +44,20 @@ gtk_clutter_standin_bin_finalize (GObject *object)
 }
 
 static void
+gtk_clutter_standin_bin_dispose (GObject *object)
+{
+  GtkClutterStandinBin *bin = GTK_CLUTTER_STANDIN_BIN (object);
+
+  if (bin->child != NULL)
+    {
+      clutter_actor_destroy (bin->child);
+      bin->child = NULL;
+    }
+
+  G_OBJECT_CLASS (gtk_clutter_standin_bin_parent_class)->dispose (object);
+}
+
+static void
 gtk_clutter_standin_bin_get_preferred_width (ClutterActor *actor,
                                              gfloat        for_height,
                                              gfloat       *min_width_p,
@@ -214,19 +228,19 @@ gtk_clutter_standin_bin_show_all (ClutterActor *actor)
 static void
 gtk_clutter_standin_bin_hide (ClutterActor *actor)
 {
-  clutter_actor_hide (actor);
   clutter_container_foreach (CLUTTER_CONTAINER (actor),
                              CLUTTER_CALLBACK (clutter_actor_hide),
                              NULL);
+  CLUTTER_ACTOR_CLASS (gtk_clutter_standin_bin_parent_class)->hide (actor);
 }
 
 static void
 gtk_clutter_standin_bin_hide_all (ClutterActor *actor)
 {
-  clutter_actor_hide (actor);
   clutter_container_foreach (CLUTTER_CONTAINER (actor),
                              CLUTTER_CALLBACK (clutter_actor_hide_all),
                              NULL);
+  CLUTTER_ACTOR_CLASS (gtk_clutter_standin_bin_parent_class)->hide_all (actor);
 }
 
 static void
@@ -290,7 +304,10 @@ gtk_clutter_standin_bin_foreach (ClutterContainer *self,
                                  ClutterCallback   callback,
                                  gpointer          user_data)
 {
-  callback (GTK_CLUTTER_STANDIN_BIN (self)->child, user_data);
+  GtkClutterStandinBin *bin = GTK_CLUTTER_STANDIN_BIN (self);
+
+  if (bin->child != NULL)
+    callback (bin->child, user_data);
 }
 
 static void
