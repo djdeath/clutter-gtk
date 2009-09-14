@@ -131,14 +131,17 @@ main (int argc, char **argv)
     GtkWidget *table = gtk_table_new (6, 6, TRUE);
 
     add_button (GTK_TABLE (table), GTK_STOCK_OK, 0);
-	add_button (GTK_TABLE (table), GTK_STOCK_CANCEL, 1);
-	add_button (GTK_TABLE (table), GTK_STOCK_CLOSE, 2);
-	add_button (GTK_TABLE (table), GTK_STOCK_ABOUT, 3);
-	add_button (GTK_TABLE (table), GTK_STOCK_BOLD, 4);
-	add_button (GTK_TABLE (table), GTK_STOCK_ITALIC, 5);
+    add_button (GTK_TABLE (table), GTK_STOCK_CANCEL, 1);
+    add_button (GTK_TABLE (table), GTK_STOCK_CLOSE, 2);
+    add_button (GTK_TABLE (table), GTK_STOCK_ABOUT, 3);
+    add_button (GTK_TABLE (table), GTK_STOCK_BOLD, 4);
+    add_button (GTK_TABLE (table), GTK_STOCK_ITALIC, 5);
 
     gtk_container_add (GTK_CONTAINER (window), table);
     gtk_widget_show_all (window);
-    // gtk_widget_show_all (table);
+
+    g_signal_connect_swapped (window, "destroy",
+            G_CALLBACK (gtk_main_quit), NULL);
+
     gtk_main ();
 }
