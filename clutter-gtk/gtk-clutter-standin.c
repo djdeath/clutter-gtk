@@ -147,8 +147,11 @@ gtk_clutter_standin_dispose (GObject *gobject)
 {
   GtkClutterStandinPrivate *priv = GTK_CLUTTER_STANDIN (gobject)->priv;
 
-  gtk_clutter_standin_set_actor (GTK_CLUTTER_STANDIN (gobject), NULL);
-  clutter_actor_destroy (priv->bin);
+  if (priv->bin != NULL)
+    {
+      gtk_clutter_standin_set_actor (GTK_CLUTTER_STANDIN (gobject), NULL);
+      clutter_actor_destroy (priv->bin);
+    }
 
   G_OBJECT_CLASS (gtk_clutter_standin_parent_class)->dispose (gobject);
 }
@@ -354,6 +357,17 @@ gtk_clutter_standin_class_init (GtkClutterStandinClass *klass)
 }
 
 static void
+gtk_clutter_standin_bin_destroyed (GtkClutterStandin *self,
+                                   ClutterActor      *bin)
+{
+  /* our bin has been destroyed, set the pointer to NULL and schedule
+   * ourselves for destruction too */
+  GTK_CLUTTER_STANDIN (self)->priv->bin = NULL;
+
+  gtk_widget_destroy (GTK_WIDGET (self));
+}
+
+static void
 gtk_clutter_standin_init (GtkClutterStandin *self)
 {
   GtkClutterStandinPrivate *priv;
@@ -363,6 +377,9 @@ gtk_clutter_standin_init (GtkClutterStandin *self)
   priv->bin = g_object_new (GTK_CLUTTER_TYPE_STANDIN_BIN, NULL);
   GTK_CLUTTER_STANDIN_BIN (priv->bin)->standin = GTK_WIDGET (self);
   clutter_actor_hide (priv->bin);
+
+  g_signal_connect_swapped (priv->bin, "destroy",
+      G_CALLBACK (gtk_clutter_standin_bin_destroyed), self);
 }
 
 ClutterActor *
