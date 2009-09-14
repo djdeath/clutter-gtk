@@ -168,8 +168,15 @@ gtk_clutter_actor_allocate (ClutterActor           *actor,
   GtkAllocation child_allocation;
   GdkPixmap *pixmap;
   ClutterActorBox child_box;
+  GList *l;
 
   CLUTTER_ACTOR_CLASS (gtk_clutter_actor_parent_class)->allocate (actor, box, flags);
+
+  /* allocate the children */
+  for (l = clutter->priv->children; l != NULL; l = l->next)
+    {
+      clutter_actor_allocate_preferred_size (CLUTTER_ACTOR (l->data), flags);
+    }
 
   child_allocation.x = 0;
   child_allocation.y = 0;
