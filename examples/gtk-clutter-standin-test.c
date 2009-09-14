@@ -57,5 +57,8 @@ main (int argc, char **argv)
             NULL);
     clutter_animation_set_loop (animation, TRUE);
 
+    g_signal_connect_swapped (window, "destroy",
+            G_CALLBACK (gtk_main_quit), NULL);
+
     gtk_main ();
 }
