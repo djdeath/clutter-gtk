@@ -82,6 +82,7 @@ GType         gtk_clutter_standin_get_type  (void) G_GNUC_CONST;
 GtkWidget *   gtk_clutter_standin_new       (ClutterActor *actor);
 void          gtk_clutter_standin_set_actor (GtkClutterStandin *standin,
                                              ClutterActor      *actor);
+ClutterActor *gtk_clutter_standin_get_actor (GtkClutterStandin *standin);
 
 G_END_DECLS
 

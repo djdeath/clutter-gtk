@@ -111,7 +111,8 @@ gtk_clutter_standin_get_property (GObject    *self,
   switch (property_id)
     {
       case PROP_ACTOR:
-          g_value_set_object (value, priv->actor);
+          g_value_set_object (value,
+              gtk_clutter_standin_get_actor (GTK_CLUTTER_STANDIN (self)));
           break;
 
       default:
@@ -146,9 +147,7 @@ gtk_clutter_standin_dispose (GObject *gobject)
 {
   GtkClutterStandinPrivate *priv = GTK_CLUTTER_STANDIN (gobject)->priv;
 
-  g_object_unref (priv->actor);
-
-  clutter_container_remove_actor (CLUTTER_CONTAINER (priv->bin), priv->actor);
+  gtk_clutter_standin_set_actor (GTK_CLUTTER_STANDIN (gobject), NULL);
   clutter_actor_destroy (priv->bin);
 
   G_OBJECT_CLASS (gtk_clutter_standin_parent_class)->dispose (gobject);
@@ -162,7 +161,6 @@ gtk_clutter_standin_show (GtkWidget *widget)
   GTK_WIDGET_CLASS (gtk_clutter_standin_parent_class)->show (widget);
 
   clutter_actor_show (priv->bin);
-  clutter_actor_show (priv->actor);
 }
 
 static void
@@ -185,11 +183,6 @@ gtk_clutter_standin_hide (GtkWidget *widget)
   if (priv->bin)
     {
       clutter_actor_hide (priv->bin);
-    }
-
-  if (priv->actor)
-    {
-      clutter_actor_hide (priv->actor);
     }
 
   GTK_WIDGET_CLASS (gtk_clutter_standin_parent_class)->hide (widget);
@@ -372,6 +365,14 @@ gtk_clutter_standin_init (GtkClutterStandin *self)
   clutter_actor_hide (priv->bin);
 }
 
+ClutterActor *
+gtk_clutter_standin_get_actor (GtkClutterStandin *self)
+{
+  g_return_if_fail (GTK_CLUTTER_IS_STANDIN (self));
+
+  return GTK_CLUTTER_STANDIN_BIN (self->priv->bin)->child;
+}
+
 /**
  * gtk_clutter_standin_set_actor:
  * @self: the #GtkClutterStandin
@@ -389,11 +390,10 @@ gtk_clutter_standin_set_actor (GtkClutterStandin *self,
 
   priv = GTK_CLUTTER_STANDIN (self)->priv;
 
-  if (priv->actor != NULL)
+  if (gtk_clutter_standin_get_actor (self) != NULL)
   {
-      clutter_container_remove_actor (CLUTTER_CONTAINER (priv->bin), priv->actor);
-      g_object_unref (priv->actor);
-      priv->actor == NULL;
+      clutter_container_remove_actor (CLUTTER_CONTAINER (priv->bin),
+                                      gtk_clutter_standin_get_actor (self));
   }
 
   if (actor != NULL)
@@ -401,8 +401,6 @@ gtk_clutter_standin_set_actor (GtkClutterStandin *self,
       /* ensure the actor is hidden; this ensures it won't be shown when
        * we parent it */
       clutter_actor_hide (actor);
-
-      priv->actor = g_object_ref (actor);
 
       clutter_container_add_actor (CLUTTER_CONTAINER (priv->bin), actor);
   }
