@@ -75,6 +75,22 @@ struct _GtkClutterActorPrivate
 };
 
 static void
+gtk_clutter_actor_dispose (GObject *object)
+{
+  GtkClutterActorPrivate *priv = GTK_CLUTTER_ACTOR (object)->priv;
+
+  if (priv->children)
+    {
+      g_list_foreach (priv->children, (GFunc) clutter_actor_destroy, NULL);
+      g_list_free (priv->children);
+
+      priv->children = NULL;
+    }
+
+  G_OBJECT_CLASS (gtk_clutter_actor_parent_class)->dispose (object);
+}
+
+static void
 gtk_clutter_actor_finalize (GObject *object)
 {
   G_OBJECT_CLASS (gtk_clutter_actor_parent_class)->finalize (object);
@@ -311,6 +327,7 @@ gtk_clutter_actor_class_init (GtkClutterActorClass *klass)
   actor_class->get_preferred_height = gtk_clutter_actor_get_preferred_height;
   actor_class->allocate             = gtk_clutter_actor_allocate;
 
+  gobject_class->dispose = gtk_clutter_actor_dispose;
   gobject_class->finalize = gtk_clutter_actor_finalize;
 
 }
