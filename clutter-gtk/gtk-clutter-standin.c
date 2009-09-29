@@ -353,7 +353,7 @@ gtk_clutter_standin_class_init (GtkClutterStandinClass *klass)
                                "Actor",
                                "#ClutterActor this widget is standing in for",
                                CLUTTER_TYPE_ACTOR,
-                               G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
+                               G_PARAM_READWRITE));
 }
 
 static void
