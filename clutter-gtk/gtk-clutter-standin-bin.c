@@ -109,7 +109,19 @@ gtk_clutter_standin_bin_allocate (ClutterActor          *self,
                                   ClutterAllocationFlags flags)
 {
   /* we only want to accept allocations from GTK+, thus allocation is
-   * done by calling gtk_clutter_standin_bin_gtk_allocate() */
+   * done by calling gtk_clutter_standin_bin_gtk_allocate().
+   *
+   * However, we shouldn't break the relayout -> allocation sequence.
+   * This method is called after our child calls
+   * clutter_actor_queue_relayout(), so we should resupply the current
+   * allocation set by GTK+. */
+  ClutterActorBox realbox;
+
+  clutter_actor_get_allocation_box (GTK_CLUTTER_STANDIN_BIN (self)->child,
+		                    &realbox);
+
+  clutter_actor_allocate (GTK_CLUTTER_STANDIN_BIN (self)->child,
+                          &realbox, flags);
 }
 
 void
