@@ -138,6 +138,8 @@ void gtk_clutter_bind_dimensions (ClutterActor            *src,
                                   GtkClutterBindDirection  dir);
 void gtk_clutter_calculate_root_allocation (GtkWidget     *widget,
                                             GtkAllocation *allocation);
+void gtk_clutter_calculate_actor_allocation (GtkWidget     *widget,
+                                             GtkAllocation *allocation);
 
 G_END_DECLS
 

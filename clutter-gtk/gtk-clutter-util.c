@@ -3,6 +3,7 @@
 #endif
 
 #include "gtk-clutter-util.h"
+#include "gtk-clutter-offscreen.h"
 
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <gdk/gdk.h>
@@ -751,6 +752,10 @@ gtk_clutter_bind_dimensions (ClutterActor            *src,
  * allocation in the coordinates of the top-level (which is needed to be
  * provided to Clutter), we must add walk the widget tree and add the
  * allocations of any window-backed parent containers.
+ *
+ * Use this function if you want to find out the position of a widget in
+ * stage coordinates (normally so that you can align some animation on the
+ * stage).
  */
 void
 gtk_clutter_calculate_root_allocation (GtkWidget     *widget,
@@ -769,6 +774,51 @@ gtk_clutter_calculate_root_allocation (GtkWidget     *widget,
   for (parent = widget->parent; parent != NULL; parent = parent->parent)
     {
       if (!GTK_WIDGET_NO_WINDOW (parent))
+        {
+          /* add this allocation */
+          allocation->x += parent->allocation.x;
+          allocation->y += parent->allocation.y;
+        }
+    }
+}
+
+/**
+ * gtk_clutter_calculate_actor_allocation:
+ * @widget: a #GtkWidget to calculate the root-window allocation for
+ * @allocation: a #GtkAllocation to store the result in
+ *
+ * Returns the #GtkAllocation of a widget relative to a widget known to
+ * Clutter-GTK+.
+ *
+ * This function is similar to gtk_clutter_calculate_root_allocation() but
+ * returns the coordinates relative to a #GtkWidget that is already connected
+ * to a #ClutterActor (for example, a #GtkClutterActor).
+ *
+ * This function is used internally by Clutter-GTK+ to position actors within
+ * their #GtkClutterStandin, but is provided in case it's useful to find the
+ * position of a widget within the #GtkClutterActor that contains it).
+ */
+void
+gtk_clutter_calculate_actor_allocation (GtkWidget     *widget,
+                                       GtkAllocation *allocation)
+{
+  GtkWidget *parent;
+
+  g_return_if_fail (GTK_IS_WIDGET (widget));
+  g_return_if_fail (allocation != NULL);
+
+  allocation->x = widget->allocation.x;
+  allocation->y = widget->allocation.y;
+  allocation->width = widget->allocation.width;
+  allocation->height = widget->allocation.height;
+
+  for (parent = widget->parent; parent != NULL; parent = parent->parent)
+    {
+      if (GTK_CLUTTER_IS_OFFSCREEN (parent))
+        {
+          break;
+        }
+      else if (!GTK_WIDGET_NO_WINDOW (parent))
         {
           /* add this allocation */
           allocation->x += parent->allocation.x;
