@@ -738,3 +738,41 @@ gtk_clutter_bind_dimensions (ClutterActor            *src,
           G_CALLBACK (gtk_clutter_bind_dimensions_height_changed), dest, 0);
     }
 }
+
+/**
+ * gtk_clutter_calculate_root_allocation:
+ * @widget: a #GtkWidget to calculate the root-window allocation for
+ * @allocation: a #GtkAllocation to store the result in
+ *
+ * Returns the #GtkAllocation of a widget relative to the top-level.
+ *
+ * The #GtkAllocation of a widget is relative to the allocation of any
+ * parent container that is backed by a #GdkWindow. Thus to work out the
+ * allocation in the coordinates of the top-level (which is needed to be
+ * provided to Clutter), we must add walk the widget tree and add the
+ * allocations of any window-backed parent containers.
+ */
+void
+gtk_clutter_calculate_root_allocation (GtkWidget     *widget,
+                                       GtkAllocation *allocation)
+{
+  GtkWidget *parent;
+
+  g_return_if_fail (GTK_IS_WIDGET (widget));
+  g_return_if_fail (allocation != NULL);
+
+  allocation->x = widget->allocation.x;
+  allocation->y = widget->allocation.y;
+  allocation->width = widget->allocation.width;
+  allocation->height = widget->allocation.height;
+
+  for (parent = widget->parent; parent != NULL; parent = parent->parent)
+    {
+      if (!GTK_WIDGET_NO_WINDOW (parent))
+        {
+          /* add this allocation */
+          allocation->x += parent->allocation.x;
+          allocation->y += parent->allocation.y;
+        }
+    }
+}

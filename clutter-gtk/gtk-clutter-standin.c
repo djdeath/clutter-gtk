@@ -274,6 +274,7 @@ gtk_clutter_standin_size_allocate (GtkWidget     *widget,
                                    GtkAllocation *allocation)
 {
   GtkClutterStandinPrivate *priv = GTK_CLUTTER_STANDIN (widget)->priv;
+  GtkAllocation root;
 
   widget->allocation = *allocation;
 
@@ -286,9 +287,11 @@ gtk_clutter_standin_size_allocate (GtkWidget     *widget,
       gtk_clutter_standin_send_configure (GTK_CLUTTER_STANDIN (widget));
     }
 
+  gtk_clutter_calculate_root_allocation (widget, &root);
+
   gtk_clutter_standin_bin_gtk_size_allocate (
           GTK_CLUTTER_STANDIN_BIN (priv->bin),
-          allocation);
+          &root);
 }
 
 static void

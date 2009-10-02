@@ -136,6 +136,8 @@ gboolean      gtk_clutter_texture_set_from_icon_name (ClutterTexture *texture,
 void gtk_clutter_bind_dimensions (ClutterActor            *src,
                                   ClutterActor            *dest,
                                   GtkClutterBindDirection  dir);
+void gtk_clutter_calculate_root_allocation (GtkWidget     *widget,
+                                            GtkAllocation *allocation);
 
 G_END_DECLS
 
