@@ -15,7 +15,8 @@ noinst_PROGRAMS = \
 	gtk-clutter-window-test2 \
 	refcounting-test \
 	reparenting-test \
-	stacked-standins
+	stacked-standins \
+	test-scrolling
 
 INCLUDES = -I$(srcdir) -I$(top_srcdir)
 
@@ -80,6 +81,10 @@ reparenting_test_LDADD = $(common_ldadd)
 stacked_standins_SOURCES = stacked-standins.c
 stacked_standins_DEPENDENCIES = $(common_deps)
 stacked_standins_LDADD = $(common_ldadd)
+
+test_scrolling_SOURCES = test-scrolling.c
+test_scrolling_DEPENDENCIES = $(common_deps)
+test_scrolling_LDADD = $(common_ldadd)
 
 EXTRA_DIST = \
 	animated-notebook.ui \
