@@ -15,6 +15,22 @@ typedef struct {
 
 } EventApp;
 
+static gboolean
+on_enter_notify (GtkWidget *widget, GdkEventCrossing *event)
+{
+  g_print ("Entering widget '%s'\n", G_OBJECT_TYPE_NAME (widget));
+
+  return FALSE;
+}
+
+static gboolean
+on_leave_notify (GtkWidget *widget, GdkEventCrossing *event)
+{
+  g_print ("Leaving widget '%s'\n", G_OBJECT_TYPE_NAME (widget));
+
+  return FALSE;
+}
+
 static void
 on_gtk_entry_changed (GtkEditable *editable, EventApp *app)
 {
@@ -68,17 +84,39 @@ create_colors (EventApp *app, ClutterColor *stage, ClutterColor *text)
 }
 
 static gboolean
-on_stage_capture (ClutterActor *actor,
+on_stage_capture (ClutterActor *stage,
                   ClutterEvent *event,
-                  gpointer      dummy)
+                  gpointer      dummy G_GNUC_UNUSED)
 {
-  if (event->type == CLUTTER_BUTTON_RELEASE)
+  switch (event->type)
     {
-      gfloat x, y;
+    case CLUTTER_BUTTON_PRESS:
+    case CLUTTER_BUTTON_RELEASE:
+      {
+        gfloat x, y;
 
-      clutter_event_get_coords (event, &x, &y);
+        clutter_event_get_coords (event, &x, &y);
 
-      g_print ("Event captured at (%.2f, %.2f)\n", x, y);
+        g_print ("Button %s captured at (%.2f, %.2f)\n",
+                 event->type == CLUTTER_BUTTON_PRESS ? "Press" : "Relase",
+                 x, y);
+      }
+      break;
+
+    case CLUTTER_ENTER:
+    case CLUTTER_LEAVE:
+      {
+        if (clutter_event_get_source (event) == stage &&
+            clutter_event_get_related (event) != NULL)
+          g_print ("%s the stage and %s '%s'\n",
+                   event->type == CLUTTER_ENTER ? "Entering" : "Leaving",
+                   event->type == CLUTTER_ENTER ? "leaving" : "entering",
+                   clutter_actor_get_name (clutter_event_get_related (event)));
+      }
+      break;
+
+    default:
+      break;
     }
 
   return FALSE;
@@ -141,6 +179,12 @@ main (gint argc, gchar **argv)
   g_signal_connect (app->stage, "captured-event",
                     G_CALLBACK (on_stage_capture),
                     NULL);
+  g_signal_connect (widget, "enter-notify-event",
+                    G_CALLBACK (on_enter_notify),
+                    NULL);
+  g_signal_connect (widget, "leave-notify-event",
+                    G_CALLBACK (on_leave_notify),
+                    NULL);
 
   /* Create the main texture that the spin buttons manipulate */
   pixbuf = gdk_pixbuf_new_from_file ("redhand.png", NULL);
@@ -149,12 +193,13 @@ main (gint argc, gchar **argv)
 
   actor = gtk_clutter_texture_new_from_pixbuf (pixbuf);
   app->hand = actor;
-  clutter_group_add (CLUTTER_GROUP (app->stage), actor);
-  clutter_actor_get_size (actor, &width, &height);
+  clutter_container_add_actor (CLUTTER_CONTAINER (app->stage), actor);
+  clutter_actor_set_anchor_point_from_gravity (actor, CLUTTER_GRAVITY_CENTER);
   clutter_actor_set_position (actor,
-                              (CLUTTER_STAGE_WIDTH ()/2) - (width/2),
-                              (CLUTTER_STAGE_HEIGHT ()/2) - (height/2));
+                              clutter_actor_get_width (app->stage) / 2,
+                              clutter_actor_get_height (app->stage) / 2);
   clutter_actor_set_reactive (actor, TRUE);
+  clutter_actor_set_name (actor, "Red Hand");
   g_signal_connect (actor, "button-press-event",
                     G_CALLBACK (on_hand_button_press),
                     NULL);
