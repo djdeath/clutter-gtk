@@ -140,7 +140,6 @@ main (gint argc, gchar **argv)
   GtkWidget     *widget, *vbox, *hbox, *button, *label, *box;
   ClutterActor  *actor;
   GdkPixbuf     *pixbuf = NULL;
-  gfloat         width, height;
   ClutterColor   stage_color = {255, 255, 255, 255};
   ClutterColor   text_color = {0, 0, 0, 255};
 
