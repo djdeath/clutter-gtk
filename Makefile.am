@@ -1,8 +1,6 @@
-ACLOCAL_AMFLAGS = -I build/autotools
+include $(top_srcdir)/build/autotools/Makefile.am.silent
 
-V         = @
-Q         = $(V:1=)
-QUIET_GEN = $(Q:@=@echo '  GEN   '$@;)
+ACLOCAL_AMFLAGS = -I build/autotools
 
 SUBDIRS = build clutter-gtk doc examples
 

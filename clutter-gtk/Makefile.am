@@ -1,22 +1,27 @@
-CLEANFILES=
-INCLUDES = \
-	-I$(srcdir) 				\
-	-I$(top_srcdir) 			\
-	-DG_LOG_DOMAIN=\"Clutter-Gtk\" 		\
-	-DPREFIX=\""$(prefix)"\" 		\
-	-DLIBDIR=\""$(libdir)"\" 		\
-        -DCLUTTER_GTK_COMPILATION               \
-        -DG_DISABLE_DEPRECATED                  \
-        -DGDK_PIXBUF_DISABLE_DEPRECATED         \
-        -DGDK_DISABLE_DEPRECATED                \
-        -DGTK_DISABLE_DEPRECATED                \
-	-DCLUTTER_DISABLE_DEPRECATED
+include $(top_srcdir)/build/autotools/Makefile.am.silent
+
+NULL =
+
+CLEANFILES =
+DISTCLEANFILES =
+EXTRA_DIST =
+
+INCLUDES = -I$(srcdir) -I$(top_srcdir)
 
 AM_CPPFLAGS = \
-	$(CLUTTER_GTK_DEBUG_CFLAGS) \
-	$(MAINTAINER_CFLAGS) \
-	$(CLUTTER_CFLAGS) \
-	$(GTK_CFLAGS)
+	-DG_LOG_DOMAIN=\"Clutter-Gtk\" 	\
+	-DPREFIX=\""$(prefix)"\" 	\
+	-DLIBDIR=\""$(libdir)"\"	\
+	-DCLUTTER_GTK_COMPILATION	\
+	-DG_DISABLE_DEPRECATED		\
+	-DGDK_PIXBUF_DISABLE_DEPRECATED	\
+	-DGDK_DISABLE_DEPRECATED	\
+	-DGTK_DISABLE_DEPRECATED	\
+	-DCLUTTER_DISABLE_DEPRECATED	\
+	$(CLUTTER_GTK_DEBUG_CFLAGS) 	\
+	$(NULL)
+
+AM_CFLAGS = $(MAINTAINER_CFLAGS) $(CLUTTER_CFLAGS) $(GTK_CFLAGS)
 
 lib_LTLIBRARIES = libclutter-gtk-@CLUTTER_GTK_API_VERSION@.la
 
@@ -29,7 +34,8 @@ libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_SOURCES = \
 	$(srcdir)/gtk-clutter-scrollable.c 	\
 	$(srcdir)/gtk-clutter-util.c 		\
 	$(srcdir)/gtk-clutter-viewport.c	\
-	$(srcdir)/gtk-clutter-zoomable.c
+	$(srcdir)/gtk-clutter-zoomable.c	\
+	$(NULL)
 
 libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_LIBADD = $(CLUTTER_LIBS) $(GTK_LIBS)
 libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_LDFLAGS = $(CLUTTER_LT_LDFLAGS)
@@ -53,6 +59,7 @@ GtkClutter-@CLUTTER_GTK_API_VERSION@.gir: $(INTROSPECTION_SCANNER) libclutter-gt
 	$(QUIET_GEN)$(INTROSPECTION_SCANNER) -v \
 		--namespace GtkClutter --nsversion=@CLUTTER_GTK_API_VERSION@ \
 		$(INCLUDES) \
+		$(AM_CPPFLAGS) \
 		--add-include-path=$(srcdir) --add-include=path=. \
 		--include=Clutter-1.0 \
 		--include=Gtk-2.0 \

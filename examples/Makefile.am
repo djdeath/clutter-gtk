@@ -1,3 +1,5 @@
+include $(top_srcdir)/build/autotools/Makefile.am.silent
+
 NULL =
 
 noinst_PROGRAMS = \
@@ -7,11 +9,9 @@ noinst_PROGRAMS = \
 	gtk-clutter-test-actor \
         gtk-clutter-viewport
 
-INCLUDES = \
-	-I$(srcdir) \
-	-I$(top_srcdir)
+INCLUDES = -I$(srcdir) -I$(top_srcdir)
 
-AM_CPPFLAGS = $(MAINTAINER_CFLAGS) $(CLUTTER_CFLAGS) $(GTK_CFLAGS)
+AM_CFLAGS = $(MAINTAINER_CFLAGS) $(CLUTTER_CFLAGS) $(GTK_CFLAGS)
 
 common_deps = \
 	$(top_builddir)/clutter-gtk/libclutter-gtk-@CLUTTER_GTK_API_VERSION@.la

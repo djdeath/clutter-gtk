@@ -22,7 +22,7 @@ AC_CONFIG_MACRO_DIR([build/autotools])
 
 AM_CONFIG_HEADER([config.h])
 
-AM_INIT_AUTOMAKE([1.9])
+AM_INIT_AUTOMAKE([1.10])
 
 CLUTTER_GTK_MAJOR_VERSION=clutter_gtk_major
 CLUTTER_GTK_MINOR_VERSION=clutter_gtk_minor
@@ -160,14 +160,26 @@ GOBJECT_INTROSPECTION_CHECK([0.6.4])
 
 dnl ========================================================================
 
-SHAVE_INIT([build/autotools], [enable])
+m4_ifdef([AM_SILENT_RULES],
+         [
+           AM_SILENT_RULES([yes])
+           use_shave=no
+         ],
+         [
+           SHAVE_INIT([build/autotools], [enable])
+           AC_CONFIG_FILES([
+                build/autotools/shave
+                build/autotools/shave-libtool
+           ])
+           use_shave=yes
+         ])
+
+AM_CONDITIONAL([USE_SHAVE], [test "x$use_shave" = "xyes"])
 
 AC_CONFIG_FILES([
         Makefile
         build/Makefile
         build/autotools/Makefile
-        build/autotools/shave-libtool
-        build/autotools/shave
         clutter-gtk/Makefile
         doc/Makefile
         doc/reference/Makefile
