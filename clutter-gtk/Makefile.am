@@ -22,7 +22,10 @@ lib_LTLIBRARIES = libclutter-gtk-@CLUTTER_GTK_API_VERSION@.la
 
 # please, keep the list sorted alphabetically
 libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_SOURCES = \
+	$(srcdir)/gtk-clutter-actor.c 		\
 	$(srcdir)/gtk-clutter-embed.c 		\
+	$(srcdir)/gtk-clutter-offscreen.c	\
+	$(srcdir)/gtk-clutter-offscreen.h	\
 	$(srcdir)/gtk-clutter-scrollable.c 	\
 	$(srcdir)/gtk-clutter-util.c 		\
 	$(srcdir)/gtk-clutter-viewport.c	\
@@ -36,6 +39,7 @@ cluttergtkheadersdir = $(includedir)/clutter-gtk-1.0/clutter-gtk
 # please, keep the list sorted alphabetically
 cluttergtkheaders_HEADERS = \
 	$(top_srcdir)/clutter-gtk/clutter-gtk.h 		\
+	$(top_srcdir)/clutter-gtk/gtk-clutter-actor.h 		\
 	$(top_srcdir)/clutter-gtk/gtk-clutter-embed.h 		\
 	$(top_srcdir)/clutter-gtk/gtk-clutter-scrollable.h 	\
 	$(top_srcdir)/clutter-gtk/gtk-clutter-util.h 		\

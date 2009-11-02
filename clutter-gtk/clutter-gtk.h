@@ -5,6 +5,7 @@
 
 /* Please, keep the list sorted alphabetically */
 
+#include "gtk-clutter-actor.h"
 #include "gtk-clutter-embed.h"
 #include "gtk-clutter-scrollable.h"
 #include "gtk-clutter-util.h"
