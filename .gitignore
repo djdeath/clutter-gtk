@@ -49,6 +49,9 @@ depcomp
 /examples/gtk-clutter-window-test2
 /examples/refcounting-test
 /examples/reparenting-test
+/examples/expose-test
+/examples/stacked-standins
+/examples/test-scrolling
 gtk-doc.make
 install-sh
 libtool
