@@ -110,7 +110,7 @@ gtk_clutter_actor_realize (ClutterActor *actor)
   gtk_container_add (GTK_CONTAINER (priv->embed), priv->widget);
 
   gtk_widget_realize (priv->widget);
-  priv->pixmap = gdk_offscreen_window_get_pixmap (priv->widget->window);
+  priv->pixmap = gdk_offscreen_window_get_pixmap (gtk_widget_get_window (priv->widget));
   g_object_ref (priv->pixmap);
   gdk_drawable_set_colormap (priv->pixmap, gtk_widget_get_colormap (priv->embed));
 
@@ -179,6 +179,7 @@ gtk_clutter_actor_allocate (ClutterActor           *actor,
   GtkClutterActorPrivate *priv = clutter->priv;
   GtkAllocation child_allocation;
   GdkPixmap *pixmap;
+  GdkWindow *window;
   ClutterActorBox child_box;
   GList *l;
 
@@ -202,9 +203,10 @@ gtk_clutter_actor_allocate (ClutterActor           *actor,
        * returns (as size allocation is done from clutter_redraw which is
        * called from gtk_clutter_expose_event(). If we don't do this we
        * may see an intermediate state of the pixmap, causing flicker */
-      gdk_window_process_updates (priv->widget->window, TRUE);
+      window = gtk_widget_get_window (priv->widget);
+      gdk_window_process_updates (window, TRUE);
 
-      pixmap = gdk_offscreen_window_get_pixmap (priv->widget->window);
+      pixmap = gdk_offscreen_window_get_pixmap (window);
       if (pixmap != priv->pixmap)
         {
           if (priv->pixmap != NULL)

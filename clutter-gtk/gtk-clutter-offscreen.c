@@ -109,7 +109,7 @@ gtk_clutter_offscreen_class_init (GtkClutterOffscreenClass *klass)
 static void
 gtk_clutter_offscreen_init (GtkClutterOffscreen *offscreen)
 {
-  GTK_WIDGET_UNSET_FLAGS (offscreen, GTK_NO_WINDOW);
+  gtk_widget_set_has_window (GTK_WIDGET (offscreen), TRUE);
   gtk_container_set_resize_mode (GTK_CONTAINER (offscreen), GTK_RESIZE_IMMEDIATE);
   offscreen->active = TRUE;
 }
@@ -171,19 +171,23 @@ static void
 gtk_clutter_offscreen_realize (GtkWidget *widget)
 {
   GtkClutterOffscreen *offscreen = GTK_CLUTTER_OFFSCREEN (widget);
+  GtkAllocation allocation;
+  GtkStyle *style;
+  GdkWindow *window;
   GdkWindowAttr attributes;
   gint attributes_mask;
-  gint border_width;
+  guint border_width;
   GtkWidget *parent;
 
-  GTK_WIDGET_SET_FLAGS (widget, GTK_REALIZED);
+  gtk_widget_set_realized (widget, TRUE);
 
-  border_width = GTK_CONTAINER (widget)->border_width;
+  border_width = gtk_container_get_border_width (GTK_CONTAINER (widget));
 
-  attributes.x = widget->allocation.x + border_width;
-  attributes.y = widget->allocation.y + border_width;
-  attributes.width = widget->allocation.width - 2 * border_width;
-  attributes.height = widget->allocation.height - 2 * border_width;
+  gtk_widget_get_allocation (widget, &allocation);
+  attributes.x = allocation.x + border_width;
+  attributes.y = allocation.y + border_width;
+  attributes.width = allocation.width - 2 * border_width;
+  attributes.height = allocation.height - 2 * border_width;
   attributes.window_type = GDK_WINDOW_OFFSCREEN;
   attributes.event_mask = gtk_widget_get_events (widget) |
     GDK_EXPOSURE_MASK;
@@ -195,17 +199,19 @@ gtk_clutter_offscreen_realize (GtkWidget *widget)
 
   parent = gtk_widget_get_parent (widget);
 
-  widget->window = gdk_window_new (gdk_screen_get_root_window (gdk_drawable_get_screen (GDK_DRAWABLE (parent->window))),
-				   &attributes, attributes_mask);
-  gdk_window_set_user_data (widget->window, widget);
+  window = gdk_window_new (gdk_screen_get_root_window (gdk_drawable_get_screen (GDK_DRAWABLE (gtk_widget_get_window (parent)))),
+			   &attributes, attributes_mask);
+  gtk_widget_set_window (widget, window);
+  gdk_window_set_user_data (window, widget);
 
-  g_signal_connect (widget->window, "to-embedder",
+  g_signal_connect (window, "to-embedder",
 		    G_CALLBACK (offscreen_window_to_parent), widget);
-  g_signal_connect (widget->window, "from-embedder",
+  g_signal_connect (window, "from-embedder",
 		    G_CALLBACK (offscreen_window_from_parent), widget);
 
-  widget->style = gtk_style_attach (widget->style, widget->window);
-  gtk_style_set_background (widget->style, widget->window, GTK_STATE_NORMAL);
+  gtk_widget_style_attach (widget);
+  style = gtk_widget_get_style (widget);
+  gtk_style_set_background (style, window, GTK_STATE_NORMAL);
 
   if (offscreen->active)
     _gtk_clutter_embed_set_child_active (GTK_CLUTTER_EMBED (parent),
@@ -219,9 +225,8 @@ gtk_clutter_offscreen_unrealize (GtkWidget *widget)
   GtkClutterOffscreen *offscreen = GTK_CLUTTER_OFFSCREEN (widget);
 
   if (offscreen->active)
-    _gtk_clutter_embed_set_child_active (GTK_CLUTTER_EMBED (widget->parent),
-					 widget, FALSE);
-
+    _gtk_clutter_embed_set_child_active (GTK_CLUTTER_EMBED (gtk_widget_get_parent (widget)),
+					  widget, FALSE);
   GTK_WIDGET_CLASS (gtk_clutter_offscreen_parent_class)->unrealize (widget);
 }
 
@@ -229,14 +234,19 @@ static void
 gtk_clutter_offscreen_size_request (GtkWidget      *widget,
 				    GtkRequisition *requisition)
 {
-  requisition->width = (GTK_CONTAINER (widget)->border_width * 2);
-  requisition->height = (GTK_CONTAINER (widget)->border_width * 2);
+  GtkWidget *child;
+  guint border_width;
 
-  if (GTK_BIN (widget)->child && GTK_WIDGET_VISIBLE (GTK_BIN (widget)->child))
+  border_width = gtk_container_get_border_width (GTK_CONTAINER (widget));
+  requisition->width = (border_width * 2);
+  requisition->height = (border_width * 2);
+
+  child = gtk_bin_get_child (GTK_BIN (widget));
+  if (child && gtk_widget_get_visible (child))
     {
       GtkRequisition child_requisition;
 
-      gtk_widget_size_request (GTK_BIN (widget)->child, &child_requisition);
+      gtk_widget_size_request (child, &child_requisition);
 
       requisition->width += child_requisition.width;
       requisition->height += child_requisition.height;
@@ -248,43 +258,48 @@ gtk_clutter_offscreen_size_allocate (GtkWidget     *widget,
 				     GtkAllocation *allocation)
 {
   GtkClutterOffscreen *offscreen;
-  gint border_width;
+  GtkAllocation widget_allocation;
+  GtkWidget *child;
+  guint border_width;
 
   offscreen = GTK_CLUTTER_OFFSCREEN (widget);
+  gtk_widget_get_allocation (widget, &widget_allocation);
 
   /* some widgets call gtk_widget_queue_resize() which triggers a
    * size-request/size-allocate cycle.
    * Calling gdk_window_move_resize() triggers an expose-event of the entire
    * widget tree, so we only want to do it if the allocation has changed in
    * some way, otherwise we can just ignore it. */
-  if (GTK_WIDGET_REALIZED (widget) &&
-      (allocation->x != widget->allocation.x ||
-       allocation->y != widget->allocation.y ||
-       allocation->width != widget->allocation.width ||
-       allocation->height != widget->allocation.height))
+  if (gtk_widget_get_realized (widget) &&
+      (allocation->x != widget_allocation.x ||
+       allocation->y != widget_allocation.y ||
+       allocation->width != widget_allocation.width ||
+       allocation->height != widget_allocation.height))
     {
-      gdk_window_move_resize (widget->window,
+      gdk_window_move_resize (gtk_widget_get_window (widget),
                               0, 0,
                               allocation->width,
                               allocation->height);
     }
 
-  widget->allocation = *allocation;
-  border_width = GTK_CONTAINER (widget)->border_width;
+  gtk_widget_set_allocation (widget, allocation);
+  border_width = gtk_container_get_border_width (GTK_CONTAINER (widget));
 
-  if (GTK_BIN (offscreen)->child && GTK_WIDGET_VISIBLE (GTK_BIN (offscreen)->child))
+  child = gtk_bin_get_child (GTK_BIN (offscreen));
+  if (child && gtk_widget_get_visible (child))
     {
       GtkAllocation child_allocation;
 
       child_allocation.x = border_width;
       child_allocation.y = border_width;
 
-      child_allocation.width = MAX (1, widget->allocation.width -
+      child_allocation.width = MAX (1, allocation->width -
 				    border_width * 2);
-      child_allocation.height = MAX (1, widget->allocation.height -
+      child_allocation.height = MAX (1, allocation->height -
 				     border_width * 2);
 
-      gtk_widget_size_allocate (GTK_BIN (widget)->child, &child_allocation);
+      gtk_widget_size_allocate (gtk_bin_get_child (GTK_BIN (widget)),
+                                &child_allocation);
     }
 }
 

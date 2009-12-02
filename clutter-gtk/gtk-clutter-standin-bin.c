@@ -63,6 +63,7 @@ gtk_clutter_standin_bin_get_preferred_width (ClutterActor *actor,
                                              gfloat       *min_width_p,
                                              gfloat       *natural_width_p)
 {
+  GtkRequisition requisition;
   GtkWidget *standin;
 
   clutter_actor_get_preferred_width (GTK_CLUTTER_STANDIN_BIN (actor)->child,
@@ -73,7 +74,8 @@ gtk_clutter_standin_bin_get_preferred_width (ClutterActor *actor,
    * requisition of the GtkClutterStandin it belongs to, and if required,
    * queue a resize */
   standin = GTK_CLUTTER_STANDIN_BIN (actor)->standin;
-  if (*natural_width_p != standin->requisition.width)
+  gtk_widget_size_request (standin, &requisition);
+  if (*natural_width_p != requisition.width)
     {
       clutter_actor_set_width (actor, -1);
       gtk_widget_queue_resize (standin);
@@ -86,6 +88,7 @@ gtk_clutter_standin_bin_get_preferred_height (ClutterActor *actor,
                                               gfloat       *min_height_p,
                                               gfloat       *natural_height_p)
 {
+  GtkRequisition requisition;
   GtkWidget *standin;
 
   clutter_actor_get_preferred_height (GTK_CLUTTER_STANDIN_BIN (actor)->child,
@@ -96,7 +99,8 @@ gtk_clutter_standin_bin_get_preferred_height (ClutterActor *actor,
    * requisition of the GtkClutterStandin it belongs to, and if required,
    * queue a resize */
   standin = GTK_CLUTTER_STANDIN_BIN (actor)->standin;
-  if (*natural_height_p != standin->requisition.height)
+  gtk_widget_size_request (standin, &requisition);
+  if (*natural_height_p != requisition.height)
     {
       clutter_actor_set_height (actor, -1);
       gtk_widget_queue_resize (standin);

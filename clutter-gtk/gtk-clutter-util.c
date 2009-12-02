@@ -798,23 +798,30 @@ void
 gtk_clutter_calculate_root_allocation (GtkWidget     *widget,
                                        GtkAllocation *allocation)
 {
+  GtkAllocation widget_allocation;
+  GtkAllocation parent_allocation;
   GtkWidget *parent;
 
   g_return_if_fail (GTK_IS_WIDGET (widget));
   g_return_if_fail (allocation != NULL);
 
-  allocation->x = widget->allocation.x;
-  allocation->y = widget->allocation.y;
-  allocation->width = widget->allocation.width;
-  allocation->height = widget->allocation.height;
+  gtk_widget_get_allocation (widget, &widget_allocation);
 
-  for (parent = widget->parent; parent != NULL; parent = parent->parent)
+  allocation->x = widget_allocation.x;
+  allocation->y = widget_allocation.y;
+  allocation->width = widget_allocation.width;
+  allocation->height = widget_allocation.height;
+
+  for (parent = gtk_widget_get_parent (widget);
+       parent != NULL;
+       parent = gtk_widget_get_parent (parent))
     {
-      if (!GTK_WIDGET_NO_WINDOW (parent))
+      if (gtk_widget_get_has_window (parent))
         {
           /* add this allocation */
-          allocation->x += parent->allocation.x;
-          allocation->y += parent->allocation.y;
+          gtk_widget_get_allocation (parent, &parent_allocation);
+          allocation->x += parent_allocation.x;
+          allocation->y += parent_allocation.y;
         }
     }
 }
@@ -839,27 +846,34 @@ void
 gtk_clutter_calculate_actor_allocation (GtkWidget     *widget,
                                         GtkAllocation *allocation)
 {
+  GtkAllocation widget_allocation;
+  GtkAllocation parent_allocation;
   GtkWidget *parent;
 
   g_return_if_fail (GTK_IS_WIDGET (widget));
   g_return_if_fail (allocation != NULL);
 
-  allocation->x = widget->allocation.x;
-  allocation->y = widget->allocation.y;
-  allocation->width = widget->allocation.width;
-  allocation->height = widget->allocation.height;
+  gtk_widget_get_allocation (widget, &widget_allocation);
 
-  for (parent = widget->parent; parent != NULL; parent = parent->parent)
+  allocation->x = widget_allocation.x;
+  allocation->y = widget_allocation.y;
+  allocation->width = widget_allocation.width;
+  allocation->height = widget_allocation.height;
+
+  for (parent = gtk_widget_get_parent (widget);
+       parent != NULL;
+       parent = gtk_widget_get_parent (parent))
     {
       if (GTK_CLUTTER_IS_OFFSCREEN (parent))
         {
           break;
         }
-      else if (!GTK_WIDGET_NO_WINDOW (parent))
+      else if (gtk_widget_get_has_window (parent))
         {
           /* add this allocation */
-          allocation->x += parent->allocation.x;
-          allocation->y += parent->allocation.y;
+          gtk_widget_get_allocation (parent, &parent_allocation);
+          allocation->x += parent_allocation.x;
+          allocation->y += parent_allocation.y;
         }
     }
 }

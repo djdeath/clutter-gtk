@@ -74,11 +74,14 @@ page_changed (GtkTreeSelection *selection, GtkBuilder *ui)
     gtk_widget_reparent (gtk_bin_get_child (GTK_BIN (bin)),
             gtk_clutter_actor_get_widget (GTK_CLUTTER_ACTOR (actor)));
 
+    GtkAllocation allocation;
+    gtk_widget_get_allocation (bin, &allocation);
+
     clutter_container_add_actor (CLUTTER_CONTAINER (stage), actor);
     ClutterAnimation *animation = clutter_actor_animate (actor,
             CLUTTER_EASE_OUT_SINE, 500,
-            "fixed::x", (float) bin->allocation.x,
-            "fixed::y", (float) bin->allocation.y,
+            "fixed::x", (float) allocation.x,
+            "fixed::y", (float) allocation.y,
             "fixed::scale-gravity", CLUTTER_GRAVITY_CENTER,
             "scale-x", 0.,
             "scale-y", 0.,
@@ -122,10 +125,10 @@ page_changed (GtkTreeSelection *selection, GtkBuilder *ui)
             "fixed::x", (float) rect.x,
             "fixed::y", (float) rect.y,
             "fixed::scale-x", 0.,
-            "fixed::scale-y", (float) rect.height / (float) bin->allocation.height,
+            "fixed::scale-y", (float) rect.height / (float) allocation.height,
             "fixed::scale-gravity", CLUTTER_GRAVITY_NORTH_WEST,
-            "x", (float) bin->allocation.x,
-            "y", (float) bin->allocation.y,
+            "x", (float) allocation.x,
+            "y", (float) allocation.y,
             "scale-x", 1.,
             "scale-y", 1.,
             NULL);

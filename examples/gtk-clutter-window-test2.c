@@ -26,16 +26,19 @@ animation_stage_2_complete (ClutterTimeline *timeline, ClutterActor *texture)
 static void
 animation_stage_1_complete (ClutterTimeline *timeline, ClutterActor *texture)
 {
-    GtkWidget *image = GTK_WIDGET (g_object_get_data (G_OBJECT (texture),
-                "image"));
+    GtkAllocation allocation;
+    GtkWidget *image;
+
+    image = GTK_WIDGET (g_object_get_data (G_OBJECT (texture), "image"));
+    gtk_widget_get_allocation (image, &allocation);
 
     /* do the second animation, have the icon grow out from the middle of the
      * button */
     ClutterAnimation *animation = clutter_actor_animate (texture,
             CLUTTER_EASE_OUT_SINE,
             100,
-            "fixed::x", (float) image->allocation.x,
-            "fixed::y", (float) image->allocation.y,
+            "fixed::x", (float) allocation.x,
+            "fixed::y", (float) allocation.y,
             "fixed::scale-x", 0.,
             "fixed::scale-y", 0.,
             "scale-x", 1.,
@@ -63,6 +66,8 @@ button_clicked (GtkButton *button, char *stock_id)
     {
 
         char *icon_name;
+        GtkAllocation allocation;
+        GtkAllocation toplevel_allocation;
         GtkIconSize size;
 
         /* create a texture from the button image */
@@ -84,22 +89,25 @@ button_clicked (GtkButton *button, char *stock_id)
         g_object_set_data (G_OBJECT (texture), "icon-size",
                 GINT_TO_POINTER (size));
 
+        gtk_widget_get_allocation (image, &allocation);
+
         /* replace the icon itself */
         GdkPixbuf *blank = gdk_pixbuf_new (GDK_COLORSPACE_RGB,
                                            TRUE, 8,
-                                           image->allocation.width,
-                                           image->allocation.height);
+                                           allocation.width,
+                                           allocation.height);
         gdk_pixbuf_fill (blank, 0x00000000);
         gtk_image_set_from_pixbuf (GTK_IMAGE (image), blank);
         g_object_unref (blank);
 
         /* animate a fall due to gravity */
+        gtk_widget_get_allocation (toplevel, &toplevel_allocation);
         ClutterAnimation *animation = clutter_actor_animate (texture,
                 CLUTTER_EASE_IN_QUAD,
                 200,
-                "fixed::x", (float) image->allocation.x,
-                "fixed::y", (float) image->allocation.y,
-                "y", (float) toplevel->allocation.height,
+                "fixed::x", (float) allocation.x,
+                "fixed::y", (float) allocation.y,
+                "y", (float) toplevel_allocation.height,
                 NULL);
 
         g_signal_connect_after (clutter_animation_get_timeline (animation),

@@ -89,17 +89,19 @@ gtk_clutter_standin_put_actor_on_stage (GtkClutterStandin *self)
 static void
 gtk_clutter_standin_send_configure (GtkClutterStandin *self)
 {
+  GtkAllocation allocation;
   GtkWidget *widget;
   GdkEvent *event = gdk_event_new (GDK_CONFIGURE);
 
   widget = GTK_WIDGET (self);
+  gtk_widget_get_allocation (widget, &allocation);
 
-  event->configure.window = g_object_ref (widget->window);
+  event->configure.window = g_object_ref (gtk_widget_get_window (widget));
   event->configure.send_event = TRUE;
-  event->configure.x = widget->allocation.x;
-  event->configure.y = widget->allocation.y;
-  event->configure.width = widget->allocation.width;
-  event->configure.height = widget->allocation.height;
+  event->configure.x = allocation.x;
+  event->configure.y = allocation.y;
+  event->configure.width = allocation.width;
+  event->configure.height = allocation.height;
 
   gtk_widget_event (widget, event);
   gdk_event_free (event);
@@ -206,16 +208,20 @@ static void
 gtk_clutter_standin_realize (GtkWidget *widget)
 {
   GtkClutterStandinPrivate *priv = GTK_CLUTTER_STANDIN (widget)->priv;
+  GtkAllocation allocation;
+  GtkStyle *style;
+  GdkWindow *window;
   GdkWindowAttr attributes;
   int attributes_mask;
 
-  GTK_WIDGET_SET_FLAGS (widget, GTK_REALIZED);
+  gtk_widget_set_realized (widget, TRUE);
+  gtk_widget_get_allocation (widget, &allocation);
 
   attributes.window_type = GDK_WINDOW_CHILD;
-  attributes.x = widget->allocation.x;
-  attributes.y = widget->allocation.y;
-  attributes.width = widget->allocation.width;
-  attributes.height = widget->allocation.height;
+  attributes.x = allocation.x;
+  attributes.y = allocation.y;
+  attributes.width = allocation.width;
+  attributes.height = allocation.height;
   attributes.wclass = GDK_INPUT_OUTPUT;
   attributes.visual = gtk_widget_get_visual (widget);
   attributes.colormap = gtk_widget_get_colormap (widget);
@@ -225,19 +231,21 @@ gtk_clutter_standin_realize (GtkWidget *widget)
 
   attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL | GDK_WA_COLORMAP;
 
-  widget->window = gdk_window_new (gtk_widget_get_parent_window (widget),
-                                   &attributes,
-                                   attributes_mask);
-  gdk_window_set_user_data (widget->window, widget);
+  window = gdk_window_new (gtk_widget_get_parent_window (widget),
+                           &attributes,
+                           attributes_mask);
+  gtk_widget_set_window (widget, window);
+  gdk_window_set_user_data (window, widget);
 
-  widget->style = gtk_style_attach (widget->style, widget->window);
-  gtk_style_set_background (widget->style, widget->window, GTK_STATE_NORMAL);
+  gtk_widget_style_attach (widget);
+  style = gtk_widget_get_style (widget);
+  gtk_style_set_background (style, window, GTK_STATE_NORMAL);
 
-  gdk_window_set_back_pixmap (widget->window, NULL, FALSE);
+  gdk_window_set_back_pixmap (window, NULL, FALSE);
 
   clutter_actor_realize (priv->bin);
 
-  if (GTK_WIDGET_VISIBLE (widget))
+  if (gtk_widget_get_visible (widget))
     clutter_actor_show (priv->bin);
 
   gtk_clutter_standin_send_configure (GTK_CLUTTER_STANDIN (widget));
@@ -270,11 +278,11 @@ gtk_clutter_standin_size_allocate (GtkWidget     *widget,
   GtkClutterStandinBin *bin = GTK_CLUTTER_STANDIN_BIN (priv->bin);
   GtkAllocation root;
 
-  widget->allocation = *allocation;
+  gtk_widget_set_allocation (widget, allocation);
 
-  if (GTK_WIDGET_REALIZED (widget))
+  if (gtk_widget_get_realized (widget))
     {
-      gdk_window_move_resize (widget->window,
+      gdk_window_move_resize (gtk_widget_get_window (widget),
                               allocation->x, allocation->y,
                               allocation->width, allocation->height);
 
