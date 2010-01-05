@@ -661,13 +661,26 @@ gtk_clutter_init_with_args (int            *argc,
                             const char     *translation_domain,
                             GError        **error)
 {
+  GOptionGroup *gtk_group, *clutter_group;
+  GOptionContext *context;
   gboolean res;
 
-  res = gtk_init_with_args (argc, argv,
-                            (char*) parameter_string,
-                            entries,
-                            (char*) translation_domain,
-                            error);
+  /* we let gtk+ open the display */
+  gtk_group = gtk_get_option_group (TRUE);
+
+  /* and we prevent clutter from doing so too */
+  clutter_group = clutter_get_option_group_without_init ();
+
+  context = g_option_context_new (parameter_string);
+
+  g_option_context_add_group (context, gtk_group);
+  g_option_context_add_group (context, clutter_group);
+
+  if (entries)
+    g_option_context_add_main_entries (context, entries, translation_domain);
+
+  res = g_option_context_parse (context, argc, argv, error);
+  g_option_context_free (context);
 
   if (!res)
     return CLUTTER_INIT_ERROR_GTK;
@@ -679,6 +692,9 @@ gtk_clutter_init_with_args (int            *argc,
   clutter_win32_disable_event_retrieval ();
 #endif /* GDK_WINDOWING_{X11,WIN32} */
 
+  /* this is required since parsing clutter's option group did not
+   * complete the initialization process
+   */
   return clutter_init_with_args (argc, argv,
                                  NULL,
                                  NULL,
