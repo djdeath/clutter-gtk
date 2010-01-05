@@ -1,6 +1,10 @@
+#include "config.h"
+
 #include <gtk/gtk.h>
 #include <clutter/clutter.h>
 #include <math.h>
+
+#include <glib/gi18n.h>
 
 #include <clutter-gtk/clutter-gtk.h>
 
@@ -129,9 +133,16 @@ main (int argc, char *argv[])
   GdkPixbuf       *pixbuf;
   SuperOH         *oh;
   gint             i;
+  GError          *error;
 
-  if (gtk_clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
-    g_error ("Unable to initialize GtkClutter");
+  error = NULL;
+  gtk_clutter_init_with_args (&argc, &argv,
+                              NULL,
+                              NULL,
+                              NULL,
+                              &error);
+  if (error)
+    g_error ("Unable to initialize: %s", error->message);
 
   pixbuf = gdk_pixbuf_new_from_file ("redhand.png", NULL);
 
