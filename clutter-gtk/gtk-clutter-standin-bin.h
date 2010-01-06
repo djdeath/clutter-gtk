@@ -44,6 +44,8 @@ struct _GtkClutterStandinBin
 
   GtkWidget    *standin;
   ClutterActor *child;
+
+  ClutterActorBox child_allocation;
 };
 
 struct _GtkClutterStandinBinClass

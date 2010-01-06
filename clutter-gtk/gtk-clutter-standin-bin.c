@@ -28,6 +28,7 @@
 
 #include <glib-object.h>
 #include <math.h>
+#include <string.h>
 
 static void clutter_container_iface_init (ClutterContainerIface *iface);
 
@@ -65,9 +66,9 @@ gtk_clutter_standin_bin_get_preferred_width (ClutterActor *actor,
 {
   GtkWidget *standin;
 
-  clutter_actor_get_preferred_width (
-          GTK_CLUTTER_STANDIN_BIN (actor)->child,
-          for_height, min_width_p, natural_width_p);
+  clutter_actor_get_preferred_width (GTK_CLUTTER_STANDIN_BIN (actor)->child,
+                                     for_height,
+                                     min_width_p, natural_width_p);
 
   /* determine if this container has changed size compared to the current
    * requisition of the GtkClutterStandin it belongs to, and if required,
@@ -88,9 +89,9 @@ gtk_clutter_standin_bin_get_preferred_height (ClutterActor *actor,
 {
   GtkWidget *standin;
 
-  clutter_actor_get_preferred_height (
-          GTK_CLUTTER_STANDIN_BIN (actor)->child,
-          for_width, min_height_p, natural_height_p);
+  clutter_actor_get_preferred_height (GTK_CLUTTER_STANDIN_BIN (actor)->child,
+                                      for_width,
+                                      min_height_p, natural_height_p);
 
   /* determine if this container has changed size compared to the current
    * requisition of the GtkClutterStandin it belongs to, and if required,
@@ -104,10 +105,16 @@ gtk_clutter_standin_bin_get_preferred_height (ClutterActor *actor,
 }
 
 static void
-gtk_clutter_standin_bin_allocate (ClutterActor          *self,
+gtk_clutter_standin_bin_allocate (ClutterActor          *actor,
                                   const ClutterActorBox *box,
                                   ClutterAllocationFlags flags)
 {
+  GtkClutterStandinBin *self = GTK_CLUTTER_STANDIN_BIN (actor);
+  ClutterActorClass *klass;
+
+  klass = CLUTTER_ACTOR_CLASS (gtk_clutter_standin_bin_parent_class);
+  klass->allocate (actor, box, flags);
+
   /* we only want to accept allocations from GTK+, thus allocation is
    * done by calling gtk_clutter_standin_bin_gtk_allocate().
    *
@@ -115,13 +122,9 @@ gtk_clutter_standin_bin_allocate (ClutterActor          *self,
    * This method is called after our child calls
    * clutter_actor_queue_relayout(), so we should resupply the current
    * allocation set by GTK+. */
-  ClutterActorBox realbox;
 
-  clutter_actor_get_allocation_box (GTK_CLUTTER_STANDIN_BIN (self)->child,
-		                    &realbox);
-
-  clutter_actor_allocate (GTK_CLUTTER_STANDIN_BIN (self)->child,
-                          &realbox, flags);
+  if (self->child != NULL)
+    clutter_actor_allocate (self->child, &self->child_allocation, flags);
 }
 
 void
@@ -155,11 +158,10 @@ gtk_clutter_standin_bin_gtk_size_request (GtkClutterStandinBin *self,
 }
 
 void
-gtk_clutter_standin_bin_gtk_size_allocate (GtkClutterStandinBin  *self,
-                                           GtkAllocation         *allocation)
+gtk_clutter_standin_bin_gtk_size_allocate (GtkClutterStandinBin *self,
+                                           GtkAllocation        *allocation)
 {
   ClutterRequestMode request_mode;
-  ClutterActorBox box;
   float width, height;
   float min_width, natural_width;
   float min_height, natural_height;
@@ -195,13 +197,10 @@ gtk_clutter_standin_bin_gtk_size_allocate (GtkClutterStandinBin  *self,
       width = CLAMP (natural_width, min_width, (float) allocation->width);
     }
 
-  box.x1 = (float) allocation->x;
-  box.y1 = (float) allocation->y;
-  box.x2 = box.x1 + width;
-  box.y2 = box.y1 + height;
-
-  clutter_actor_allocate (GTK_CLUTTER_STANDIN_BIN (self)->child,
-                          &box, CLUTTER_ALLOCATION_NONE);
+  self->child_allocation.x1 = (float) allocation->x;
+  self->child_allocation.y1 = (float) allocation->y;
+  self->child_allocation.x2 = allocation->x + width;
+  self->child_allocation.y2 = allocation->y + height;
 }
 
 static void
@@ -277,6 +276,7 @@ gtk_clutter_standin_bin_class_init (GtkClutterStandinBinClass *klass)
 static void
 gtk_clutter_standin_bin_init (GtkClutterStandinBin *self)
 {
+  memset (&self->child_allocation, 0, sizeof (ClutterActorBox));
 }
 
 static void
