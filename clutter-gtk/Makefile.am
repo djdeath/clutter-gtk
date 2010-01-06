@@ -44,7 +44,7 @@ libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_SOURCES = \
 libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_LIBADD = $(CLUTTER_LIBS) $(GTK_LIBS)
 libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_LDFLAGS = $(CLUTTER_LT_LDFLAGS)
 
-cluttergtkheadersdir = $(includedir)/clutter-gtk-1.0/clutter-gtk
+cluttergtkheadersdir = $(includedir)/clutter-gtk-@CLUTTER_GTK_API_VERSION@/clutter-gtk
 
 # please, keep the list sorted alphabetically
 cluttergtkheaders_HEADERS = \
