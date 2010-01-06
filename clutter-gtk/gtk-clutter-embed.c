@@ -121,7 +121,9 @@ gtk_clutter_embed_dispose (GObject *gobject)
 
   if (priv->queue_redraw_id)
     {
-      g_signal_handler_disconnect (priv->stage, priv->queue_redraw_id);
+      if (priv->stage != NULL)
+        g_signal_handler_disconnect (priv->stage, priv->queue_redraw_id);
+
       priv->queue_redraw_id = 0;
     }
 
