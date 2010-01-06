@@ -34,7 +34,7 @@
 
 #include "gtk-clutter-actor.h"
 #include "gtk-clutter-offscreen.h"
-#include "gtk-clutter-standin-bin.h"
+#include "gtk-clutter-standin-private.h"
 
 #include <glib-object.h>
 
