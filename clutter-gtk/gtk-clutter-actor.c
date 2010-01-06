@@ -110,13 +110,13 @@ gtk_clutter_actor_realize (ClutterActor *actor)
 		     clutter->priv->widget);
 
   gtk_widget_realize (clutter->priv->widget);
-  clutter->priv->pixmap = gdk_offscreen_window_get_pixmap (
-           clutter->priv->widget->window);
+  clutter->priv->pixmap = gdk_offscreen_window_get_pixmap (clutter->priv->widget->window);
   g_object_ref (clutter->priv->pixmap);
+  gdk_drawable_set_colormap (clutter->priv->pixmap,
+                             gtk_widget_get_colormap (clutter->priv->embed));
 
-  clutter_x11_texture_pixmap_set_pixmap (
-            CLUTTER_X11_TEXTURE_PIXMAP (clutter->priv->texture),
-            GDK_PIXMAP_XID (clutter->priv->pixmap));
+  clutter_x11_texture_pixmap_set_pixmap (CLUTTER_X11_TEXTURE_PIXMAP (clutter->priv->texture),
+                                         GDK_PIXMAP_XID (clutter->priv->pixmap));
 }
 
 static void
@@ -201,9 +201,21 @@ gtk_clutter_actor_allocate (ClutterActor           *actor,
           clutter->priv->pixmap = pixmap;
           g_object_ref (clutter->priv->pixmap);
 
-          clutter_x11_texture_pixmap_set_pixmap (
-              CLUTTER_X11_TEXTURE_PIXMAP (clutter->priv->texture),
-              GDK_PIXMAP_XID (clutter->priv->pixmap));
+          gdk_drawable_set_colormap (clutter->priv->pixmap,
+                                     gtk_widget_get_colormap (clutter->priv->embed));
+
+          /* FIXME - this queues a relayout, and shoult not be called
+           * from an allocate() implementation
+           *
+           * the sequence goes:
+           * - set_pixmap emits a notify::pixmap in the X11 implementation
+           * - GLX gets the notification and creates a new GLX pixmap
+           * - the new GLX pixmap is put inside a CoglTexture handle
+           * - the CoglTexture handle is set inside the ClutterTexture
+           * - ClutterTexture queues a relayout
+           */
+          clutter_x11_texture_pixmap_set_pixmap (CLUTTER_X11_TEXTURE_PIXMAP (clutter->priv->texture),
+                                                 GDK_PIXMAP_XID (clutter->priv->pixmap));
         }
     }
 
