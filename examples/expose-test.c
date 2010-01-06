@@ -167,4 +167,6 @@ main (int argc, char **argv)
     gtk_container_add (GTK_CONTAINER (window), table);
     gtk_widget_show_all (window);
     gtk_main ();
+
+    return 0;
 }

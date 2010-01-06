@@ -61,4 +61,6 @@ main (int argc, char **argv)
             G_CALLBACK (gtk_main_quit), NULL);
 
     gtk_main ();
+
+    return 0;
 }

@@ -149,4 +149,6 @@ main (int argc, char **argv)
     gtk_widget_show_all (window);
     g_print (" --- main ---\n");
     gtk_main ();
+
+    return 0;
 }

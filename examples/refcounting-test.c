@@ -11,8 +11,6 @@
 
 #include <math.h>
 
-static gulong CLUTTER_COS_SQUARED = CLUTTER_ANIMATION_LAST;
-
 static ClutterActor *container = NULL;
 static ClutterActor *actor = NULL;
 static GtkWidget *bin = NULL;
@@ -89,4 +87,6 @@ main (int argc, char **argv)
 
     gtk_widget_show_all (window);
     gtk_main ();
+
+    return 0;
 }
