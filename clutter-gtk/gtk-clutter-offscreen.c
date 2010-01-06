@@ -21,9 +21,9 @@ static gboolean    gtk_clutter_offscreen_damage        (GtkWidget       *widget,
 
 G_DEFINE_TYPE (GtkClutterOffscreen, gtk_clutter_offscreen, GTK_TYPE_BIN);
 
-void _gtk_clutter_embedd_set_child_active (GtkClutterEmbed *embed,
-					   GtkWidget *child,
-					   gboolean active);
+void _gtk_clutter_embed_set_child_active (GtkClutterEmbed *embed,
+					  GtkWidget *child,
+					  gboolean active);
 
 static gint
 gtk_clutter_offscreen_expose (GtkWidget      *widget,
@@ -205,12 +205,11 @@ gtk_clutter_offscreen_realize (GtkWidget *widget)
 		    G_CALLBACK (offscreen_window_from_parent), widget);
 
   widget->style = gtk_style_attach (widget->style, widget->window);
-
   gtk_style_set_background (widget->style, widget->window, GTK_STATE_NORMAL);
 
   if (offscreen->active)
-    _gtk_clutter_embedd_set_child_active (GTK_CLUTTER_EMBED (parent),
-					  widget, TRUE);
+    _gtk_clutter_embed_set_child_active (GTK_CLUTTER_EMBED (parent),
+					 widget, TRUE);
 
 }
 
@@ -220,8 +219,9 @@ gtk_clutter_offscreen_unrealize (GtkWidget *widget)
   GtkClutterOffscreen *offscreen = GTK_CLUTTER_OFFSCREEN (widget);
 
   if (offscreen->active)
-    _gtk_clutter_embedd_set_child_active (GTK_CLUTTER_EMBED (widget->parent),
-					  widget, FALSE);
+    _gtk_clutter_embed_set_child_active (GTK_CLUTTER_EMBED (widget->parent),
+					 widget, FALSE);
+
   GTK_WIDGET_CLASS (gtk_clutter_offscreen_parent_class)->unrealize (widget);
 }
 
@@ -316,8 +316,8 @@ gtk_clutter_offscreen_set_active (GtkClutterOffscreen *offscreen,
       offscreen->active = active;
       parent = gtk_widget_get_parent (GTK_WIDGET (offscreen));
       if (parent)
-	_gtk_clutter_embedd_set_child_active (GTK_CLUTTER_EMBED (parent),
-					      GTK_WIDGET (offscreen),
-					      active);
+	_gtk_clutter_embed_set_child_active (GTK_CLUTTER_EMBED (parent),
+					     GTK_WIDGET (offscreen),
+					     active);
     }
 }

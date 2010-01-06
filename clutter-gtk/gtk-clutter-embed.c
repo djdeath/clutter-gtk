@@ -555,9 +555,9 @@ gtk_clutter_embed_style_set (GtkWidget *widget,
 }
 
 void
-_gtk_clutter_embedd_set_child_active (GtkClutterEmbed *embed,
-				      GtkWidget *child,
-				      gboolean active)
+_gtk_clutter_embed_set_child_active (GtkClutterEmbed *embed,
+                                     GtkWidget       *child,
+                                     gboolean         active)
 {
   if (active)
     {
