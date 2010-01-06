@@ -430,15 +430,12 @@ gtk_clutter_actor_foreach_with_internals (ClutterContainer *container,
                                           gpointer          user_data)
 {
   GtkClutterActor *clutter = GTK_CLUTTER_ACTOR (container);
-  ClutterContainerIface *parent_iface;
   GList *l;
 
   callback (clutter->priv->texture, user_data);
 
   for (l = clutter->priv->children; l != NULL; l = l->next)
-    {
-      callback (l->data, user_data);
-    }
+    callback (l->data, user_data);
 }
 
 GtkWidget *

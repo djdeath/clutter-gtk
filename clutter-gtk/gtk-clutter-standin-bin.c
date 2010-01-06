@@ -23,8 +23,7 @@
 #include "config.h"
 #endif
 
-#include "gtk-clutter-standin-bin.h"
-#include "gtk-clutter-standin.h"
+#include "gtk-clutter-standin-private.h"
 
 #include <glib-object.h>
 #include <math.h>
@@ -36,7 +35,7 @@ G_DEFINE_TYPE_WITH_CODE (GtkClutterStandinBin,
                          gtk_clutter_standin_bin,
                          CLUTTER_TYPE_ACTOR,
                          G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_CONTAINER,
-                           clutter_container_iface_init));
+                                                clutter_container_iface_init));
 
 static void
 gtk_clutter_standin_bin_finalize (GObject *object)
@@ -128,8 +127,8 @@ gtk_clutter_standin_bin_allocate (ClutterActor          *actor,
 }
 
 void
-gtk_clutter_standin_bin_gtk_size_request (GtkClutterStandinBin *self,
-                                          GtkRequisition       *requisition)
+_gtk_clutter_standin_bin_gtk_size_request (GtkClutterStandinBin *self,
+                                           GtkRequisition       *requisition)
 {
   ClutterRequestMode request_mode;
   float width, height;
@@ -158,8 +157,8 @@ gtk_clutter_standin_bin_gtk_size_request (GtkClutterStandinBin *self,
 }
 
 void
-gtk_clutter_standin_bin_gtk_size_allocate (GtkClutterStandinBin *self,
-                                           GtkAllocation        *allocation)
+_gtk_clutter_standin_bin_gtk_size_allocate (GtkClutterStandinBin *self,
+                                            GtkAllocation        *allocation)
 {
   ClutterRequestMode request_mode;
   float width, height;
@@ -270,6 +269,7 @@ gtk_clutter_standin_bin_class_init (GtkClutterStandinBinClass *klass)
   actor_class->hide     = gtk_clutter_standin_bin_hide;
   actor_class->hide_all = gtk_clutter_standin_bin_hide_all;
 
+  gobject_class->dispose = gtk_clutter_standin_bin_dispose;
   gobject_class->finalize = gtk_clutter_standin_bin_finalize;
 }
 

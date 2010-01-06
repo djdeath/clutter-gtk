@@ -153,10 +153,9 @@ gtk_clutter_window_child_type (GtkContainer *self)
   GtkClutterWindowPrivate *priv;
   GtkWidget *bin;
 
-  g_return_if_fail (GTK_CLUTTER_IS_WINDOW (self));
   priv = GTK_CLUTTER_WINDOW (self)->priv;
-
   bin = gtk_clutter_actor_get_widget (GTK_CLUTTER_ACTOR (priv->actor));
+
   return GTK_CONTAINER_GET_CLASS (bin)->child_type (GTK_CONTAINER (bin));
 }
 
@@ -167,10 +166,9 @@ gtk_clutter_window_composite_name (GtkContainer *self,
   GtkClutterWindowPrivate *priv;
   GtkWidget *bin;
 
-  g_return_if_fail (GTK_CLUTTER_IS_WINDOW (self));
   priv = GTK_CLUTTER_WINDOW (self)->priv;
-
   bin = gtk_clutter_actor_get_widget (GTK_CLUTTER_ACTOR (priv->actor));
+
   return GTK_CONTAINER_GET_CLASS (bin)->composite_name (GTK_CONTAINER (bin),
                                                         widget);
 }
@@ -185,12 +183,13 @@ gtk_clutter_window_set_child_property (GtkContainer *self,
   GtkClutterWindowPrivate *priv;
   GtkWidget *bin;
 
-  g_return_if_fail (GTK_CLUTTER_IS_WINDOW (self));
   priv = GTK_CLUTTER_WINDOW (self)->priv;
-
   bin = gtk_clutter_actor_get_widget (GTK_CLUTTER_ACTOR (priv->actor));
+
   GTK_CONTAINER_GET_CLASS (bin)->set_child_property (GTK_CONTAINER (bin),
-          widget, property_id, value, pspec);
+                                                     widget,
+                                                     property_id,
+                                                     value, pspec);
 }
 
 static void
@@ -203,12 +202,13 @@ gtk_clutter_window_get_child_property (GtkContainer *self,
   GtkClutterWindowPrivate *priv;
   GtkWidget *bin;
 
-  g_return_if_fail (GTK_CLUTTER_IS_WINDOW (self));
   priv = GTK_CLUTTER_WINDOW (self)->priv;
-
   bin = gtk_clutter_actor_get_widget (GTK_CLUTTER_ACTOR (priv->actor));
+
   GTK_CONTAINER_GET_CLASS (bin)->get_child_property (GTK_CONTAINER (bin),
-          widget, property_id, value, pspec);
+                                                     widget,
+                                                     property_id,
+                                                     value, pspec);
 }
 
 static void
@@ -227,7 +227,6 @@ gtk_clutter_window_class_init (GtkClutterWindowClass *klass)
   /* connect all of the container methods up to our bin */
   container_class->add             = gtk_clutter_window_add;
   container_class->remove          = gtk_clutter_window_remove;
-  // container_class->check_resize    = gtk_clutter_window_check_resize;
   container_class->forall          = gtk_clutter_window_forall;
   container_class->set_focus_child = gtk_clutter_window_set_focus_child;
   container_class->child_type      = gtk_clutter_window_child_type;
@@ -247,8 +246,7 @@ gtk_clutter_window_init (GtkClutterWindow *self)
   priv->embed = gtk_clutter_embed_new ();
   stage = gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (priv->embed));
 
-  GTK_CONTAINER_CLASS (gtk_clutter_window_parent_class)->add (
-          GTK_CONTAINER (self), priv->embed);
+  GTK_CONTAINER_CLASS (gtk_clutter_window_parent_class)->add (GTK_CONTAINER (self), priv->embed);
   gtk_widget_show (priv->embed);
 
   priv->actor = gtk_clutter_actor_new ();
@@ -293,7 +291,7 @@ gtk_clutter_window_get_stage (GtkClutterWindow *self)
 {
   GtkClutterWindowPrivate *priv;
 
-  g_return_if_fail (GTK_CLUTTER_IS_WINDOW (self));
+  g_return_val_if_fail (GTK_CLUTTER_IS_WINDOW (self), NULL);
 
   priv = self->priv;
 

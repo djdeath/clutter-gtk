@@ -35,6 +35,7 @@ libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_SOURCES = \
 	$(srcdir)/gtk-clutter-standin.c 	\
 	$(srcdir)/gtk-clutter-standin-bin.c 	\
 	$(srcdir)/gtk-clutter-standin-bin.h 	\
+	$(srcdir)/gtk-clutter-standin-private.h	\
 	$(srcdir)/gtk-clutter-util.c 		\
 	$(srcdir)/gtk-clutter-viewport.c	\
 	$(srcdir)/gtk-clutter-window.c		\

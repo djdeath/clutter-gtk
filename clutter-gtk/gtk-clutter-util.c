@@ -800,7 +800,7 @@ gtk_clutter_calculate_root_allocation (GtkWidget     *widget,
  */
 void
 gtk_clutter_calculate_actor_allocation (GtkWidget     *widget,
-                                       GtkAllocation *allocation)
+                                        GtkAllocation *allocation)
 {
   GtkWidget *parent;
 

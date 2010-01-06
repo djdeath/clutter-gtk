@@ -30,9 +30,9 @@
 #include "config.h"
 #endif
 
-#include "gtk-clutter-standin.h"
-#include "gtk-clutter-standin-bin.h"
+#include "gtk-clutter-standin-private.h"
 #include "gtk-clutter-offscreen.h"
+#include "gtk-clutter-util.h"
 
 #include <glib-object.h>
 #include <math.h>
@@ -43,6 +43,7 @@ G_DEFINE_TYPE (GtkClutterStandin, gtk_clutter_standin, GTK_TYPE_WIDGET);
 
 enum
 {
+
   PROP_0,
   PROP_ACTOR
 };
@@ -51,7 +52,8 @@ struct _GtkClutterStandinPrivate
 {
   ClutterActor *bin;
   ClutterActor *actor;
-  gboolean actor_on_stage;
+
+  guint actor_on_stage : 1;
 };
 
 static void
@@ -60,7 +62,8 @@ gtk_clutter_standin_put_actor_on_stage (GtkClutterStandin *self)
   GtkClutterStandinPrivate *priv = GTK_CLUTTER_STANDIN (self)->priv;
   GtkWidget *parent;
 
-  if (priv->actor_on_stage) return;
+  if (priv->actor_on_stage)
+    return;
 
   /* find the stage that this stand-in is placed upon and place our actor
    * upon it */
@@ -68,16 +71,18 @@ gtk_clutter_standin_put_actor_on_stage (GtkClutterStandin *self)
 
   while ((parent = gtk_widget_get_parent (parent)))
     {
-      if (GTK_CLUTTER_IS_OFFSCREEN (parent)) break;
+      if (GTK_CLUTTER_IS_OFFSCREEN (parent))
+        break;
     }
 
-  if (parent == NULL) return;
+  if (parent == NULL)
+    return;
+
   g_return_if_fail (GTK_CLUTTER_IS_OFFSCREEN (parent));
 
   /* GtkClutterActor can accept a GtkClutterStandin as a child */
-  clutter_container_add_actor (
-          CLUTTER_CONTAINER (GTK_CLUTTER_OFFSCREEN (parent)->actor),
-          priv->bin);
+  clutter_container_add_actor (CLUTTER_CONTAINER (GTK_CLUTTER_OFFSCREEN (parent)->actor),
+                               priv->bin);
   priv->actor_on_stage = TRUE;
 }
 
@@ -106,18 +111,15 @@ gtk_clutter_standin_get_property (GObject    *self,
                                   GValue     *value,
                                   GParamSpec *pspec)
 {
-  GtkClutterStandinPrivate *priv = GTK_CLUTTER_STANDIN (self)->priv;
-
   switch (property_id)
     {
-      case PROP_ACTOR:
-          g_value_set_object (value,
-              gtk_clutter_standin_get_actor (GTK_CLUTTER_STANDIN (self)));
-          break;
+    case PROP_ACTOR:
+      g_value_set_object (value, gtk_clutter_standin_get_actor (GTK_CLUTTER_STANDIN (self)));
+      break;
 
-      default:
-          G_OBJECT_WARN_INVALID_PROPERTY_ID (self, property_id, pspec);
-          break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (self, property_id, pspec);
+      break;
     }
 }
 
@@ -127,18 +129,15 @@ gtk_clutter_standin_set_property (GObject      *self,
                                   const GValue *value,
                                   GParamSpec   *pspec)
 {
-  GtkClutterStandinPrivate *priv = GTK_CLUTTER_STANDIN (self)->priv;
-
   switch (property_id)
     {
-      case PROP_ACTOR:
-          gtk_clutter_standin_set_actor (GTK_CLUTTER_STANDIN (self),
-                  g_value_get_object (value));
-          break;
+    case PROP_ACTOR:
+      gtk_clutter_standin_set_actor (GTK_CLUTTER_STANDIN (self), g_value_get_object (value));
+      break;
 
-      default:
-          G_OBJECT_WARN_INVALID_PROPERTY_ID (self, property_id, pspec);
-          break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (self, property_id, pspec);
+      break;
     }
 }
 
@@ -151,6 +150,7 @@ gtk_clutter_standin_dispose (GObject *gobject)
     {
       gtk_clutter_standin_set_actor (GTK_CLUTTER_STANDIN (gobject), NULL);
       clutter_actor_destroy (priv->bin);
+      priv->bin = NULL;
     }
 
   G_OBJECT_CLASS (gtk_clutter_standin_parent_class)->dispose (gobject);
@@ -183,10 +183,8 @@ gtk_clutter_standin_hide (GtkWidget *widget)
 
   /* gtk emits a hide signal during dispose, so it's possible we may
    * have already disposed priv->stage. */
-  if (priv->bin)
-    {
-      clutter_actor_hide (priv->bin);
-    }
+  if (priv->bin != NULL)
+    clutter_actor_hide (priv->bin);
 
   GTK_WIDGET_CLASS (gtk_clutter_standin_parent_class)->hide (widget);
 }
@@ -198,10 +196,8 @@ gtk_clutter_standin_hide_all (GtkWidget *widget)
 
   /* gtk emits a hide signal during dispose, so it's possible we may
    * have already disposed priv->stage. */
-  if (priv->bin)
-    {
-      clutter_actor_hide_all (priv->bin);
-    }
+  if (priv->bin != NULL)
+    clutter_actor_hide_all (priv->bin);
 
   GTK_WIDGET_CLASS (gtk_clutter_standin_parent_class)->hide_all (widget);
 }
@@ -242,9 +238,7 @@ gtk_clutter_standin_realize (GtkWidget *widget)
   clutter_actor_realize (priv->bin);
 
   if (GTK_WIDGET_VISIBLE (widget))
-    {
-      clutter_actor_show (priv->bin);
-    }
+    clutter_actor_show (priv->bin);
 
   gtk_clutter_standin_send_configure (GTK_CLUTTER_STANDIN (widget));
 }
@@ -265,8 +259,7 @@ gtk_clutter_standin_size_request (GtkWidget      *self,
 {
   GtkClutterStandinPrivate *priv = GTK_CLUTTER_STANDIN (self)->priv;
 
-  gtk_clutter_standin_bin_gtk_size_request (
-          GTK_CLUTTER_STANDIN_BIN (priv->bin), requisition);
+  _gtk_clutter_standin_bin_gtk_size_request (GTK_CLUTTER_STANDIN_BIN (priv->bin), requisition);
 }
 
 static void
@@ -274,6 +267,7 @@ gtk_clutter_standin_size_allocate (GtkWidget     *widget,
                                    GtkAllocation *allocation)
 {
   GtkClutterStandinPrivate *priv = GTK_CLUTTER_STANDIN (widget)->priv;
+  GtkClutterStandinBin *bin = GTK_CLUTTER_STANDIN_BIN (priv->bin);
   GtkAllocation root;
 
   widget->allocation = *allocation;
@@ -288,10 +282,7 @@ gtk_clutter_standin_size_allocate (GtkWidget     *widget,
     }
 
   gtk_clutter_calculate_actor_allocation (widget, &root);
-
-  gtk_clutter_standin_bin_gtk_size_allocate (
-          GTK_CLUTTER_STANDIN_BIN (priv->bin),
-          &root);
+  _gtk_clutter_standin_bin_gtk_size_allocate (bin, &root);
 }
 
 static void
@@ -330,6 +321,7 @@ gtk_clutter_standin_class_init (GtkClutterStandinClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
+  GParamSpec *pspec;
 
   g_type_class_add_private (klass, sizeof (GtkClutterStandinPrivate));
 
@@ -337,7 +329,6 @@ gtk_clutter_standin_class_init (GtkClutterStandinClass *klass)
   gobject_class->set_property = gtk_clutter_standin_set_property;
   gobject_class->dispose = gtk_clutter_standin_dispose;
 
-  // widget_class->style_set = gtk_clutter_standin_style_set;
   widget_class->size_request = gtk_clutter_standin_size_request;
   widget_class->size_allocate = gtk_clutter_standin_size_allocate;
   widget_class->realize = gtk_clutter_standin_realize;
@@ -348,15 +339,14 @@ gtk_clutter_standin_class_init (GtkClutterStandinClass *klass)
   widget_class->hide_all = gtk_clutter_standin_hide_all;
   widget_class->map = gtk_clutter_standin_map;
   widget_class->unmap = gtk_clutter_standin_unmap;
-  // widget_class->expose_event = gtk_clutter_standin_expose_event;
   widget_class->parent_set = gtk_clutter_standin_parent_set;
 
-  g_object_class_install_property (gobject_class, PROP_ACTOR,
-          g_param_spec_object ("actor",
+  pspec = g_param_spec_object ("actor",
                                "Actor",
-                               "#ClutterActor this widget is standing in for",
+                               "The Clutter actor this widget is standing in for",
                                CLUTTER_TYPE_ACTOR,
-                               G_PARAM_READWRITE));
+                               G_PARAM_READWRITE);
+  g_object_class_install_property (gobject_class, PROP_ACTOR, pspec);
 }
 
 static void
@@ -382,13 +372,24 @@ gtk_clutter_standin_init (GtkClutterStandin *self)
   clutter_actor_hide (priv->bin);
 
   g_signal_connect_swapped (priv->bin, "destroy",
-      G_CALLBACK (gtk_clutter_standin_bin_destroyed), self);
+                            G_CALLBACK (gtk_clutter_standin_bin_destroyed),
+                            self);
 }
 
+/**
+ * gtk_clutter_standin_get_actor:
+ * @self: a #GtkClutterStandin
+ *
+ * Retrieves a pointer to the actor that is represented by the standin widget
+ *
+ * Return value: (transfer none): a #ClutterActor or %NULL
+ *
+ * Since: 1.0
+ */
 ClutterActor *
 gtk_clutter_standin_get_actor (GtkClutterStandin *self)
 {
-  g_return_if_fail (GTK_CLUTTER_IS_STANDIN (self));
+  g_return_val_if_fail (GTK_CLUTTER_IS_STANDIN (self), NULL);
 
   return GTK_CLUTTER_STANDIN_BIN (self->priv->bin)->child;
 }
@@ -396,13 +397,18 @@ gtk_clutter_standin_get_actor (GtkClutterStandin *self)
 /**
  * gtk_clutter_standin_set_actor:
  * @self: the #GtkClutterStandin
- * @actor: a #ClutterActor to stand in for (or NULL)
+ * @actor: (allow-none): a #ClutterActor to stand in for, or %NULL
+ *
+ * Sets the actor for which the #GtkClutterStandin stands for
+ *
+ * Since: 1.0
  */
 void
 gtk_clutter_standin_set_actor (GtkClutterStandin *self,
                                ClutterActor      *actor)
 {
   GtkClutterStandinPrivate *priv;
+  ClutterActor *old_actor;
 
   g_return_if_fail (GTK_CLUTTER_IS_STANDIN (self));
   g_return_if_fail (actor == NULL || CLUTTER_IS_ACTOR (actor));
@@ -410,20 +416,17 @@ gtk_clutter_standin_set_actor (GtkClutterStandin *self,
 
   priv = GTK_CLUTTER_STANDIN (self)->priv;
 
-  if (gtk_clutter_standin_get_actor (self) != NULL)
-  {
-      clutter_container_remove_actor (CLUTTER_CONTAINER (priv->bin),
-                                      gtk_clutter_standin_get_actor (self));
-  }
+  old_actor = gtk_clutter_standin_get_actor (self);
+  if (old_actor != NULL)
+    clutter_container_remove_actor (CLUTTER_CONTAINER (priv->bin), old_actor);
 
   if (actor != NULL)
-  {
+    {
       /* ensure the actor is hidden; this ensures it won't be shown when
        * we parent it */
       clutter_actor_hide (actor);
-
       clutter_container_add_actor (CLUTTER_CONTAINER (priv->bin), actor);
-  }
+    }
 }
 
 /**
@@ -443,16 +446,9 @@ gtk_clutter_standin_set_actor (GtkClutterStandin *self,
 GtkWidget *
 gtk_clutter_standin_new (ClutterActor *actor)
 {
-  GtkWidget *self;
-
   g_return_val_if_fail (actor == NULL || CLUTTER_IS_ACTOR (actor), NULL);
 
-  self = g_object_new (GTK_CLUTTER_TYPE_STANDIN, NULL);
-
-  if (actor != NULL)
-    {
-      gtk_clutter_standin_set_actor (GTK_CLUTTER_STANDIN (self), actor);
-    }
-
-  return self;
+  return g_object_new (GTK_CLUTTER_TYPE_STANDIN,
+                       "actor", actor,
+                       NULL);
 }
