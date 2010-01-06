@@ -100,37 +100,36 @@ static void
 gtk_clutter_actor_realize (ClutterActor *actor)
 {
   GtkClutterActor *clutter = GTK_CLUTTER_ACTOR (actor);
+  GtkClutterActorPrivate *priv = clutter->priv;
   ClutterActor *stage;
   GtkWidget *new_embed;
 
   new_embed = NULL;
   stage = clutter_actor_get_stage (actor);
-  clutter->priv->embed = g_object_get_data (G_OBJECT (stage), "gtk-clutter-embed");
-  gtk_container_add (GTK_CONTAINER (clutter->priv->embed),
-		     clutter->priv->widget);
+  priv->embed = g_object_get_data (G_OBJECT (stage), "gtk-clutter-embed");
+  gtk_container_add (GTK_CONTAINER (priv->embed), priv->widget);
 
-  gtk_widget_realize (clutter->priv->widget);
-  clutter->priv->pixmap = gdk_offscreen_window_get_pixmap (clutter->priv->widget->window);
-  g_object_ref (clutter->priv->pixmap);
-  gdk_drawable_set_colormap (clutter->priv->pixmap,
-                             gtk_widget_get_colormap (clutter->priv->embed));
+  gtk_widget_realize (priv->widget);
+  priv->pixmap = gdk_offscreen_window_get_pixmap (priv->widget->window);
+  g_object_ref (priv->pixmap);
+  gdk_drawable_set_colormap (priv->pixmap, gtk_widget_get_colormap (priv->embed));
 
-  clutter_x11_texture_pixmap_set_pixmap (CLUTTER_X11_TEXTURE_PIXMAP (clutter->priv->texture),
-                                         GDK_PIXMAP_XID (clutter->priv->pixmap));
+  clutter_x11_texture_pixmap_set_pixmap (CLUTTER_X11_TEXTURE_PIXMAP (priv->texture),
+                                         GDK_PIXMAP_XID (priv->pixmap));
 }
 
 static void
 gtk_clutter_actor_unrealize (ClutterActor *actor)
 {
   GtkClutterActor *clutter = GTK_CLUTTER_ACTOR (actor);
+  GtkClutterActorPrivate *priv = clutter->priv;
 
-  gtk_widget_unrealize (clutter->priv->widget);
-  g_object_unref (clutter->priv->pixmap);
-  clutter->priv->pixmap = NULL;
+  gtk_widget_unrealize (priv->widget);
+  g_object_unref (priv->pixmap);
+  priv->pixmap = NULL;
 
-  gtk_container_remove (GTK_CONTAINER (clutter->priv->embed),
-			clutter->priv->widget);
-  clutter->priv->embed = NULL;
+  gtk_container_remove (GTK_CONTAINER (priv->embed), priv->widget);
+  priv->embed = NULL;
 }
 
 static void
@@ -140,10 +139,16 @@ gtk_clutter_actor_get_preferred_width (ClutterActor *actor,
                                        gfloat       *natural_width_p)
 {
   GtkClutterActor *clutter = GTK_CLUTTER_ACTOR (actor);
+  GtkClutterActorPrivate *priv = clutter->priv;
   GtkRequisition requisition;
 
-  gtk_widget_size_request (clutter->priv->widget, &requisition);
-  *min_width_p = *natural_width_p = requisition.width;
+  gtk_widget_size_request (priv->widget, &requisition);
+
+  if (min_width_p)
+    *min_width_p = requisition.width;
+
+  if (natural_width_p)
+    *natural_width_p = requisition.width;
 }
 
 static void
@@ -153,10 +158,16 @@ gtk_clutter_actor_get_preferred_height (ClutterActor *actor,
                                         gfloat       *natural_height_p)
 {
   GtkClutterActor *clutter = GTK_CLUTTER_ACTOR (actor);
+  GtkClutterActorPrivate *priv = clutter->priv;
   GtkRequisition requisition;
 
-  gtk_widget_size_request (clutter->priv->widget, &requisition);
-  *min_height_p = *natural_height_p = requisition.height;
+  gtk_widget_size_request (priv->widget, &requisition);
+
+  if (min_height_p)
+    *min_height_p = requisition.height;
+
+  if (natural_height_p)
+    *natural_height_p = requisition.height;
 }
 
 static void
@@ -165,6 +176,7 @@ gtk_clutter_actor_allocate (ClutterActor           *actor,
                             ClutterAllocationFlags  flags)
 {
   GtkClutterActor *clutter = GTK_CLUTTER_ACTOR (actor);
+  GtkClutterActorPrivate *priv = clutter->priv;
   GtkAllocation child_allocation;
   GdkPixmap *pixmap;
   ClutterActorBox child_box;
@@ -173,17 +185,15 @@ gtk_clutter_actor_allocate (ClutterActor           *actor,
   CLUTTER_ACTOR_CLASS (gtk_clutter_actor_parent_class)->allocate (actor, box, flags);
 
   /* allocate the children */
-  for (l = clutter->priv->children; l != NULL; l = l->next)
-    {
-      clutter_actor_allocate_preferred_size (CLUTTER_ACTOR (l->data), flags);
-    }
+  for (l = priv->children; l != NULL; l = l->next)
+    clutter_actor_allocate_preferred_size (l->data, flags);
 
   child_allocation.x = 0;
   child_allocation.y = 0;
-  child_allocation.width = box->x2 - box->x1;
-  child_allocation.height = box->y2 - box->y1;
+  child_allocation.width = clutter_actor_box_get_width (box);
+  child_allocation.height = clutter_actor_box_get_height (box);
 
-  gtk_widget_size_allocate (clutter->priv->widget, &child_allocation);
+  gtk_widget_size_allocate (priv->widget, &child_allocation);
 
   if (CLUTTER_ACTOR_IS_REALIZED (actor))
     {
@@ -192,17 +202,18 @@ gtk_clutter_actor_allocate (ClutterActor           *actor,
        * returns (as size allocation is done from clutter_redraw which is
        * called from gtk_clutter_expose_event(). If we don't do this we
        * may see an intermediate state of the pixmap, causing flicker */
-      gdk_window_process_updates (clutter->priv->widget->window, TRUE);
+      gdk_window_process_updates (priv->widget->window, TRUE);
 
-      pixmap = gdk_offscreen_window_get_pixmap (clutter->priv->widget->window);
-      if (pixmap != clutter->priv->pixmap)
+      pixmap = gdk_offscreen_window_get_pixmap (priv->widget->window);
+      if (pixmap != priv->pixmap)
         {
-          g_object_unref (clutter->priv->pixmap);
-          clutter->priv->pixmap = pixmap;
-          g_object_ref (clutter->priv->pixmap);
+          if (priv->pixmap != NULL)
+            g_object_unref (priv->pixmap);
 
-          gdk_drawable_set_colormap (clutter->priv->pixmap,
-                                     gtk_widget_get_colormap (clutter->priv->embed));
+          priv->pixmap = pixmap;
+          g_object_ref (priv->pixmap);
+
+          gdk_drawable_set_colormap (priv->pixmap, gtk_widget_get_colormap (clutter->priv->embed));
 
           /* FIXME - this queues a relayout, and shoult not be called
            * from an allocate() implementation
@@ -214,16 +225,16 @@ gtk_clutter_actor_allocate (ClutterActor           *actor,
            * - the CoglTexture handle is set inside the ClutterTexture
            * - ClutterTexture queues a relayout
            */
-          clutter_x11_texture_pixmap_set_pixmap (CLUTTER_X11_TEXTURE_PIXMAP (clutter->priv->texture),
-                                                 GDK_PIXMAP_XID (clutter->priv->pixmap));
+          clutter_x11_texture_pixmap_set_pixmap (CLUTTER_X11_TEXTURE_PIXMAP (priv->texture),
+                                                 GDK_PIXMAP_XID (priv->pixmap));
         }
     }
 
   child_box.x1 = 0;
   child_box.y1 = 0;
-  child_box.x2 = box->x2 - box->x1;
-  child_box.y2 = box->y2 - box->y1;
-  clutter_actor_allocate (clutter->priv->texture, &child_box, flags);
+  child_box.x2 = clutter_actor_box_get_width (box);
+  child_box.y2 = clutter_actor_box_get_height (box);
+  clutter_actor_allocate (priv->texture, &child_box, flags);
 }
 
 static void
