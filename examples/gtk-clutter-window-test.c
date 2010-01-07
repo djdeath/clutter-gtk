@@ -69,6 +69,8 @@ main (int argc, char **argv)
     gtk_clutter_init (&argc, &argv);
 
     GtkWidget *window = gtk_clutter_window_new ();
+    g_signal_connect (window, "destroy", G_CALLBACK (gtk_main_quit), NULL);
+    gtk_window_set_default_size (GTK_WINDOW (window), 400, 300);
 
     GtkListStore *store = gtk_list_store_new (N_COLUMNS,
 		    G_TYPE_STRING, GDK_TYPE_PIXBUF);
