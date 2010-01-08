@@ -193,8 +193,13 @@ gtk_clutter_embed_realize (GtkWidget *widget)
     GdkVisual *visual;
     GdkColormap *colormap;
 
+# if CLUTTER_CHECK_VERSION (1, 1, 5)
     /* We need to use the colormap from the Clutter visual */
+    xvinfo = clutter_x11_get_visual_info ();
+# else
     xvinfo = clutter_x11_get_stage_visual (CLUTTER_STAGE (priv->stage));
+# endif
+
     if (xvinfo == None)
       {
         g_critical ("Unable to retrieve the XVisualInfo from Clutter");

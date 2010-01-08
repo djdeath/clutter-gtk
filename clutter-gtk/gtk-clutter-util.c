@@ -623,9 +623,18 @@ gtk_clutter_init (int    *argc,
     return CLUTTER_INIT_ERROR_GTK;
 
 #if defined(HAVE_CLUTTER_GTK_X11)
+# if CLUTTER_CHECK_VERSION (1, 1, 5)
+  /* enable ARGB visuals by default for Clutter */
+  clutter_x11_set_use_argb_visual (TRUE);
+# endif
+
+  /* share the X11 Display with GTK+ */
   clutter_x11_set_display (GDK_DISPLAY());
+
+  /* let GTK+ in charge of the event handling */
   clutter_x11_disable_event_retrieval ();
 #elif defined(HAVE_CLUTTER_GTK_WIN32)
+  /* let GTK+ in charge of the event handling */
   clutter_win32_disable_event_retrieval ();
 #endif /* HAVE_CLUTTER_GTK_{X11,WIN32} */
 
@@ -687,9 +696,19 @@ gtk_clutter_init_with_args (int            *argc,
     return CLUTTER_INIT_ERROR_GTK;
 
 #if defined(GDK_WINDOWING_X11)
+
+# if CLUTTER_CHECK_VERSION (1, 1, 5)
+  /* enable ARGB visuals by default for Clutter */
+  clutter_x11_set_use_argb_visual (TRUE);
+# endif
+
+  /* share the X11 Display with GTK+ */
   clutter_x11_set_display (GDK_DISPLAY());
+
+  /* let GTK+ in charge of the event handling */
   clutter_x11_disable_event_retrieval ();
 #elif defined(GDK_WINDOWING_WIN32)
+  /* let GTK+ in charge of the event handling */
   clutter_win32_disable_event_retrieval ();
 #endif /* GDK_WINDOWING_{X11,WIN32} */
 
