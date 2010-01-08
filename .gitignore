@@ -52,6 +52,7 @@ depcomp
 /examples/expose-test
 /examples/stacked-standins
 /examples/test-scrolling
+/examples/gtk-clutter-test-scroll
 gtk-doc.make
 install-sh
 libtool
