@@ -671,9 +671,14 @@ gtk_clutter_init_with_args (int            *argc,
                             const char     *translation_domain,
                             GError        **error)
 {
-  GOptionGroup *gtk_group, *clutter_group;
+  GOptionGroup *gtk_group, *clutter_group, *cogl_group;
   GOptionContext *context;
   gboolean res;
+
+#if defined(GDK_WINDOWING_X11) && CLUTTER_CHECK_VERSION (1, 1, 5)
+  /* enable ARGB visuals by default for Clutter */
+  clutter_x11_set_use_argb_visual (TRUE);
+#endif
 
   /* we let gtk+ open the display */
   gtk_group = gtk_get_option_group (TRUE);
@@ -681,9 +686,12 @@ gtk_clutter_init_with_args (int            *argc,
   /* and we prevent clutter from doing so too */
   clutter_group = clutter_get_option_group_without_init ();
 
+  cogl_group = cogl_get_option_group ();
+
   context = g_option_context_new (parameter_string);
 
   g_option_context_add_group (context, gtk_group);
+  g_option_context_add_group (context, cogl_group);
   g_option_context_add_group (context, clutter_group);
 
   if (entries)
@@ -692,16 +700,7 @@ gtk_clutter_init_with_args (int            *argc,
   res = g_option_context_parse (context, argc, argv, error);
   g_option_context_free (context);
 
-  if (!res)
-    return CLUTTER_INIT_ERROR_GTK;
-
 #if defined(GDK_WINDOWING_X11)
-
-# if CLUTTER_CHECK_VERSION (1, 1, 5)
-  /* enable ARGB visuals by default for Clutter */
-  clutter_x11_set_use_argb_visual (TRUE);
-# endif
-
   /* share the X11 Display with GTK+ */
   clutter_x11_set_display (GDK_DISPLAY());
 
@@ -711,6 +710,9 @@ gtk_clutter_init_with_args (int            *argc,
   /* let GTK+ in charge of the event handling */
   clutter_win32_disable_event_retrieval ();
 #endif /* GDK_WINDOWING_{X11,WIN32} */
+
+  if (!res)
+    return CLUTTER_INIT_ERROR_GTK;
 
   /* this is required since parsing clutter's option group did not
    * complete the initialization process
