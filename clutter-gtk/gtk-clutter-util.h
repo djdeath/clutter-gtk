@@ -86,6 +86,7 @@ ClutterInitError gtk_clutter_init_with_args (int            *argc,
                                              GOptionEntry   *entries,
                                              const char     *translation_domain,
                                              GError        **error);
+GOptionGroup *gtk_clutter_get_option_group  (void);
 
 void          gtk_clutter_get_fg_color               (GtkWidget      *widget,
                                                       GtkStateType    state,

@@ -602,6 +602,84 @@ gtk_clutter_texture_set_from_icon_name (ClutterTexture *texture,
   return returnval;
 }
 
+static gboolean
+post_parse_hook (GOptionContext  *context,
+                 GOptionGroup    *group,
+                 gpointer         data,
+                 GError         **error)
+{
+#if defined(GDK_WINDOWING_X11)
+  /* share the X11 Display with GTK+ */
+  clutter_x11_set_display (GDK_DISPLAY());
+
+  /* let GTK+ in charge of the event handling */
+  clutter_x11_disable_event_retrieval ();
+#elif defined(GDK_WINDOWING_WIN32)
+  /* let GTK+ in charge of the event handling */
+  clutter_win32_disable_event_retrieval ();
+#endif /* GDK_WINDOWING_{X11,WIN32} */
+
+  /* this is required since parsing clutter's option group did not
+   * complete the initialization process
+   */
+  return clutter_init_with_args (NULL, NULL, NULL, NULL, NULL, error);
+}
+
+/**
+ * gtk_clutter_get_option_group:
+ *
+ * Returns a #GOptionGroup for the command line arguments recognized
+ * by Clutter. You should add this group to your #GOptionContext with
+ * g_option_context_add_group(), if you are using g_option_context_parse()
+ * to parse your commandline arguments instead of using gtk_clutter_init()
+ * or gtk_clutter_init_with_args().
+ *
+ * You should add this option group to your #GOptionContext after
+ * the GTK option group created with gtk_get_option_group(), and after
+ * the clutter option group obtained from clutter_get_option_group_without_init().
+ * You should not use clutter_get_option_group() together with this function.
+ *
+ * You must pass %TRUE to gtk_get_option_group() since gtk-clutter's option
+ * group relies on it.
+ *
+ * Parsing options using g_option_context_parse() with a #GOptionContext
+ * containing the returned #GOptionGroupwith will result in Clutter's and
+ * GTK-Clutter's initialisation.  That is, the following code:
+ *
+ * |[
+ *   g_option_context_add_group (context, gtk_get_option_group (TRUE));
+ *   g_option_context_add_group (context, cogl_get_option_group ());
+ *   g_option_context_add_group (context, clutter_get_option_group_without_init ());
+ *   g_option_context_add_group (context, gtk_clutter_get_option_group ());
+ *   res = g_option_context_parse (context, &amp;argc, &amp;argc, NULL);
+ * ]|
+ *
+ * is functionally equivalent to:
+ *
+ * |[
+ *   gtk_clutter_init (&amp;argc, &amp;argv);
+ * ]|
+ *
+ * After g_option_context_parse() on a #GOptionContext containing the
+ * the returned #GOptionGroup has returned %TRUE, Clutter and GTK-Clutter are
+ * guaranteed to be initialized.
+ *
+ * Return value: (transfer full): a #GOptionGroup for the commandline arguments
+ *   recognized by ClutterGtk
+ *
+ * Since: 1.0
+ */
+GOptionGroup *
+gtk_clutter_get_option_group  (void)
+{
+  GOptionGroup *group;
+
+  group = g_option_group_new ("clutter-gtk", "", "", NULL, NULL);
+  g_option_group_set_parse_hooks (group, NULL, post_parse_hook);
+
+  return group;
+}
+
 /**
  * gtk_clutter_init:
  * @argc: pointer to the arguments count, or %NULL
@@ -671,7 +749,7 @@ gtk_clutter_init_with_args (int            *argc,
                             const char     *translation_domain,
                             GError        **error)
 {
-  GOptionGroup *gtk_group, *clutter_group, *cogl_group;
+  GOptionGroup *gtk_group, *clutter_group, *cogl_group, *clutter_gtk_group;
   GOptionContext *context;
   gboolean res;
 
@@ -688,11 +766,14 @@ gtk_clutter_init_with_args (int            *argc,
 
   cogl_group = cogl_get_option_group ();
 
+  clutter_gtk_group = gtk_clutter_get_option_group ();
+
   context = g_option_context_new (parameter_string);
 
   g_option_context_add_group (context, gtk_group);
   g_option_context_add_group (context, cogl_group);
   g_option_context_add_group (context, clutter_group);
+  g_option_context_add_group (context, clutter_gtk_group);
 
   if (entries)
     g_option_context_add_main_entries (context, entries, translation_domain);
@@ -700,28 +781,10 @@ gtk_clutter_init_with_args (int            *argc,
   res = g_option_context_parse (context, argc, argv, error);
   g_option_context_free (context);
 
-#if defined(GDK_WINDOWING_X11)
-  /* share the X11 Display with GTK+ */
-  clutter_x11_set_display (GDK_DISPLAY());
-
-  /* let GTK+ in charge of the event handling */
-  clutter_x11_disable_event_retrieval ();
-#elif defined(GDK_WINDOWING_WIN32)
-  /* let GTK+ in charge of the event handling */
-  clutter_win32_disable_event_retrieval ();
-#endif /* GDK_WINDOWING_{X11,WIN32} */
-
   if (!res)
     return CLUTTER_INIT_ERROR_GTK;
 
-  /* this is required since parsing clutter's option group did not
-   * complete the initialization process
-   */
-  return clutter_init_with_args (argc, argv,
-                                 NULL,
-                                 NULL,
-                                 NULL,
-                                 error);
+  return CLUTTER_INIT_SUCCESS;
 }
 
 static void
