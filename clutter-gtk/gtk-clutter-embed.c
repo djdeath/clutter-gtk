@@ -711,10 +711,11 @@ gtk_clutter_embed_new (void)
  * @embed: a #GtkClutterEmbed
  *
  * Retrieves the #ClutterStage from @embed. The returned stage can be
- * used to add actors to the Clutter scene.
+ * used to add actors to the Clutter scene. Multiple calls to this function
+ * on the same #GtkClutterEmbed widget will return the same stage.
  *
- * Return value: the Clutter stage. You should never destroy or unref
- *   the returned actor.
+ * Return value: (transfer none): a #ClutterStage. You should never destroy
+ *   or unref the returned actor.
  *
  * Since: 0.6
  */
