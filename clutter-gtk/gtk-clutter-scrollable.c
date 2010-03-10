@@ -88,8 +88,8 @@ gtk_clutter_scrollable_get_type (void)
 /**
  * gtk_clutter_scrollable_set_adjustments:
  * @scrollable: a #GtkClutterScrollable
- * @h_adjust: a #GtkAdjustment, or %NULL
- * @v_adjust: a #GtkAdjustment, or %NULL
+ * @h_adjust: (allow-none): a #GtkAdjustment, or %NULL
+ * @v_adjust: (allow-none): a #GtkAdjustment, or %NULL
  *
  * Sets the horizontal and vertical adjustments used to determine
  * the position of the scrollable actor.
@@ -114,8 +114,8 @@ gtk_clutter_scrollable_set_adjustments (GtkClutterScrollable *scrollable,
 /**
  * gtk_clutter_scrollable_get_adjustments:
  * @scrollable: a #GtkClutterScrollable
- * @h_adjust: return location for a #GtkAdjustment, or %NULL
- * @v_adjust: return location for a #GtkAdjustment, or %NULL
+ * @h_adjust: (out): return location for a #GtkAdjustment, or %NULL
+ * @v_adjust: (out): return location for a #GtkAdjustment, or %NULL
  *
  * Retrieves the horizontal and vertical adjustments used to
  * determine the position of the scrollable actor.
