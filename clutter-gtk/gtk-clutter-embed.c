@@ -221,7 +221,7 @@ gtk_clutter_embed_realize (GtkWidget *widget)
 
   gtk_widget_style_attach (widget);
   style = gtk_widget_get_style (widget);
-  gtk_style_set_background (style, >window, GTK_STATE_NORMAL);
+  gtk_style_set_background (style, window, GTK_STATE_NORMAL);
   
 #if defined(HAVE_CLUTTER_GTK_X11)
   clutter_x11_set_stage_foreign (CLUTTER_STAGE (priv->stage), 
