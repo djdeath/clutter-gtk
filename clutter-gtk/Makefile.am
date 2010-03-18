@@ -55,9 +55,12 @@ cluttergtkheaders_HEADERS = \
 	$(top_srcdir)/clutter-gtk/gtk-clutter-scrollable.h 	\
 	$(top_srcdir)/clutter-gtk/gtk-clutter-standin.h 	\
 	$(top_srcdir)/clutter-gtk/gtk-clutter-util.h 		\
+	$(top_srcdir)/clutter-gtk/gtk-clutter-version.h		\
 	$(top_srcdir)/clutter-gtk/gtk-clutter-viewport.h	\
 	$(top_srcdir)/clutter-gtk/gtk-clutter-window.h		\
 	$(top_srcdir)/clutter-gtk/gtk-clutter-zoomable.h
+
+EXTRA_DIST += gtk-clutter-version.h.in
 
 if HAVE_INTROSPECTION
 BUILT_GIRSOURCES =

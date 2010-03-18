@@ -4,6 +4,7 @@
 
 #include "gtk-clutter-util.h"
 #include "gtk-clutter-offscreen.h"
+#include "gtk-clutter-version.h"
 
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <gdk/gdk.h>
@@ -33,6 +34,10 @@
  * with the current GTK+ theme and for loading image sources from #GdkPixbuf,
  * GTK+ stock items and icon themes.
  */
+
+const guint clutter_gtk_major_version = CLUTTER_GTK_MAJOR_VERSION;
+const guint clutter_gtk_minor_version = CLUTTER_GTK_MINOR_VERSION;
+const guint clutter_gtk_micro_version = CLUTTER_GTK_MICRO_VERSION;
 
 enum
 {
@@ -939,4 +944,34 @@ gtk_clutter_calculate_actor_allocation (GtkWidget     *widget,
           allocation->y += parent_allocation.y;
         }
     }
+}
+
+/**
+ * clutter_gtk_check_version:
+ * @major: major version, like 1 in 1.2.3
+ * @minor: minor version, like 2 in 1.2.3
+ * @micro: micro version, like 3 in 1.2.3
+ *
+ * Run-time version check, to check the version the Clutter-GTK library
+ * that an application is currently linked against
+ *
+ * This is the run-time equivalent of the compile-time
+ * %CLUTTER_GTK_CHECK_VERSION pre-processor macro
+ *
+ * Return value: %TRUE if the version of the Clutter-GTK library is
+ *   greater than (@major, @minor, @micro), and %FALSE otherwise
+ *
+ * Since: 1.2
+ */
+gboolean
+clutter_gtk_check_version (guint major,
+                           guint minor,
+                           guint micro)
+{
+  return (clutter_gtk_major_version > major ||
+          (clutter_gtk_major_version == major &&
+           clutter_gtk_minor_version > minor) ||
+          (clutter_gtk_major_version == major &&
+           clutter_gtk_minor_version == minor &&
+           clutter_gtk_micro_version >= micro));
 }

@@ -181,6 +181,7 @@ AC_CONFIG_FILES([
         build/Makefile
         build/autotools/Makefile
         clutter-gtk/Makefile
+        clutter-gtk/gtk-clutter-version.h
         doc/Makefile
         doc/reference/Makefile
         doc/reference/version.xml

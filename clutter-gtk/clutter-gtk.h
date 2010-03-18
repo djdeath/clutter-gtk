@@ -10,6 +10,7 @@
 #include "gtk-clutter-scrollable.h"
 #include "gtk-clutter-standin.h"
 #include "gtk-clutter-util.h"
+#include "gtk-clutter-version.h"
 #include "gtk-clutter-viewport.h"
 #include "gtk-clutter-window.h"
 #include "gtk-clutter-zoomable.h"
