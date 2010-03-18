@@ -53,6 +53,9 @@
     <title>Clutter-Gtk Widgets</title>
 
     <xi:include href="xml/gtk-clutter-embed.xml"/>
+    <xi:include href="xml/gtk-clutter-actor.xml"/>
+    <xi:include href="xml/gtk-clutter-window.xml"/>
+    <xi:include href="xml/gtk-clutter-standin.xml"/>
   </chapter>
 
   <chapter>
