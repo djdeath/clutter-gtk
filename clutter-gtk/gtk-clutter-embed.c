@@ -182,6 +182,20 @@ pick_embedded_child (GdkWindow *offscreen_window,
   return NULL;
 }
 
+static GdkFilterReturn
+gtk_clutter_filter_func (GdkXEvent *native_event,
+                         GdkEvent  *event,
+                         gpointer   user_data)
+{
+  XEvent *xevent = native_event;
+
+#ifdef HAVE_CLUTTER_GTK_X11
+  clutter_x11_handle_event (xevent);
+#endif
+
+  return GDK_FILTER_CONTINUE;
+}
+
 static void
 gtk_clutter_embed_realize (GtkWidget *widget)
 {
@@ -254,6 +268,8 @@ gtk_clutter_embed_realize (GtkWidget *widget)
   gtk_style_set_background (style, window, GTK_STATE_NORMAL);
 
   gdk_window_set_back_pixmap (window, NULL, FALSE);
+
+  gdk_window_add_filter (NULL, gtk_clutter_filter_func, widget);
 
 #if defined(HAVE_CLUTTER_GTK_X11)
   clutter_x11_set_stage_foreign (CLUTTER_STAGE (priv->stage), 
