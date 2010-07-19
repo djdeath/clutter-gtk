@@ -7,9 +7,7 @@ clutter-gtk.pc
 .deps/
 .libs/
 /build/autotools/*.m4
-!/build/autotools/shave.m4
-/build/autotools/shave-libtool
-/build/autotools/shave
+/build/compile
 /clutter-gtk/*.lo
 /clutter-gtk/*.la
 config.guess
