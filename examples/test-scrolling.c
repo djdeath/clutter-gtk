@@ -45,7 +45,7 @@ main (int argc, char **argv)
     gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (sw), standin);
 
     gtk_container_add (GTK_CONTAINER (window), vbox);
-    gtk_box_pack_start_defaults (GTK_BOX (vbox), sw);
+    gtk_box_pack_start (GTK_BOX (vbox), sw, FALSE, FALSE, 0);
 
     gtk_widget_show_all (window);
     gtk_main ();
