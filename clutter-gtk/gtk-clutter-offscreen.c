@@ -68,7 +68,7 @@ gtk_clutter_offscreen_remove (GtkContainer *container,
   GTK_CONTAINER_CLASS (gtk_clutter_offscreen_parent_class)->remove (container,
           child);
 
-  if (CLUTTER_ACTOR_IS_VISIBLE (offscreen->actor))
+  if (offscreen->actor != NULL && CLUTTER_ACTOR_IS_VISIBLE (offscreen->actor))
     {
       /* force a relayout */
       clutter_actor_set_size (offscreen->actor, -1, -1);
@@ -81,7 +81,8 @@ gtk_clutter_offscreen_check_resize (GtkContainer *container)
 {
   GtkClutterOffscreen *offscreen = GTK_CLUTTER_OFFSCREEN (container);
 
-  clutter_actor_queue_relayout (offscreen->actor);
+  if (offscreen->actor != NULL)
+    clutter_actor_queue_relayout (offscreen->actor);
 }
 
 static void
