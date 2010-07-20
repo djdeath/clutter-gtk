@@ -46,7 +46,7 @@ source_h_private = \
 
 # please, keep the list sorted alphabetically
 libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_SOURCES = $(source_c) $(source_h) $(source_h_priv)
-libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_LIBADD = $(CLUTTER_LIBS) $(GTK_LIBS)
+libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_LIBADD  = $(CLUTTER_LIBS) $(GTK_LIBS)
 libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_LDFLAGS = $(CLUTTER_LT_LDFLAGS)
 
 cluttergtkheadersdir = $(includedir)/clutter-gtk-@CLUTTER_GTK_API_VERSION@/clutter-gtk
@@ -60,43 +60,28 @@ cluttergtkheaders_HEADERS = \
 
 EXTRA_DIST += gtk-clutter-version.h.in
 
+INTROSPECTION_GIRS =
+
+-include $(INTROSPECTION_MAKEFILE)
+
 if HAVE_INTROSPECTION
-BUILT_GIRSOURCES =
 
-GtkClutter-@CLUTTER_GTK_API_VERSION@.gir: $(INTROSPECTION_SCANNER) libclutter-gtk-@CLUTTER_GTK_API_VERSION@.la
-	$(QUIET_GEN)$(INTROSPECTION_SCANNER) -v \
-		--namespace GtkClutter --nsversion=@CLUTTER_GTK_API_VERSION@ \
-		$(INCLUDES) \
-		$(AM_CPPFLAGS) \
-		--add-include-path=$(srcdir) --add-include=path=. \
-		--include=Clutter-1.0 \
-		--include=Gtk-2.0 \
-		--library=libclutter-gtk-@CLUTTER_GTK_API_VERSION@.la \
-		--libtool="$(top_builddir)/libtool" \
-		--output $@ \
-		--pkg gobject-2.0 \
-		--pkg clutter-1.0 \
-		--pkg gtk+-2.0 \
-		$(source_h_public) $(source_c)
+GtkClutter-1.0.gir: $(INTROSPECTION_SCANNER) Makefile
 
-BUILT_GIRSOURCES += GtkClutter-@CLUTTER_GTK_API_VERSION@.gir
+GtkClutter_1_0_gir_SCANNERFLAGS = --strip-prefix=GtkClutter --add-include-path=$(top_builddir)
+GtkClutter_1_0_gir_INCLUDES     = Gtk-3.0 Clutter-1.0
+GtkClutter_1_0_gir_PACKAGES     = gtk+-3.0 clutter-1.0
+GtkClutter_1_0_gir_CFLAGS       = $(INCLUDES) $(AM_CPPFLAGS)
+GtkClutter_1_0_gir_LIBS         = libclutter-gtk-@CLUTTER_GTK_API_VERSION@.la
+GtkClutter_1_0_gir_FILES        = $(source_h_public) $(source_c)
 
-# INTROSPECTION_GIRDIR/INTROSPECTION_TYPELIBDIR aren't the right place to
-# install anything - we need to install inside our prefix.
+INTROSPECTION_GIRS += GtkClutter-1.0.gir
+
 girdir = $(datadir)/gir-1.0
-gir_DATA = $(BUILT_GIRSOURCES)
+gir_DATA = $(INTROSPECTION_GIRS)
 
-typelibsdir = $(libdir)/girepository-1.0/
-typelibs_DATA = $(BUILT_GIRSOURCES:.gir=.typelib)
+typelibsdir = $(libdir)/girepository-1.0
+typelibs_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
 
-%.typelib: %.gir $(INTROSPECTION_COMPILER)
-	$(QUIET_GEN)\
-	LD_LIBRARY_PATH=.libs$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH} \
-	$(INTROSPECTION_COMPILER) \
-		--includedir=$(srcdir) \
-		--includedir=. \
-		$(INTROSPECTION_COMPILER_OPTS) \
-	$< -o $(builddir)/$(@F)
-
-CLEANFILES += $(BUILT_GIRSOURCES) $(typelibs_DATA)
+CLEANFILES += $(gir_DATA) $(typelibs_DATA)
 endif
