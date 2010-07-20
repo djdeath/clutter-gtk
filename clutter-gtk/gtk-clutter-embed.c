@@ -432,7 +432,6 @@ gtk_clutter_embed_style_set (GtkWidget *widget,
   ClutterSettings *clutter_settings;
   gchar *font_name;
   gint double_click_time, double_click_distance;
-  ClutterBackend *backend;
 #if HAVE_CLUTTER_GTK_X11
   gint xft_dpi, xft_hinting, xft_antialias;
   gchar *xft_hintstyle, *xft_rgba;
