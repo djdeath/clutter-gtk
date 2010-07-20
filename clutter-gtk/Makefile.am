@@ -6,7 +6,7 @@ CLEANFILES =
 DISTCLEANFILES =
 EXTRA_DIST =
 
-INCLUDES = -I$(srcdir) -I$(top_srcdir)
+INCLUDES = -I$(srcdir) -I$(top_srcdir) -I $(top_builddir)
 
 AM_CPPFLAGS = \
 	-DG_LOG_DOMAIN=\"Clutter-Gtk\" 	\
@@ -25,16 +25,27 @@ AM_CFLAGS = $(MAINTAINER_CFLAGS) $(CLUTTER_CFLAGS) $(GTK_CFLAGS)
 
 lib_LTLIBRARIES = libclutter-gtk-@CLUTTER_GTK_API_VERSION@.la
 
-# please, keep the list sorted alphabetically
-libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_SOURCES = \
+source_c = \
 	$(srcdir)/gtk-clutter-actor.c 		\
 	$(srcdir)/gtk-clutter-embed.c 		\
 	$(srcdir)/gtk-clutter-offscreen.c	\
-	$(srcdir)/gtk-clutter-offscreen.h	\
 	$(srcdir)/gtk-clutter-util.c 		\
 	$(srcdir)/gtk-clutter-window.c		\
 	$(NULL)
 
+source_h_public = \
+	$(top_srcdir)/clutter-gtk/gtk-clutter-actor.h 	\
+	$(top_srcdir)/clutter-gtk/gtk-clutter-embed.h 	\
+	$(top_srcdir)/clutter-gtk/gtk-clutter-util.h 	\
+	$(top_srcdir)/clutter-gtk/gtk-clutter-window.h	\
+	$(NULL)
+
+source_h_private = \
+	$(srcdir)/gtk-clutter-offscreen.h	\
+	$(NULL)
+
+# please, keep the list sorted alphabetically
+libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_SOURCES = $(source_c) $(source_h) $(source_h_priv)
 libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_LIBADD = $(CLUTTER_LIBS) $(GTK_LIBS)
 libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_LDFLAGS = $(CLUTTER_LT_LDFLAGS)
 
@@ -42,12 +53,9 @@ cluttergtkheadersdir = $(includedir)/clutter-gtk-@CLUTTER_GTK_API_VERSION@/clutt
 
 # please, keep the list sorted alphabetically
 cluttergtkheaders_HEADERS = \
-	$(top_srcdir)/clutter-gtk/clutter-gtk.h 	\
-	$(top_srcdir)/clutter-gtk/gtk-clutter-actor.h 	\
-	$(top_srcdir)/clutter-gtk/gtk-clutter-embed.h 	\
-	$(top_srcdir)/clutter-gtk/gtk-clutter-util.h 	\
-	$(top_srcdir)/clutter-gtk/gtk-clutter-version.h	\
-	$(top_srcdir)/clutter-gtk/gtk-clutter-window.h	\
+	$(top_srcdir)/clutter-gtk/clutter-gtk.h 		\
+	$(top_builddir)/clutter-gtk/gtk-clutter-version.h	\
+	$(source_h_public)					\
 	$(NULL)
 
 EXTRA_DIST += gtk-clutter-version.h.in
@@ -69,7 +77,7 @@ GtkClutter-@CLUTTER_GTK_API_VERSION@.gir: $(INTROSPECTION_SCANNER) libclutter-gt
 		--pkg gobject-2.0 \
 		--pkg clutter-1.0 \
 		--pkg gtk+-2.0 \
-		$(cluttergtkheaders_HEADERS)
+		$(source_h_public) $(source_c)
 
 BUILT_GIRSOURCES += GtkClutter-@CLUTTER_GTK_API_VERSION@.gir
 

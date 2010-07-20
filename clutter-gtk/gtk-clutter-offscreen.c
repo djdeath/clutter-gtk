@@ -10,16 +10,7 @@
 #include "gtk-clutter-offscreen.h"
 #include "gtk-clutter-actor-internal.h"
 
-static void        gtk_clutter_offscreen_realize       (GtkWidget       *widget);
-static void        gtk_clutter_offscreen_unrealize     (GtkWidget       *widget);
-static void        gtk_clutter_offscreen_size_request  (GtkWidget       *widget,
-							GtkRequisition  *requisition);
-static void        gtk_clutter_offscreen_size_allocate (GtkWidget       *widget,
-							GtkAllocation   *allocation);
-static gboolean    gtk_clutter_offscreen_damage        (GtkWidget       *widget,
-							GdkEventExpose  *event);
-
-G_DEFINE_TYPE (GtkClutterOffscreen, gtk_clutter_offscreen, GTK_TYPE_BIN);
+G_DEFINE_TYPE (GtkClutterOffscreen, _gtk_clutter_offscreen, GTK_TYPE_BIN);
 
 void _gtk_clutter_embed_set_child_active (GtkClutterEmbed *embed,
 					  GtkWidget *child,
@@ -29,7 +20,7 @@ static gint
 gtk_clutter_offscreen_expose (GtkWidget      *widget,
 			      GdkEventExpose *event)
 {
-  return GTK_WIDGET_CLASS (gtk_clutter_offscreen_parent_class)->expose_event (widget, event);
+  return GTK_WIDGET_CLASS (_gtk_clutter_offscreen_parent_class)->expose_event (widget, event);
 
 }
 
@@ -43,8 +34,7 @@ gtk_clutter_offscreen_add (GtkContainer *container,
 
   offscreen = GTK_CLUTTER_OFFSCREEN (container);
 
-  GTK_CONTAINER_CLASS (gtk_clutter_offscreen_parent_class)->add (container,
-          child);
+  GTK_CONTAINER_CLASS (_gtk_clutter_offscreen_parent_class)->add (container, child);
 
   if (CLUTTER_ACTOR_IS_VISIBLE (offscreen->actor))
     {
@@ -65,7 +55,7 @@ gtk_clutter_offscreen_remove (GtkContainer *container,
 
   offscreen = GTK_CLUTTER_OFFSCREEN (container);
 
-  GTK_CONTAINER_CLASS (gtk_clutter_offscreen_parent_class)->remove (container,
+  GTK_CONTAINER_CLASS (_gtk_clutter_offscreen_parent_class)->remove (container,
           child);
 
   if (offscreen->actor != NULL && CLUTTER_ACTOR_IS_VISIBLE (offscreen->actor))
@@ -83,46 +73,6 @@ gtk_clutter_offscreen_check_resize (GtkContainer *container)
 
   if (offscreen->actor != NULL)
     clutter_actor_queue_relayout (offscreen->actor);
-}
-
-static void
-gtk_clutter_offscreen_class_init (GtkClutterOffscreenClass *klass)
-{
-  GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
-  GtkContainerClass *container_class = GTK_CONTAINER_CLASS (klass);
-
-  widget_class->expose_event = gtk_clutter_offscreen_expose;
-  widget_class->realize = gtk_clutter_offscreen_realize;
-  widget_class->unrealize = gtk_clutter_offscreen_unrealize;
-  widget_class->size_request = gtk_clutter_offscreen_size_request;
-  widget_class->size_allocate = gtk_clutter_offscreen_size_allocate;
-
-  container_class->add = gtk_clutter_offscreen_add;
-  container_class->remove = gtk_clutter_offscreen_remove;
-  container_class->check_resize = gtk_clutter_offscreen_check_resize;
-
-  g_signal_override_class_closure (g_signal_lookup ("damage-event", GTK_TYPE_WIDGET),
-				   GTK_TYPE_CLUTTER_OFFSCREEN,
-				   g_cclosure_new (G_CALLBACK (gtk_clutter_offscreen_damage),
-						   NULL, NULL));
-}
-
-static void
-gtk_clutter_offscreen_init (GtkClutterOffscreen *offscreen)
-{
-  gtk_widget_set_has_window (GTK_WIDGET (offscreen), TRUE);
-  gtk_container_set_resize_mode (GTK_CONTAINER (offscreen), GTK_RESIZE_IMMEDIATE);
-  offscreen->active = TRUE;
-}
-
-GtkWidget *
-gtk_clutter_offscreen_new (ClutterActor *actor)
-{
-  GtkClutterOffscreen *offscreen;
-
-  offscreen = g_object_new (GTK_TYPE_CLUTTER_OFFSCREEN, NULL);
-  offscreen->actor = actor; /* Back pointer, actor owns widget */
-  return GTK_WIDGET (offscreen);
 }
 
 static void
@@ -227,8 +177,9 @@ gtk_clutter_offscreen_unrealize (GtkWidget *widget)
 
   if (offscreen->active)
     _gtk_clutter_embed_set_child_active (GTK_CLUTTER_EMBED (gtk_widget_get_parent (widget)),
-					  widget, FALSE);
-  GTK_WIDGET_CLASS (gtk_clutter_offscreen_parent_class)->unrealize (widget);
+					 widget, FALSE);
+
+  GTK_WIDGET_CLASS (_gtk_clutter_offscreen_parent_class)->unrealize (widget);
 }
 
 static void
@@ -319,9 +270,49 @@ gtk_clutter_offscreen_damage (GtkWidget      *widget,
   return TRUE;
 }
 
+static void
+_gtk_clutter_offscreen_class_init (GtkClutterOffscreenClass *klass)
+{
+  GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
+  GtkContainerClass *container_class = GTK_CONTAINER_CLASS (klass);
+
+  widget_class->expose_event = gtk_clutter_offscreen_expose;
+  widget_class->realize = gtk_clutter_offscreen_realize;
+  widget_class->unrealize = gtk_clutter_offscreen_unrealize;
+  widget_class->size_request = gtk_clutter_offscreen_size_request;
+  widget_class->size_allocate = gtk_clutter_offscreen_size_allocate;
+
+  container_class->add = gtk_clutter_offscreen_add;
+  container_class->remove = gtk_clutter_offscreen_remove;
+  container_class->check_resize = gtk_clutter_offscreen_check_resize;
+
+  g_signal_override_class_handler ("damage-event",
+				   GTK_CLUTTER_TYPE_OFFSCREEN,
+				   G_CALLBACK (gtk_clutter_offscreen_damage));
+}
+
+static void
+_gtk_clutter_offscreen_init (GtkClutterOffscreen *offscreen)
+{
+  gtk_widget_set_has_window (GTK_WIDGET (offscreen), TRUE);
+  gtk_container_set_resize_mode (GTK_CONTAINER (offscreen), GTK_RESIZE_IMMEDIATE);
+  offscreen->active = TRUE;
+}
+
+GtkWidget *
+_gtk_clutter_offscreen_new (ClutterActor *actor)
+{
+  GtkClutterOffscreen *offscreen;
+
+  offscreen = g_object_new (GTK_CLUTTER_TYPE_OFFSCREEN, NULL);
+  offscreen->actor = actor; /* Back pointer, actor owns widget */
+
+  return GTK_WIDGET (offscreen);
+}
+
 void
-gtk_clutter_offscreen_set_active (GtkClutterOffscreen *offscreen,
-                                  gboolean             active)
+_gtk_clutter_offscreen_set_active (GtkClutterOffscreen *offscreen,
+                                   gboolean             active)
 {
   GtkWidget *parent;
 
@@ -331,7 +322,7 @@ gtk_clutter_offscreen_set_active (GtkClutterOffscreen *offscreen,
     {
       offscreen->active = active;
       parent = gtk_widget_get_parent (GTK_WIDGET (offscreen));
-      if (parent)
+      if (parent != NULL)
 	_gtk_clutter_embed_set_child_active (GTK_CLUTTER_EMBED (parent),
 					     GTK_WIDGET (offscreen),
 					     active);

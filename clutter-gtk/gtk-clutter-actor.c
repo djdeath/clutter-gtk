@@ -354,7 +354,7 @@ gtk_clutter_actor_init (GtkClutterActor *actor)
 
   actor->priv = priv = GTK_CLUTTER_ACTOR_GET_PRIVATE (actor);
 
-  priv->widget = gtk_clutter_offscreen_new (CLUTTER_ACTOR (actor));
+  priv->widget = _gtk_clutter_offscreen_new (CLUTTER_ACTOR (actor));
   gtk_widget_show (priv->widget);
 
   priv->texture = clutter_x11_texture_pixmap_new ();
@@ -497,8 +497,7 @@ gtk_clutter_actor_new_with_contents (GtkWidget *contents)
   g_return_val_if_fail (GTK_IS_WIDGET (contents), NULL);
 
   actor = g_object_new (GTK_CLUTTER_TYPE_ACTOR, NULL);
-  gtk_container_add (GTK_CONTAINER (GTK_CLUTTER_ACTOR (actor)->priv->widget),
-          contents);
+  gtk_container_add (GTK_CONTAINER (GTK_CLUTTER_ACTOR (actor)->priv->widget), contents);
 
   return actor;
 }
@@ -507,8 +506,8 @@ void
 gtk_clutter_actor_set_receives_events (GtkClutterActor *actor,
                                        gboolean         receives_events)
 {
-  gtk_clutter_offscreen_set_active (GTK_CLUTTER_OFFSCREEN (actor->priv->widget),
-				    receives_events);
+  _gtk_clutter_offscreen_set_active (GTK_CLUTTER_OFFSCREEN (actor->priv->widget),
+                                     receives_events);
 }
 
 gboolean

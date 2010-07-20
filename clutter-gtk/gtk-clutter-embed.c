@@ -22,18 +22,15 @@
 
 /**
  * SECTION:gtk-clutter-embed
+ * @Title: GtkClutterEmbed
  * @short_description: Widget for embedding a Clutter scene
+ * @See_Also: #ClutterStage
  *
- * #GtkClutterEmbed is a GTK+ widget embedding a #ClutterStage. Using
- * a #GtkClutterEmbed widget is possible to build, show and interact with
- * a scene built using Clutter inside a GTK+ application.
+ * #GtkClutterEmbed is a GTK+ widget embedding a #ClutterStage inside
+ * a GTK+ application.
  *
- * <note>To avoid flickering on show, you should call gtk_widget_show()
- * or gtk_widget_realize() before calling clutter_actor_show() on the
- * embedded #ClutterStage actor. This is needed for Clutter to be able
- * to paint on the #GtkClutterEmbed widget.</note>
- *
- * Since: 0.6
+ * By using a #GtkClutterEmbed widget is possible to build, show and
+ * interact with a scene built using Clutter inside a GTK+ application.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -70,8 +67,10 @@ struct _GtkClutterEmbedPrivate
 
   GList *children;
   int n_active_children;
-  gboolean geometry_changed;
+
   guint queue_redraw_id;
+
+  guint geometry_changed : 1;
 };
 
 static void
@@ -101,6 +100,7 @@ on_stage_queue_redraw (ClutterStage *stage,
                        gpointer      user_data)
 {
   GtkWidget *embed = user_data;
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (embed)->priv;
 
   /* we stop the emission of the Stage::queue-redraw signal to prevent
    * the default handler from running; then we queue a redraw on the
@@ -110,8 +110,8 @@ on_stage_queue_redraw (ClutterStage *stage,
    */
   g_signal_stop_emission_by_name (stage, "queue-redraw");
 
-  if (GTK_CLUTTER_EMBED (embed)->priv->n_active_children > 0)
-    GTK_CLUTTER_EMBED (embed)->priv->geometry_changed = TRUE;
+  if (priv->n_active_children > 0)
+    priv->geometry_changed = TRUE;
 
   gtk_widget_queue_draw (embed);
 }
@@ -194,9 +194,13 @@ gtk_clutter_filter_func (GdkXEvent *native_event,
   XEvent *xevent = native_event;
 
 #ifdef HAVE_CLUTTER_GTK_X11
+  /* let Clutter handle all events coming from the windowing system */
   clutter_x11_handle_event (xevent);
 #endif
 
+  /* we don't care if Clutter handled the event: we want GDK to continue
+   * the event processing as usual
+   */
   return GDK_FILTER_CONTINUE;
 }
 
@@ -216,7 +220,9 @@ gtk_clutter_embed_realize (GtkWidget *widget)
     GdkVisual *visual;
     GdkColormap *colormap;
 
-    /* We need to use the colormap from the Clutter visual */
+    /* We need to use the colormap from the Clutter visual, since
+     * the visual is tied to the GLX context
+     */
     xvinfo = clutter_x11_get_visual_info ();
     if (xvinfo == None)
       {
@@ -245,7 +251,7 @@ gtk_clutter_embed_realize (GtkWidget *widget)
 
   /* NOTE: GDK_MOTION_NOTIFY above should be safe as Clutter does its own
    *       throttling. 
-  */
+   */
   attributes.event_mask = gtk_widget_get_events (widget)
                         | GDK_EXPOSURE_MASK
                         | GDK_BUTTON_PRESS_MASK
@@ -264,6 +270,9 @@ gtk_clutter_embed_realize (GtkWidget *widget)
   gtk_widget_set_window (widget, window);
   gdk_window_set_user_data (window, widget);
 
+  /* this does the translation of the event from Clutter to GDK
+   * we embedding a GtkWidget inside a GtkClutterActor
+   */
   g_signal_connect (window, "pick-embedded-child",
 		    G_CALLBACK (pick_embedded_child),
                     widget);
@@ -502,8 +511,8 @@ _gtk_clutter_embed_set_child_active (GtkClutterEmbed *embed,
 }
 
 static void
-gtk_clutter_embed_add (GtkContainer	 *container,
-		       GtkWidget	 *widget)
+gtk_clutter_embed_add (GtkContainer *container,
+		       GtkWidget    *widget)
 {
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (container)->priv;
 
@@ -514,14 +523,14 @@ gtk_clutter_embed_add (GtkContainer	 *container,
 }
 
 static void
-gtk_clutter_embed_remove (GtkContainer	 *container,
-			  GtkWidget	 *widget)
+gtk_clutter_embed_remove (GtkContainer *container,
+			  GtkWidget    *widget)
 {
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (container)->priv;
   GList *l;
 
   l = g_list_find (priv->children, widget);
-  if (l)
+  if (l != NULL)
     {
       priv->children = g_list_delete_link (priv->children, l);
       gtk_widget_unparent (widget);
@@ -547,7 +556,8 @@ gtk_clutter_embed_forall (GtkContainer	 *container,
 static GType
 gtk_clutter_embed_child_type (GtkContainer *container)
 {
-  return GTK_TYPE_CLUTTER_OFFSCREEN;
+  /* we only accept GtkClutterOffscreen children */
+  return GTK_CLUTTER_TYPE_OFFSCREEN;
 }
 
 static void
