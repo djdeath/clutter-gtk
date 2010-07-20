@@ -138,13 +138,6 @@ main (int argc, char **argv)
     GtkWidget *window = gtk_clutter_window_new ();
     GtkWidget *table = gtk_table_new (6, 6, TRUE);
 
-    /* override the gtk-button-images setting, since we kind
-     * of rely on this to be TRUE to actually show the stock
-     * icon falling off the button
-     */
-    GtkSettings *settings = gtk_widget_get_settings (window);
-    g_object_set (settings, "gtk-button-images", TRUE, NULL);
-
     add_button (GTK_TABLE (table), GTK_STOCK_OK, 0);
     add_button (GTK_TABLE (table), GTK_STOCK_CANCEL, 1);
     add_button (GTK_TABLE (table), GTK_STOCK_CLOSE, 2);
@@ -154,6 +147,13 @@ main (int argc, char **argv)
 
     gtk_container_add (GTK_CONTAINER (window), table);
     gtk_widget_show_all (window);
+
+    /* override the gtk-button-images setting, since we kind
+     * of rely on this to be TRUE to actually show the stock
+     * icon falling off the button
+     */
+    GtkSettings *settings = gtk_widget_get_settings (window);
+    g_object_set (settings, "gtk-button-images", TRUE, NULL);
 
     g_signal_connect_swapped (window, "destroy",
             G_CALLBACK (gtk_main_quit), NULL);
