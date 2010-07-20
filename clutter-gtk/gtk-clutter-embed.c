@@ -133,7 +133,7 @@ gtk_clutter_embed_show (GtkWidget *widget)
 {
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
 
-  if (gtk_widget_get_realized (widget))
+  if (gtk_widget_get_realized (widget) && priv->stage != NULL)
     clutter_actor_show (priv->stage);
 
   GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->show (widget);
@@ -146,10 +146,24 @@ gtk_clutter_embed_hide (GtkWidget *widget)
 
   /* gtk emits a hide signal during dispose, so it's possible we may
    * have already disposed priv->stage. */
-  if (priv->stage)
+  if (priv->stage != NULL)
     clutter_actor_hide (priv->stage);
 
   GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->hide (widget);
+}
+
+static GdkFilterReturn
+gtk_clutter_filter_func (GdkXEvent *native_event,
+                         GdkEvent  *event         G_GNUC_UNUSED,
+                         gpointer   user_data     G_GNUC_UNUSED)
+{
+#ifdef HAVE_CLUTTER_GTK_X11
+  XEvent *xevent = native_event;
+
+  clutter_x11_handle_event (xevent);
+#endif
+
+  return GDK_FILTER_CONTINUE;
 }
 
 static void
@@ -198,7 +212,7 @@ gtk_clutter_embed_realize (GtkWidget *widget)
   attributes.colormap = gtk_widget_get_colormap (widget);
 
   /* NOTE: GDK_MOTION_NOTIFY above should be safe as Clutter does its own
-   *       throtling. 
+   *       throttling. 
   */
   attributes.event_mask = gtk_widget_get_events (widget)
                         | GDK_EXPOSURE_MASK
@@ -219,10 +233,12 @@ gtk_clutter_embed_realize (GtkWidget *widget)
   gdk_window_set_back_pixmap (window, NULL, FALSE);
   gtk_widget_set_window (widget, window);
 
+  gdk_window_add_filter (NULL, gtk_clutter_filter_func, widget);
+
   gtk_widget_style_attach (widget);
   style = gtk_widget_get_style (widget);
   gtk_style_set_background (style, window, GTK_STATE_NORMAL);
-  
+
 #if defined(HAVE_CLUTTER_GTK_X11)
   clutter_x11_set_stage_foreign (CLUTTER_STAGE (priv->stage), 
                                  GDK_WINDOW_XID (window));
@@ -244,7 +260,8 @@ gtk_clutter_embed_unrealize (GtkWidget *widget)
 {
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
 
-  clutter_actor_hide (priv->stage);
+  if (priv->stage != NULL)
+    clutter_actor_hide (priv->stage);
 
   GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->unrealize (widget);
 }
@@ -271,10 +288,7 @@ gtk_clutter_embed_size_allocate (GtkWidget     *widget,
   /* change the size of the stage and ensure that the viewport
    * has been updated as well
    */
-  clutter_actor_set_size (priv->stage,
-                          allocation->width,
-                          allocation->height);
-
+  clutter_actor_set_size (priv->stage, allocation->width, allocation->height);
   clutter_stage_ensure_viewport (CLUTTER_STAGE (priv->stage));
 }
 
@@ -286,124 +300,6 @@ gtk_clutter_embed_expose_event (GtkWidget *widget,
 
   /* force a redraw on expose */
   clutter_redraw (CLUTTER_STAGE (priv->stage));
-
-  return FALSE;
-}
-
-static gboolean
-gtk_clutter_embed_motion_notify_event (GtkWidget      *widget,
-                                       GdkEventMotion *event)
-{
-  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
-  ClutterDeviceManager *manager;
-  ClutterInputDevice *device;
-  ClutterEvent cevent = { 0, };
-
-  manager = clutter_device_manager_get_default ();
-  device = clutter_device_manager_get_core_device (manager, CLUTTER_POINTER_DEVICE);
-
-  cevent.motion.type = CLUTTER_MOTION;
-  cevent.motion.stage = CLUTTER_STAGE (priv->stage);
-  cevent.motion.x = event->x;
-  cevent.motion.y = event->y;
-  cevent.motion.time = event->time;
-  cevent.motion.modifier_state = event->state;
-  cevent.motion.device = device;
-
-  clutter_input_device_update_from_event (device, &cevent, FALSE);
-
-  clutter_do_event (&cevent);
-
-  /* XXX - motion events might synthesize ENTER/LEAVE event pairs
-   * and push them on the Clutter event queue for our stage; we need
-   * to pop them out of the queue.
-   *
-   * FIXME - instead of using the global "are there events pending"
-   * function we should have a clutter_stage_events_pending()
-   * accessor so that we can distinguish between stages.
-   */
-  while (clutter_events_pending ())
-    {
-      ClutterEvent *ev = clutter_event_get ();
-
-      if (ev != NULL)
-        {
-          clutter_do_event (ev);
-          clutter_event_free (ev);
-        }
-    }
-
-  return FALSE;
-}
-
-static gboolean
-gtk_clutter_embed_button_event (GtkWidget      *widget,
-                                GdkEventButton *event)
-{
-  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
-  ClutterDeviceManager *manager;
-  ClutterInputDevice *device;
-  ClutterEvent cevent = { 0, };
-
-  if (event->type == GDK_BUTTON_PRESS ||
-      event->type == GDK_2BUTTON_PRESS ||
-      event->type == GDK_3BUTTON_PRESS)
-    cevent.button.type = CLUTTER_BUTTON_PRESS;
-  else if (event->type == GDK_BUTTON_RELEASE)
-    cevent.button.type = CLUTTER_BUTTON_RELEASE;
-  else
-    return FALSE;
-
-  manager = clutter_device_manager_get_default ();
-  device = clutter_device_manager_get_core_device (manager, CLUTTER_POINTER_DEVICE);
-
-  cevent.button.stage = CLUTTER_STAGE (priv->stage);
-  cevent.button.x = event->x;
-  cevent.button.y = event->y;
-  cevent.button.time = event->time;
-  cevent.button.click_count =
-    (event->type == GDK_BUTTON_PRESS ? 1
-                                     : (event->type == GDK_2BUTTON_PRESS ? 2
-                                                                         : 3));
-  cevent.button.modifier_state = event->state;
-  cevent.button.button = event->button;
-  cevent.button.device = device;
-
-  clutter_input_device_update_from_event (device, &cevent, FALSE);
-
-  clutter_do_event (&cevent);
-
-  return FALSE;
-}
-
-static gboolean
-gtk_clutter_embed_key_event (GtkWidget   *widget,
-                             GdkEventKey *event)
-{
-  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
-  ClutterDeviceManager *manager;
-  ClutterInputDevice *device;
-  ClutterEvent cevent = { 0, };
-
-  if (event->type == GDK_KEY_PRESS)
-    cevent.key.type = CLUTTER_KEY_PRESS;
-  else if (event->type == GDK_KEY_RELEASE)
-    cevent.key.type = CLUTTER_KEY_RELEASE;
-  else
-    return FALSE;
-
-  manager = clutter_device_manager_get_default ();
-  device = clutter_device_manager_get_core_device (manager, CLUTTER_KEYBOARD_DEVICE);
-
-  cevent.key.stage = CLUTTER_STAGE (priv->stage);
-  cevent.key.time = event->time;
-  cevent.key.modifier_state = event->state;
-  cevent.key.keyval = event->keyval;
-  cevent.key.hardware_keycode = event->hardware_keycode;
-  cevent.key.unicode_value = gdk_keyval_to_unicode (event->keyval);
-  cevent.key.device = device;
-
-  clutter_do_event (&cevent);
 
   return FALSE;
 }
@@ -477,98 +373,20 @@ gtk_clutter_embed_focus_out (GtkWidget     *widget,
   return FALSE;
 }
 
-static gboolean
-gtk_clutter_embed_scroll_event (GtkWidget      *widget,
-                                GdkEventScroll *event)
-{
-  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
-
-  ClutterEvent cevent = { 0, };
-
-  if (event->type == GDK_SCROLL)
-    cevent.type = cevent.scroll.type = CLUTTER_SCROLL;
-  else
-    return FALSE;
-
-  cevent.any.stage = CLUTTER_STAGE (priv->stage);
-  cevent.scroll.x = (gint) event->x;
-  cevent.scroll.y = (gint) event->y;
-  cevent.scroll.time = event->time;
-  cevent.scroll.direction = event->direction;
-  cevent.scroll.modifier_state = event->state;
-
-  clutter_do_event (&cevent);
-
-  return FALSE;
-}
-
-static gboolean
-gtk_clutter_embed_enter_notify_event (GtkWidget        *widget,
-                                      GdkEventCrossing *event)
-{
-  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
-  ClutterDeviceManager *manager;
-  ClutterInputDevice *device;
-  ClutterEvent cevent = { 0, };
-
-  manager = clutter_device_manager_get_default ();
-  device = clutter_device_manager_get_core_device (manager, CLUTTER_POINTER_DEVICE);
-
-  cevent.crossing.type = CLUTTER_ENTER;
-  cevent.crossing.stage = CLUTTER_STAGE (priv->stage);
-  cevent.crossing.x = (gint) event->x;
-  cevent.crossing.y = (gint) event->y;
-  cevent.crossing.time = event->time;
-  cevent.crossing.source = priv->stage;
-  cevent.crossing.related = NULL;
-  cevent.crossing.device = device;
-
-  clutter_input_device_update_from_event (device, &cevent, TRUE);
-
-  clutter_do_event (&cevent);
-
-  return FALSE;
-}
-
-static gboolean
-gtk_clutter_embed_leave_notify_event (GtkWidget        *widget,
-                                      GdkEventCrossing *event)
-{
-  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
-  ClutterDeviceManager *manager;
-  ClutterInputDevice *device;
-  ClutterEvent cevent = { 0, };
-
-  manager = clutter_device_manager_get_default ();
-  device = clutter_device_manager_get_core_device (manager, CLUTTER_POINTER_DEVICE);
-
-  cevent.crossing.type = CLUTTER_LEAVE;
-  cevent.crossing.stage = CLUTTER_STAGE (priv->stage);
-  cevent.crossing.x = (gint) event->x;
-  cevent.crossing.y = (gint) event->y;
-  cevent.crossing.time = event->time;
-  cevent.crossing.source = priv->stage;
-  cevent.crossing.related = NULL;
-  cevent.crossing.device = device;
-
-  clutter_input_device_update_from_event (device, &cevent, TRUE);
-
-  clutter_do_event (&cevent);
-
-  return FALSE;
-}
-
 static void
 gtk_clutter_embed_style_set (GtkWidget *widget,
                              GtkStyle  *old_style)
 {
   GdkScreen *screen;
-  GtkSettings *settings;
-  gdouble dpi;
+  GtkSettings *gtk_settings;
+  ClutterSettings *clutter_settings;
   gchar *font_name;
-  const cairo_font_options_t *font_options;
   gint double_click_time, double_click_distance;
   ClutterBackend *backend;
+#if HAVE_CLUTTER_GTK_X11
+  gint xft_dpi, xft_hinting, xft_antialias;
+  gchar *xft_hintstyle, *xft_rgba;
+#endif /* HAVE_CLUTTER_GTK_X11 */
 
   GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->style_set (widget,
                                                                 old_style);
@@ -578,17 +396,18 @@ gtk_clutter_embed_style_set (GtkWidget *widget,
   else
     screen = gdk_screen_get_default ();
 
-  dpi = gdk_screen_get_resolution (screen);
-  if (dpi < 0)
-    dpi = 96.0;
-
-  font_options = gdk_screen_get_font_options (screen);
-
-  settings = gtk_settings_get_for_screen (screen);
-  g_object_get (G_OBJECT (settings),
+  gtk_settings = gtk_settings_get_for_screen (screen);
+  g_object_get (G_OBJECT (gtk_settings),
                 "gtk-font-name", &font_name,
                 "gtk-double-click-time", &double_click_time,
                 "gtk-double-click-distance", &double_click_distance,
+#if HAVE_CLUTTER_GTK_X11
+                "gtk-xft-dpi", &xft_dpi,
+                "gtk-xft-antialias", &xft_antialias,
+                "gtk-xft-hinting", &xft_hinting,
+                "gtk-xft-hintstyle", &xft_hintstyle,
+                "gtk-xft-rgba", &xft_rgba,
+#endif /* HAVE_CLUTTER_GTK_X11 */
                 NULL);
 
   /* copy all settings and values coming from GTK+ into
@@ -596,11 +415,15 @@ gtk_clutter_embed_style_set (GtkWidget *widget,
    * a GtkClutterEmbed will not look completely alien
    */
   backend = clutter_get_default_backend ();
-  clutter_backend_set_resolution (backend, dpi);
-  clutter_backend_set_font_options (backend, font_options);
-  clutter_backend_set_font_name (backend, font_name);
   clutter_backend_set_double_click_time (backend, double_click_time);
   clutter_backend_set_double_click_distance (backend, double_click_distance);
+  clutter_backend_set_resolution (backend, xft_dpi / 1024.0);
+  clutter_backend_set_font_name (backend, font_name);
+
+#if HAVE_CLUTTER_GTK_X11
+  g_free (xft_hintstyle);
+  g_free (xft_rgba);
+#endif /* HAVE_CLUTTER_GTK_X11 */
 
   g_free (font_name);
 }
@@ -653,19 +476,10 @@ gtk_clutter_embed_class_init (GtkClutterEmbedClass *klass)
   widget_class->hide = gtk_clutter_embed_hide;
   widget_class->unmap = gtk_clutter_embed_unmap;
   widget_class->expose_event = gtk_clutter_embed_expose_event;
-  widget_class->button_press_event = gtk_clutter_embed_button_event;
-  widget_class->button_release_event = gtk_clutter_embed_button_event;
-  widget_class->key_press_event = gtk_clutter_embed_key_event;
-  widget_class->key_release_event = gtk_clutter_embed_key_event;
-  widget_class->motion_notify_event = gtk_clutter_embed_motion_notify_event;
-  widget_class->expose_event = gtk_clutter_embed_expose_event;
   widget_class->map_event = gtk_clutter_embed_map_event;
   widget_class->unmap_event = gtk_clutter_embed_unmap_event;
   widget_class->focus_in_event = gtk_clutter_embed_focus_in;
   widget_class->focus_out_event = gtk_clutter_embed_focus_out;
-  widget_class->scroll_event = gtk_clutter_embed_scroll_event;
-  widget_class->enter_notify_event = gtk_clutter_embed_enter_notify_event;
-  widget_class->leave_notify_event = gtk_clutter_embed_leave_notify_event;
 
   container_class->add = gtk_clutter_embed_add;
   container_class->remove = gtk_clutter_embed_remove;
