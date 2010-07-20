@@ -7,7 +7,7 @@ default ClutterStage into any GtkContainer.
 
 Requirements:
 
-  Clutter >= 1.2.0 (X11 backend) or >= 1.2.0 (Win32 backend)
+  Clutter >= 1.4.0 (X11 backend) or >= 1.4.0 (Win32 backend)
   GTK+ >= 3.0
 
 Copyright (C) 2006, 2007, 2008  OpenedHand Ltd

@@ -64,8 +64,8 @@ LT_INIT([disable-static])
 # Checks for header files.
 AC_HEADER_STDC
 
-m4_define([clutter_req_version], [1.2.0])
-m4_define([gtk_req_version], [2.19.5])
+m4_define([clutter_req_version], [1.3.8])
+m4_define([gtk_req_version], [2.90.5])
 m4_define([flavour_default], [x11])
 AC_ARG_WITH([flavour],
             [AC_HELP_STRING([--with-flavour=@<:@x11/win32@:>@],
