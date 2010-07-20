@@ -7,16 +7,10 @@ noinst_PROGRAMS = \
 	expose-test \
 	gtk-clutter-events \
 	gtk-clutter-multistage \
-	gtk-clutter-standin-test \
 	gtk-clutter-test \
 	gtk-clutter-test-actor \
-        gtk-clutter-viewport \
 	gtk-clutter-window-test \
 	gtk-clutter-window-test2 \
-	refcounting-test \
-	reparenting-test \
-	stacked-standins \
-	test-scrolling \
 	gtk-clutter-test-scroll
 
 INCLUDES = -I$(srcdir) -I$(top_srcdir)
@@ -55,14 +49,6 @@ gtk_clutter_multistage_SOURCES = gtk-clutter-multistage.c
 gtk_clutter_multistage_DEPENDENCIES = $(common_deps)
 gtk_clutter_multistage_LDADD = $(common_ldadd)
 
-gtk_clutter_standin_test_SOURCES = gtk-clutter-standin-test.c
-gtk_clutter_standin_test_DEPENDENCIES = $(common_deps)
-gtk_clutter_standin_test_LDADD = $(common_ldadd)
-
-gtk_clutter_viewport_SOURCES = gtk-clutter-viewport.c
-gtk_clutter_viewport_DEPENDENCIES = $(common_deps)
-gtk_clutter_viewport_LDADD = $(common_ldadd)
-
 gtk_clutter_window_test_SOURCES = gtk-clutter-window-test.c
 gtk_clutter_window_test_DEPENDENCIES = $(common_deps)
 gtk_clutter_window_test_LDADD = $(common_ldadd)
@@ -70,22 +56,6 @@ gtk_clutter_window_test_LDADD = $(common_ldadd)
 gtk_clutter_window_test2_SOURCES = gtk-clutter-window-test2.c
 gtk_clutter_window_test2_DEPENDENCIES = $(common_deps)
 gtk_clutter_window_test2_LDADD = $(common_ldadd)
-
-refcounting_test_SOURCES = refcounting-test.c
-refcounting_test_DEPENDENCIES = $(common_deps)
-refcounting_test_LDADD = $(common_ldadd)
-
-reparenting_test_SOURCES = reparenting-test.c
-reparenting_test_DEPENDENCIES = $(common_deps)
-reparenting_test_LDADD = $(common_ldadd)
-
-stacked_standins_SOURCES = stacked-standins.c
-stacked_standins_DEPENDENCIES = $(common_deps)
-stacked_standins_LDADD = $(common_ldadd)
-
-test_scrolling_SOURCES = test-scrolling.c
-test_scrolling_DEPENDENCIES = $(common_deps)
-test_scrolling_LDADD = $(common_ldadd)
 
 gtk_clutter_test_scroll_SOURCES = gtk-clutter-test-scroll.c
 gtk_clutter_test_scroll_DEPENDENCIES = $(common_deps)

@@ -31,15 +31,8 @@ libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_SOURCES = \
 	$(srcdir)/gtk-clutter-embed.c 		\
 	$(srcdir)/gtk-clutter-offscreen.c	\
 	$(srcdir)/gtk-clutter-offscreen.h	\
-	$(srcdir)/gtk-clutter-scrollable.c 	\
-	$(srcdir)/gtk-clutter-standin.c 	\
-	$(srcdir)/gtk-clutter-standin-bin.c 	\
-	$(srcdir)/gtk-clutter-standin-bin.h 	\
-	$(srcdir)/gtk-clutter-standin-private.h	\
 	$(srcdir)/gtk-clutter-util.c 		\
-	$(srcdir)/gtk-clutter-viewport.c	\
 	$(srcdir)/gtk-clutter-window.c		\
-	$(srcdir)/gtk-clutter-zoomable.c	\
 	$(NULL)
 
 libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_LIBADD = $(CLUTTER_LIBS) $(GTK_LIBS)
@@ -49,16 +42,13 @@ cluttergtkheadersdir = $(includedir)/clutter-gtk-@CLUTTER_GTK_API_VERSION@/clutt
 
 # please, keep the list sorted alphabetically
 cluttergtkheaders_HEADERS = \
-	$(top_srcdir)/clutter-gtk/clutter-gtk.h 		\
-	$(top_srcdir)/clutter-gtk/gtk-clutter-actor.h 		\
-	$(top_srcdir)/clutter-gtk/gtk-clutter-embed.h 		\
-	$(top_srcdir)/clutter-gtk/gtk-clutter-scrollable.h 	\
-	$(top_srcdir)/clutter-gtk/gtk-clutter-standin.h 	\
-	$(top_srcdir)/clutter-gtk/gtk-clutter-util.h 		\
-	$(top_srcdir)/clutter-gtk/gtk-clutter-version.h		\
-	$(top_srcdir)/clutter-gtk/gtk-clutter-viewport.h	\
-	$(top_srcdir)/clutter-gtk/gtk-clutter-window.h		\
-	$(top_srcdir)/clutter-gtk/gtk-clutter-zoomable.h
+	$(top_srcdir)/clutter-gtk/clutter-gtk.h 	\
+	$(top_srcdir)/clutter-gtk/gtk-clutter-actor.h 	\
+	$(top_srcdir)/clutter-gtk/gtk-clutter-embed.h 	\
+	$(top_srcdir)/clutter-gtk/gtk-clutter-util.h 	\
+	$(top_srcdir)/clutter-gtk/gtk-clutter-version.h	\
+	$(top_srcdir)/clutter-gtk/gtk-clutter-window.h	\
+	$(NULL)
 
 EXTRA_DIST += gtk-clutter-version.h.in
 
@@ -79,8 +69,7 @@ GtkClutter-@CLUTTER_GTK_API_VERSION@.gir: $(INTROSPECTION_SCANNER) libclutter-gt
 		--pkg gobject-2.0 \
 		--pkg clutter-1.0 \
 		--pkg gtk+-2.0 \
-		$(cluttergtkheaders_HEADERS) \
-		$(libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_SOURCES)
+		$(cluttergtkheaders_HEADERS)
 
 BUILT_GIRSOURCES += GtkClutter-@CLUTTER_GTK_API_VERSION@.gir
 

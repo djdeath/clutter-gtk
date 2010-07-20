@@ -34,7 +34,6 @@
 
 #include "gtk-clutter-actor.h"
 #include "gtk-clutter-offscreen.h"
-#include "gtk-clutter-standin-private.h"
 
 #include <glib-object.h>
 
@@ -373,14 +372,6 @@ gtk_clutter_actor_add (ClutterContainer *container,
   g_return_if_fail (GTK_CLUTTER_IS_ACTOR (container));
 
   priv = GTK_CLUTTER_ACTOR (container)->priv;
-
-  /* we only accept one kind of child, GtkClutterStandinBin, this means
-   * that transforms that are applied to us are also applied to our child */
-  if (!GTK_CLUTTER_IS_STANDIN_BIN (actor))
-    {
-      g_warning ("Can't add children to GtkClutterActor");
-      return;
-    }
 
   g_object_ref (actor);
 
