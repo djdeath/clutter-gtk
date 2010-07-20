@@ -20,25 +20,26 @@ static void
 add_liststore_rows (GtkListStore *store,
                     const char *first, ...)
 {
+    GtkIconTheme *theme;
     va_list var_args;
     char *icon;
+
+    theme = gtk_icon_theme_get_default ();
 
     va_start (var_args, first);
 
     for (icon = (char *) first; icon != NULL; icon = va_arg (var_args, char *))
     {
-        GdkPixbuf *pixbuf = gtk_icon_theme_load_icon (
-                gtk_icon_theme_get_default (),
-                icon, 48,
-                GTK_ICON_LOOKUP_USE_BUILTIN,
-                NULL);
+        GdkPixbuf *pixbuf = gtk_icon_theme_load_icon (theme, icon, 48,
+                                                      0,
+                                                      NULL);
 
         gtk_list_store_insert_with_values (store, NULL, -1,
-                NAME_COLUMN, icon,
-                PIXBUF_COLUMN, pixbuf,
-                -1);
-
-        g_object_unref (pixbuf);
+                                           NAME_COLUMN, icon,
+                                           PIXBUF_COLUMN, pixbuf,
+                                           -1);
+        if (pixbuf != NULL)
+          g_object_unref (pixbuf);
     }
 
     va_end (var_args);
@@ -75,14 +76,14 @@ main (int argc, char **argv)
     GtkListStore *store = gtk_list_store_new (N_COLUMNS,
 		    G_TYPE_STRING, GDK_TYPE_PIXBUF);
     add_liststore_rows (store,
-            "gnome-sudoku",
-            "gnome-blackjack",
-            "gnome-mahjongg",
-            "gnome-sticky-notes-applet",
-            "tracker",
-            "gnome-cpu-frequency-applet",
-            "evince",
-            NULL);
+                        "gnome-sudoku",
+                        "gnome-blackjack",
+                        "gnome-mahjongg",
+                        "gnome-sticky-notes-applet",
+                        "tracker",
+                        "gnome-cpu-frequency-applet",
+                        "evince",
+                        NULL);
 
     GtkWidget *iconview = gtk_icon_view_new_with_model (GTK_TREE_MODEL (store));
     gtk_icon_view_set_text_column (GTK_ICON_VIEW (iconview), NAME_COLUMN);
