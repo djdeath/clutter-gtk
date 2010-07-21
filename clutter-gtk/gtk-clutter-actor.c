@@ -164,15 +164,18 @@ gtk_clutter_actor_get_preferred_width (ClutterActor *actor,
 {
   GtkClutterActor *clutter = GTK_CLUTTER_ACTOR (actor);
   GtkClutterActorPrivate *priv = clutter->priv;
-  GtkRequisition requisition;
+  gint min_width, natural_width;
 
-  gtk_widget_size_request (priv->widget, &requisition);
+  gtk_size_request_get_width_for_height (GTK_SIZE_REQUEST (priv->widget),
+                                         (for_height + 0.5),
+                                         &min_width,
+                                         &natural_width);
 
   if (min_width_p)
-    *min_width_p = requisition.width;
+    *min_width_p = min_width;
 
   if (natural_width_p)
-    *natural_width_p = requisition.width;
+    *natural_width_p = natural_width;
 }
 
 static void
@@ -183,15 +186,19 @@ gtk_clutter_actor_get_preferred_height (ClutterActor *actor,
 {
   GtkClutterActor *clutter = GTK_CLUTTER_ACTOR (actor);
   GtkClutterActorPrivate *priv = clutter->priv;
-  GtkRequisition requisition;
+  gint min_height, natural_height;
 
-  gtk_widget_size_request (priv->widget, &requisition);
+  min_height = natural_height = 0;
+  gtk_size_request_get_height_for_width (GTK_SIZE_REQUEST (priv->widget),
+                                         (for_width + 0.5),
+                                         &min_height,
+                                         &natural_height);
 
   if (min_height_p)
-    *min_height_p = requisition.height;
+    *min_height_p = min_height;
 
   if (natural_height_p)
-    *natural_height_p = requisition.height;
+    *natural_height_p = natural_height;
 }
 
 static void
