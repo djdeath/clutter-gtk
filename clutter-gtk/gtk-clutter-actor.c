@@ -105,6 +105,7 @@ gtk_clutter_actor_realize (ClutterActor *actor)
   GtkClutterActorPrivate *priv = clutter->priv;
   ClutterActor *stage;
   GtkWidget *new_embed;
+  gint pixmap_width, pixmap_height;
 
   new_embed = NULL;
   stage = clutter_actor_get_stage (actor);
@@ -115,9 +116,11 @@ gtk_clutter_actor_realize (ClutterActor *actor)
   priv->pixmap = gdk_offscreen_window_get_pixmap (gtk_widget_get_window (priv->widget));
   g_object_ref (priv->pixmap);
   gdk_drawable_set_colormap (priv->pixmap, gtk_widget_get_colormap (priv->embed));
+  gdk_drawable_get_size (priv->pixmap, &pixmap_width, &pixmap_height);
 
   clutter_x11_texture_pixmap_set_pixmap (CLUTTER_X11_TEXTURE_PIXMAP (priv->texture),
                                          GDK_PIXMAP_XID (priv->pixmap));
+  clutter_actor_set_size (priv->texture, pixmap_width, pixmap_height);
 }
 
 static void
