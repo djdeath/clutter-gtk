@@ -320,20 +320,23 @@ gtk_clutter_embed_size_allocate (GtkWidget     *widget,
 
   gtk_widget_set_allocation (widget, allocation);
 
-  if (gtk_widget_get_realized (widget))
-    {
-      gdk_window_move_resize (gtk_widget_get_window (widget),
-                              allocation->x, allocation->y,
-                              allocation->width, allocation->height);
-
-      gtk_clutter_embed_send_configure (GTK_CLUTTER_EMBED (widget));
-    }
-
   /* change the size of the stage and ensure that the viewport
    * has been updated as well
    */
   clutter_actor_set_size (priv->stage, allocation->width, allocation->height);
-  clutter_stage_ensure_viewport (CLUTTER_STAGE (priv->stage));
+
+  if (gtk_widget_get_realized (widget))
+    {
+      gdk_window_move_resize (gtk_widget_get_window (widget),
+                              allocation->x,
+                              allocation->y,
+                              allocation->width,
+                              allocation->height);
+
+      clutter_stage_ensure_viewport (CLUTTER_STAGE (priv->stage));
+
+      gtk_clutter_embed_send_configure (GTK_CLUTTER_EMBED (widget));
+    }
 }
 
 static gboolean
@@ -349,7 +352,7 @@ gtk_clutter_embed_expose_event (GtkWidget *widget,
     }
 
   /* force a redraw on expose */
-  clutter_redraw (CLUTTER_STAGE (priv->stage));
+  clutter_stage_ensure_redraw (CLUTTER_STAGE (priv->stage));
 
   return FALSE;
 }
