@@ -4,17 +4,15 @@ ACLOCAL_AMFLAGS = -I build/autotools
 
 SUBDIRS = build clutter-gtk doc examples
 
-clutter-gtk-@CLUTTER_GTK_API_VERSION@.pc: clutter-gtk.pc
-	$(QUIET_GEN)cp -f clutter-gtk.pc clutter-gtk-$(CLUTTER_GTK_API_VERSION).pc
+clutter-gtk-1.0.pc: clutter-gtk.pc
+	$(QUIET_GEN)cp -f clutter-gtk.pc clutter-gtk-1.0.pc
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = clutter-gtk-$(CLUTTER_GTK_API_VERSION).pc
-
-CLEANFILES = clutter-gtk-$(CLUTTER_GTK_API_VERSION).pc
-
-DISTCLEANFILES = clutter-gtk.pc
+pkgconfig_DATA = clutter-gtk-1.0.pc
 
 EXTRA_DIST = clutter-gtk.pc.in
+CLEANFILES = clutter-gtk-1.0.pc
+DISTCLEANFILES = clutter-gtk.pc
 
 DISTCHECK_CONFIGURE_FLAGS = --enable-gtk-doc --enable-maintainer-flags
 
