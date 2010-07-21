@@ -45,9 +45,10 @@ typedef struct _GtkClutterWindowClass    GtkClutterWindowClass;
 /**
  * GtkClutterWindow:
  *
- * A ClutterWindow containing a #GtkWidget.
+ * A #GtkWindow containing a #ClutterStage.
  *
- * Since: 0.6
+ * The <structname>GtkClutterWindow</structname> structure contains only
+ * private data and it should be accessed using the provided API.
  */
 struct _GtkClutterWindow
 {
@@ -62,7 +63,8 @@ struct _GtkClutterWindow
  *
  * Base class for #GtkClutterWindow.
  *
- * Since: 0.6
+ * The <structname>GtkClutterWindowClass</structname> structure contains
+ * only private data.
  */
 struct _GtkClutterWindowClass
 {
@@ -78,10 +80,10 @@ struct _GtkClutterWindowClass
   void (*_clutter_gtk_reserved6) (void);
 };
 
-GType         gtk_clutter_window_get_type         (void) G_GNUC_CONST;
-GtkWidget    *gtk_clutter_window_new              (void);
-ClutterActor *gtk_clutter_window_get_stage        (GtkClutterWindow *self);
-ClutterActor *gtk_clutter_window_get_actor        (GtkClutterWindow *self);
+GType gtk_clutter_window_get_type (void) G_GNUC_CONST;
+
+GtkWidget *   gtk_clutter_window_new       (void);
+ClutterActor *gtk_clutter_window_get_stage (GtkClutterWindow *window);
 
 G_END_DECLS
 

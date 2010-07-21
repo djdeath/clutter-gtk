@@ -289,7 +289,7 @@ gtk_clutter_window_new (void)
 
 /**
  * gtk_clutter_window_get_stage:
- * @self: the #GtkClutterWindow
+ * @window: the #GtkClutterWindow
  *
  * Retrieves the #ClutterStage that this window is embedding
  *
@@ -298,13 +298,13 @@ gtk_clutter_window_new (void)
  * Return value: (transfer none): the window's #ClutterStage
  */
 ClutterActor *
-gtk_clutter_window_get_stage (GtkClutterWindow *self)
+gtk_clutter_window_get_stage (GtkClutterWindow *window)
 {
   GtkClutterWindowPrivate *priv;
 
-  g_return_val_if_fail (GTK_CLUTTER_IS_WINDOW (self), NULL);
+  g_return_val_if_fail (GTK_CLUTTER_IS_WINDOW (window), NULL);
 
-  priv = self->priv;
+  priv = window->priv;
 
   return gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (priv->embed));
 }
