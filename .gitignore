@@ -34,6 +34,7 @@ depcomp
 /doc/reference/tmpl/
 /doc/reference/version.xml
 /doc/reference/xml/
+/doc/reference/*.bak
 /examples/*.o
 /examples/gtk-clutter-events
 /examples/gtk-clutter-multistage
