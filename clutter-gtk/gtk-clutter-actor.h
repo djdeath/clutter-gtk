@@ -1,6 +1,7 @@
 /* gtk-clutter-actor.h: Gtk widget ClutterActor
  *
  * Copyright (C) 2009 Red Hat, Inc
+ * Copyright (C) 2010 Intel Corp
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,6 +18,7 @@
  *
  * Authors:
  *   Alexander Larsson <alexl@redhat.com>
+ *   Emmanuele Bassi <ebassi@linux.intel.com>
  */
 
 #if !defined(__CLUTTER_GTK_H_INSIDE__) && !defined(CLUTTER_GTK_COMPILATION)
@@ -46,8 +48,6 @@ typedef struct _GtkClutterActorClass    GtkClutterActorClass;
  * GtkClutterActor:
  *
  * A ClutterActor containing a #GtkWidget.
- *
- * Since: 0.6
  */
 struct _GtkClutterActor
 {
@@ -61,8 +61,6 @@ struct _GtkClutterActor
  * GtkClutterActorClass:
  *
  * Base class for #GtkClutterActor.
- *
- * Since: 0.6
  */
 struct _GtkClutterActorClass
 {
@@ -78,13 +76,11 @@ struct _GtkClutterActorClass
   void (*_clutter_gtk_reserved6) (void);
 };
 
-GType         gtk_clutter_actor_get_type            (void) G_GNUC_CONST;
-ClutterActor *gtk_clutter_actor_new                 (void);
-ClutterActor *gtk_clutter_actor_new_with_contents   (GtkWidget *contents);
-void          gtk_clutter_actor_set_receives_events (GtkClutterActor *actor,
-						     gboolean         receives_events);
-gboolean      gtk_clutter_actor_get_receives_events (GtkClutterActor *actor);
-GtkWidget    *gtk_clutter_actor_get_widget          (GtkClutterActor *actor);
+GType         gtk_clutter_actor_get_type          (void) G_GNUC_CONST;
+ClutterActor *gtk_clutter_actor_new               (void);
+ClutterActor *gtk_clutter_actor_new_with_contents (GtkWidget       *contents);
+GtkWidget *   gtk_clutter_actor_get_contents      (GtkClutterActor *actor);
+GtkWidget *   gtk_clutter_actor_get_widget        (GtkClutterActor *actor);
 
 G_END_DECLS
 
