@@ -113,7 +113,7 @@ gtk_clutter_get_component (GtkWidget    *widget,
  * gtk_clutter_get_fg_color:
  * @widget: a #GtkWidget
  * @state: a state
- * @color: return location for a #ClutterColor
+ * @color: (out): return location for a #ClutterColor
  *
  * Retrieves the foreground color of @widget for the given @state and copies
  * it into @color.
@@ -135,7 +135,7 @@ gtk_clutter_get_fg_color (GtkWidget    *widget,
  * gtk_clutter_get_bg_color:
  * @widget: a #GtkWidget
  * @state: a state
- * @color: return location for a #ClutterColor
+ * @color: (out): return location for a #ClutterColor
  *
  * Retrieves the background color of @widget for the given @state and copies
  * it into @color.
@@ -157,7 +157,7 @@ gtk_clutter_get_bg_color (GtkWidget    *widget,
  * gtk_clutter_get_text_color:
  * @widget: a #GtkWidget
  * @state: a state
- * @color: return location for a #ClutterColor
+ * @color: (out): return location for a #ClutterColor
  *
  * Retrieves the text color of @widget for the given @state and copies it
  * into @color.
@@ -179,7 +179,7 @@ gtk_clutter_get_text_color (GtkWidget    *widget,
  * gtk_clutter_get_base_color:
  * @widget: a #GtkWidget
  * @state: a state
- * @color: return location for a #ClutterColor
+ * @color: (out): return location for a #ClutterColor
  *
  * Retrieves the base color of @widget for the given @state and copies it
  * into @color.
@@ -201,7 +201,7 @@ gtk_clutter_get_base_color (GtkWidget    *widget,
  * gtk_clutter_get_light_color:
  * @widget: a #GtkWidget
  * @state: a state
- * @color: return location for a #ClutterColor
+ * @color: (out): return location for a #ClutterColor
  *
  * Retrieves the light color of @widget for the given @state and copies it
  * into @color.
@@ -223,7 +223,7 @@ gtk_clutter_get_light_color (GtkWidget    *widget,
  * gtk_clutter_get_mid_color:
  * @widget: a #GtkWidget
  * @state: a state
- * @color: return location for a #ClutterColor
+ * @color: (out): return location for a #ClutterColor
  *
  * Retrieves the mid color of @widget for the given @state and copies it
  * into @color.
@@ -245,7 +245,7 @@ gtk_clutter_get_mid_color (GtkWidget    *widget,
  * gtk_clutter_get_dark_color:
  * @widget: a #GtkWidget
  * @state: a state
- * @color: return location for a #ClutterColor
+ * @color: (out): return location for a #ClutterColor
  *
  * Retrieves the dark color of @widget for the given @state and copies it
  * into @color.
@@ -659,7 +659,7 @@ gtk_clutter_get_option_group  (void)
 /**
  * gtk_clutter_init:
  * @argc: pointer to the arguments count, or %NULL
- * @argv: pointer to the arguments vector, or %NULL
+ * @argv: (array length=argc): pointer to the arguments vector, or %NULL
  *
  * This function should be called instead of clutter_init() and
  * gtk_init().
@@ -696,7 +696,7 @@ gtk_clutter_init (int    *argc,
 /**
  * gtk_clutter_init_with_args:
  * @argc: a pointer to the number of command line arguments.
- * @argv: a pointer to the array of command line arguments.
+ * @argv: (array length=argc): a pointer to the array of command line arguments.
  * @parameter_string: a string which is displayed in
  *    the first line of <option>--help</option> output, after
  *    <literal><replaceable>programname</replaceable> [OPTION...]</literal>
