@@ -101,17 +101,17 @@ main (int argc, char **argv)
 
     GtkWidget *toolbar = gtk_toolbar_new ();
     add_toolbar_items (GTK_TOOLBAR (toolbar),
-            GTK_STOCK_ADD,
-            GTK_STOCK_BOLD,
-            GTK_STOCK_ITALIC,
-            GTK_STOCK_CANCEL,
-            GTK_STOCK_CDROM,
-            GTK_STOCK_CONVERT,
-            NULL);
+                       GTK_STOCK_ADD,
+                       GTK_STOCK_BOLD,
+                       GTK_STOCK_ITALIC,
+                       GTK_STOCK_CANCEL,
+                       GTK_STOCK_CDROM,
+                       GTK_STOCK_CONVERT,
+                       NULL);
 
     gtk_widget_show_all (toolbar);
     ClutterActor *actor = gtk_clutter_actor_new_with_contents (toolbar);
-    gtk_clutter_bind_dimensions (stage, actor, GTK_CLUTTER_BIND_HORIZONTAL);
+    clutter_actor_add_constraint (actor, clutter_bind_constraint_new (stage, CLUTTER_BIND_WIDTH, 0.0));
 
     clutter_container_add_actor (CLUTTER_CONTAINER (stage), actor);
     clutter_actor_set_opacity (actor, 0xa0);
