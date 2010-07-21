@@ -20,8 +20,10 @@ struct _GtkClutterOffscreen
 {
   GtkBin bin;
 
-  gboolean active;
   ClutterActor *actor;
+
+  guint active : 1;
+  guint in_allocation : 1;
 };
 
 struct _GtkClutterOffscreenClass
@@ -33,6 +35,8 @@ GType	   _gtk_clutter_offscreen_get_type   (void) G_GNUC_CONST;
 GtkWidget *_gtk_clutter_offscreen_new        (ClutterActor        *actor);
 void       _gtk_clutter_offscreen_set_active (GtkClutterOffscreen *offscreen,
                                               gboolean             active);
+void       _gtk_clutter_offscreen_set_in_allocation (GtkClutterOffscreen *offscreen,
+                                                     gboolean             in_allocation);
 
 G_END_DECLS
 

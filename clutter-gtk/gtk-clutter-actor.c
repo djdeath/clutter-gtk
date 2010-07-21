@@ -199,6 +199,8 @@ gtk_clutter_actor_allocate (ClutterActor           *actor,
   child_allocation.width = clutter_actor_box_get_width (box);
   child_allocation.height = clutter_actor_box_get_height (box);
 
+  _gtk_clutter_offscreen_set_in_allocation (GTK_CLUTTER_OFFSCREEN (priv->widget), TRUE);
+
   gtk_widget_size_allocate (priv->widget, &child_allocation);
 
   if (CLUTTER_ACTOR_IS_REALIZED (actor))
@@ -222,20 +224,12 @@ gtk_clutter_actor_allocate (ClutterActor           *actor,
 
           gdk_drawable_set_colormap (priv->pixmap, gtk_widget_get_colormap (clutter->priv->embed));
 
-          /* FIXME - this queues a relayout, and shoult not be called
-           * from an allocate() implementation
-           *
-           * the sequence goes:
-           * - set_pixmap emits a notify::pixmap in the X11 implementation
-           * - GLX gets the notification and creates a new GLX pixmap
-           * - the new GLX pixmap is put inside a CoglTexture handle
-           * - the CoglTexture handle is set inside the ClutterTexture
-           * - ClutterTexture queues a relayout
-           */
           clutter_x11_texture_pixmap_set_pixmap (CLUTTER_X11_TEXTURE_PIXMAP (priv->texture),
                                                  GDK_PIXMAP_XID (priv->pixmap));
         }
     }
+
+  _gtk_clutter_offscreen_set_in_allocation (GTK_CLUTTER_OFFSCREEN (priv->widget), FALSE);
 
   child_box.x1 = 0;
   child_box.y1 = 0;

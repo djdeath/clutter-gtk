@@ -55,14 +55,12 @@ gtk_clutter_offscreen_remove (GtkContainer *container,
 
   offscreen = GTK_CLUTTER_OFFSCREEN (container);
 
-  GTK_CONTAINER_CLASS (_gtk_clutter_offscreen_parent_class)->remove (container,
-          child);
+  GTK_CONTAINER_CLASS (_gtk_clutter_offscreen_parent_class)->remove (container, child);
 
   if (offscreen->actor != NULL && CLUTTER_ACTOR_IS_VISIBLE (offscreen->actor))
     {
       /* force a relayout */
       clutter_actor_set_size (offscreen->actor, -1, -1);
-      clutter_actor_queue_relayout (offscreen->actor);
     }
 }
 
@@ -71,7 +69,7 @@ gtk_clutter_offscreen_check_resize (GtkContainer *container)
 {
   GtkClutterOffscreen *offscreen = GTK_CLUTTER_OFFSCREEN (container);
 
-  if (offscreen->actor != NULL)
+  if (offscreen->actor != NULL && !offscreen->in_allocation)
     clutter_actor_queue_relayout (offscreen->actor);
 }
 
@@ -327,4 +325,13 @@ _gtk_clutter_offscreen_set_active (GtkClutterOffscreen *offscreen,
 					     GTK_WIDGET (offscreen),
 					     active);
     }
+}
+
+void
+_gtk_clutter_offscreen_set_in_allocation (GtkClutterOffscreen *offscreen,
+                                          gboolean             in_allocation)
+{
+  in_allocation = !!in_allocation;
+
+  offscreen->in_allocation = in_allocation;
 }
