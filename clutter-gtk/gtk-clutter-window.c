@@ -21,10 +21,17 @@
 
 /**
  * SECTION:gtk-clutter-window
- * @short_description: a #GtkWindow that embeds its contents onto a #ClutterStage
+ * @Title: GtkClutterWindow
+ * @short_description: a GtkWindow that embeds its contents onto a stage
  *
+ * #GtkClutterWindow is a #GtkWindow sub-class that embeds a Clutter stage.
  *
- * Since: 1.0
+ * #GtkClutterWindow behaves exactly like a #GtkWindow, except that its
+ * child is automatically embedded inside a #GtkClutterActor and it is
+ * thus part of the embedded #ClutterStage.
+ *
+ * Clutter actors can be added to the same stage by calling
+ * gtk_clutter_window_get_stage().
  */
 
 #ifdef HAVE_CONFIG_H
@@ -38,15 +45,14 @@
 
 #include <glib-object.h>
 
-G_DEFINE_TYPE (GtkClutterWindow,
-               gtk_clutter_window,
-               GTK_TYPE_WINDOW);
+G_DEFINE_TYPE (GtkClutterWindow, gtk_clutter_window, GTK_TYPE_WINDOW);
 
 #define GTK_CLUTTER_WINDOW_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), GTK_CLUTTER_TYPE_WINDOW, GtkClutterWindowPrivate))
 
 struct _GtkClutterWindowPrivate
 {
   GtkWidget *embed;
+
   ClutterActor *actor;
 };
 
@@ -225,12 +231,12 @@ gtk_clutter_window_class_init (GtkClutterWindowClass *klass)
   widget_class->size_request = gtk_clutter_window_size_request;
 
   /* connect all of the container methods up to our bin */
-  container_class->add             = gtk_clutter_window_add;
-  container_class->remove          = gtk_clutter_window_remove;
-  container_class->forall          = gtk_clutter_window_forall;
-  container_class->set_focus_child = gtk_clutter_window_set_focus_child;
-  container_class->child_type      = gtk_clutter_window_child_type;
-  container_class->composite_name  = gtk_clutter_window_composite_name;
+  container_class->add                = gtk_clutter_window_add;
+  container_class->remove             = gtk_clutter_window_remove;
+  container_class->forall             = gtk_clutter_window_forall;
+  container_class->set_focus_child    = gtk_clutter_window_set_focus_child;
+  container_class->child_type         = gtk_clutter_window_child_type;
+  container_class->composite_name     = gtk_clutter_window_composite_name;
   container_class->set_child_property = gtk_clutter_window_set_child_property;
   container_class->get_child_property = gtk_clutter_window_get_child_property;
 }
@@ -257,21 +263,23 @@ gtk_clutter_window_init (GtkClutterWindow *self)
 
   priv->actor = gtk_clutter_actor_new ();
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), priv->actor);
-
-  gtk_clutter_bind_dimensions (stage, priv->actor,
-                               GTK_CLUTTER_BIND_BOTH);
+  clutter_actor_set_name (priv->actor, "GtkClutterActor");
+  clutter_actor_add_constraint_with_name (priv->actor, "content-x",
+                                          clutter_bind_constraint_new (stage, CLUTTER_BIND_WIDTH, 0.0));
+  clutter_actor_add_constraint_with_name (priv->actor, "content-y",
+                                          clutter_bind_constraint_new (stage, CLUTTER_BIND_HEIGHT, 0.0));
 }
 
 /**
  * gtk_clutter_window_new:
  *
- * Creates a new #GtkClutterWindow widget. This window provides a hidden
- * ClutterStage on which the child GtkWidgets are placed. This allows other
- * ClutterActors to also be placed on the stage.
+ * Creates a new #GtkClutterWindow widget.
+ *
+ * This window provides a hidden #ClutterStage on which the child
+ * #GtkWidget<!-- -->s are placed. This allows other #ClutterActor<!-- -->s
+ * to also be placed on the stage.
  *
  * Return value: the newly created #GtkClutterWindow
- *
- * Since: 1.0
  */
 GtkWidget *
 gtk_clutter_window_new (void)
@@ -283,14 +291,11 @@ gtk_clutter_window_new (void)
  * gtk_clutter_window_get_stage:
  * @self: the #GtkClutterWindow
  *
- * Retrieves the #ClutterStage that this window is mounting the GTK+ widget
- * tree onto.
+ * Retrieves the #ClutterStage that this window is embedding
  *
  * Use this function if you wish to add other actors to the #ClutterStage.
  *
- * Return value: the window's #ClutterStage
- *
- * Since: 1.0
+ * Return value: (transfer none): the window's #ClutterStage
  */
 ClutterActor *
 gtk_clutter_window_get_stage (GtkClutterWindow *self)
