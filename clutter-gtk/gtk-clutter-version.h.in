@@ -26,6 +26,7 @@
 
 /**
  * SECTION:gtk-clutter-version
+ * @Title: Versioning
  * @short_description: Versioning utility macros
  *
  * Clutter-GTK offers a set of macros for checking the version of the library
@@ -44,8 +45,6 @@ G_BEGIN_DECLS
  *
  * The major version of the Clutter-GTK library (1, if %CLUTTER_GTK_VERSION
  * is 1.2.3)
- *
- * Since: 1.0
  */
 #define CLUTTER_GTK_MAJOR_VERSION       (@CLUTTER_GTK_MAJOR_VERSION@)
 
@@ -54,8 +53,6 @@ G_BEGIN_DECLS
  *
  * The minor version of the Clutter-GTK library (2, if %CLUTTER_GTK_VERSION
  * is 1.2.3)
- *
- * Since: 1.0
  */
 #define CLUTTER_GTK_MINOR_VERSION       (@CLUTTER_GTK_MINOR_VERSION@)
 
@@ -64,8 +61,6 @@ G_BEGIN_DECLS
  *
  * The micro version of the Clutter-GTK library (3, if %CLUTTER_GTK_VERSION
  * is 1.2.3)
- *
- * Since: 1.0
  */
 #define CLUTTER_GTK_MICRO_VERSION       (@CLUTTER_GTK_MICRO_VERSION@)
 
@@ -73,8 +68,6 @@ G_BEGIN_DECLS
  * CLUTTER_GTK_VERSION:
  *
  * The full version of the Clutter-GTK library, like 1.2.3
- *
- * Since: 1.0
  */
 #define CLUTTER_GTK_VERSION             @CLUTTER_GTK_VERSION@
 
@@ -83,8 +76,6 @@ G_BEGIN_DECLS
  *
  * The full version of the Clutter-GTK library, in string form (suited for
  * string concatenation)
- *
- * Since: 1.0
  */
 #define CLUTTER_GTK_VERSION_S           "@CLUTTER_GTK_VERSION@"
 
@@ -92,8 +83,6 @@ G_BEGIN_DECLS
  * CLUTTER_GTK_VERSION_HEX:
  *
  * Numerically encoded version of the Clutter-GTK library, like 0x010203
- *
- * Since: 1.0
  */
 #define CLUTTER_GTK_VERSION_HEX         ((CLUTTER_GTK_MAJOR_VERSION << 24) | \
                                          (CLUTTER_GTK_MINOR_VERSION << 16) | \
@@ -107,8 +96,6 @@ G_BEGIN_DECLS
  *
  * Evaluates to %TRUE if the version of the Clutter-GTK library is greater
  * than @major, @minor and @micro
- *
- * Since: 1.0
  */
 #define CLUTTER_GTK_CHECK_VERSION(major,minor,micro) \
         (CLUTTER_GTK_MAJOR_VERSION > (major) || \
@@ -124,8 +111,6 @@ G_BEGIN_DECLS
  * This value can be used for run-time version checks
  *
  * For a compile-time check, use %CLUTTER_GTK_MAJOR_VERSION
- *
- * Since: 1.0
  */
 extern const guint clutter_gtk_major_version;
 
@@ -138,8 +123,6 @@ extern const guint clutter_gtk_major_version;
  * This value can be used for run-time version checks
  *
  * For a compile-time check, use %CLUTTER_GTK_MINOR_VERSION
- *
- * Since: 1.0
  */
 extern const guint clutter_gtk_minor_version;
 
@@ -152,8 +135,6 @@ extern const guint clutter_gtk_minor_version;
  * This value can be used for run-time version checks
  *
  * For a compile-time check, use %CLUTTER_GTK_MICRO_VERSION
- *
- * Since: 1.0
  */
 extern const guint clutter_gtk_micro_version;
 

@@ -631,8 +631,6 @@ gtk_clutter_embed_init (GtkClutterEmbed *embed)
  * used to build a scene using Clutter API into a GTK+ application.
  *
  * Return value: the newly created #GtkClutterEmbed
- *
- * Since: 0.6
  */
 GtkWidget *
 gtk_clutter_embed_new (void)
@@ -649,8 +647,6 @@ gtk_clutter_embed_new (void)
  *
  * Return value: the Clutter stage. You should never destroy or unref
  *   the returned actor.
- *
- * Since: 0.6
  */
 ClutterActor *
 gtk_clutter_embed_get_stage (GtkClutterEmbed *embed)

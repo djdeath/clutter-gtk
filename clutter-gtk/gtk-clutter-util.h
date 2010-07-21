@@ -39,7 +39,7 @@ G_BEGIN_DECLS
  * Extension of the #ClutterInitError enumeration for the integration
  * with GTK+
  *
- * Since: 0.8
+ * This enumeration might be extended at later date
  */
 typedef enum {
   CLUTTER_INIT_ERROR_LAST = CLUTTER_INIT_ERROR_INTERNAL,
@@ -48,35 +48,18 @@ typedef enum {
 } ClutterGtkInitError;
 
 /**
- * ClutterGtkTextureError:
- * @CLUTTER_INVALID_TYPE: Invalid type given as parameter
+ * GtkClutterTextureError:
+ * @GTK_CLUTTER_TEXTURE_INVALID_STOCK_ID: Invalid stock identifier
  *
  * An enumeration of error types used in ClutterGtk texture functions
  *
- * Since: 0.10
+ * This enumeration might be extended at later date
  */
 typedef enum {
-  CLUTTER_GTK_TEXTURE_INVALID_STOCK_ID,
+  GTK_CLUTTER_TEXTURE_INVALID_STOCK_ID
+} GtkClutterTextureError;
 
-  CLUTTER_GTK_TEXTURE_ERROR_LAST
-} ClutterGtkTextureError;
-
-/**
- * GtkClutterBindDirection
- * @GTK_CLUTTER_BIND_HORIZONTAL: bind horizontal size
- * @GTK_CLUTTER_BIND_VERTICAL: bind vertical size
- * @GTK_CLUTTER_BIND_BOTH: bind both vertical and horizontal size
- *
- * Since: 1.0
- */
-typedef enum {
-  GTK_CLUTTER_BIND_HORIZONTAL = 1 << 0,
-  GTK_CLUTTER_BIND_VERTICAL   = 1 << 1,
-
-  GTK_CLUTTER_BIND_BOTH       = 3
-} GtkClutterBindDirection;
-
-#define CLUTTER_GTK_TEXTURE_ERROR gtk_clutter_texture_error_quark ()
+#define GTK_CLUTTER_TEXTURE_ERROR (gtk_clutter_texture_error_quark ())
 
 ClutterInitError gtk_clutter_init           (int            *argc,
                                              char         ***argv);
@@ -134,13 +117,6 @@ gboolean      gtk_clutter_texture_set_from_icon_name (ClutterTexture *texture,
                                                       const gchar    *icon_name,
                                                       GtkIconSize     size,
                                                       GError        **error);
-void gtk_clutter_bind_dimensions (ClutterActor            *src,
-                                  ClutterActor            *dest,
-                                  GtkClutterBindDirection  dir);
-void gtk_clutter_calculate_root_allocation (GtkWidget     *widget,
-                                            GtkAllocation *allocation);
-void gtk_clutter_calculate_actor_allocation (GtkWidget     *widget,
-                                             GtkAllocation *allocation);
 
 G_END_DECLS
 

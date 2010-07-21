@@ -25,6 +25,7 @@
 
 /**
  * SECTION:gtk-clutter-util
+ * @Title: Utility Functions
  * @short_description: Utility functions for integrating Clutter in GTK+
  *
  * In order to properly integrate a Clutter scene into a GTK+ applications
@@ -116,8 +117,6 @@ gtk_clutter_get_component (GtkWidget    *widget,
  *
  * Retrieves the foreground color of @widget for the given @state and copies
  * it into @color.
- *
- * Since: 0.8
  */
 void
 gtk_clutter_get_fg_color (GtkWidget    *widget,
@@ -140,8 +139,6 @@ gtk_clutter_get_fg_color (GtkWidget    *widget,
  *
  * Retrieves the background color of @widget for the given @state and copies
  * it into @color.
- *
- * Since: 0.8
  */
 void
 gtk_clutter_get_bg_color (GtkWidget    *widget,
@@ -164,8 +161,6 @@ gtk_clutter_get_bg_color (GtkWidget    *widget,
  *
  * Retrieves the text color of @widget for the given @state and copies it
  * into @color.
- *
- * Since: 0.8
  */
 void
 gtk_clutter_get_text_color (GtkWidget    *widget,
@@ -188,8 +183,6 @@ gtk_clutter_get_text_color (GtkWidget    *widget,
  *
  * Retrieves the base color of @widget for the given @state and copies it
  * into @color.
- *
- * Since: 0.8
  */
 void
 gtk_clutter_get_base_color (GtkWidget    *widget,
@@ -212,8 +205,6 @@ gtk_clutter_get_base_color (GtkWidget    *widget,
  *
  * Retrieves the light color of @widget for the given @state and copies it
  * into @color.
- *
- * Since: 0.8
  */
 void
 gtk_clutter_get_light_color (GtkWidget    *widget,
@@ -236,8 +227,6 @@ gtk_clutter_get_light_color (GtkWidget    *widget,
  *
  * Retrieves the mid color of @widget for the given @state and copies it
  * into @color.
- *
- * Since: 0.8
  */
 void
 gtk_clutter_get_mid_color (GtkWidget    *widget,
@@ -260,8 +249,6 @@ gtk_clutter_get_mid_color (GtkWidget    *widget,
  *
  * Retrieves the dark color of @widget for the given @state and copies it
  * into @color.
- *
- * Since: 0.8
  */
 void
 gtk_clutter_get_dark_color (GtkWidget    *widget,
@@ -284,8 +271,6 @@ gtk_clutter_get_dark_color (GtkWidget    *widget,
  *
  * Retrieves the text-aa color of @widget for the given @state and copies it
  * into @color.
- *
- * Since: 0.8
  */
 void
 gtk_clutter_get_text_aa_color (GtkWidget    *widget,
@@ -308,8 +293,6 @@ gtk_clutter_get_text_aa_color (GtkWidget    *widget,
  * of @pixbuf.
  *
  * Return value: the newly created #ClutterTexture
- *
- * Since: 0.8
  */
 ClutterActor *
 gtk_clutter_texture_new_from_pixbuf (GdkPixbuf *pixbuf)
@@ -355,8 +338,6 @@ gtk_clutter_texture_error_quark (void)
  * Sets the contents of @texture with a copy of @pixbuf.
  *
  * Return value: %TRUE on success, %FALSE on failure.
- *
- * Since: 0.8
  */
 gboolean
 gtk_clutter_texture_set_from_pixbuf (ClutterTexture *texture,
@@ -387,8 +368,6 @@ gtk_clutter_texture_set_from_pixbuf (ClutterTexture *texture,
  * icon @stock_id as rendered by @widget.
  *
  * Return value: the newly created #ClutterTexture
- *
- * Since: 0.8
  */
 ClutterActor *
 gtk_clutter_texture_new_from_stock (GtkWidget   *widget,
@@ -426,8 +405,6 @@ gtk_clutter_texture_new_from_stock (GtkWidget   *widget,
  * rendered by @widget.
  *
  * Return value: %TRUE on success, %FALSE on failure.
- *
- * Since: 0.8
  */
 gboolean
 gtk_clutter_texture_set_from_stock (ClutterTexture *texture,
@@ -448,8 +425,8 @@ gtk_clutter_texture_set_from_stock (ClutterTexture *texture,
   if (!pixbuf)
     {
       g_set_error (error,
-                   CLUTTER_GTK_TEXTURE_ERROR,
-                   CLUTTER_GTK_TEXTURE_INVALID_STOCK_ID,
+                   GTK_CLUTTER_TEXTURE_ERROR,
+                   GTK_CLUTTER_TEXTURE_INVALID_STOCK_ID,
                    "Stock ID '%s' not found", stock_id);
       return FALSE;
     }
@@ -471,8 +448,6 @@ gtk_clutter_texture_set_from_stock (ClutterTexture *texture,
  *
  * Return value: the newly created texture, or %NULL if @widget
  *   was %NULL and @icon_name was not found.
- *
- * Since: 0.8
  */
 ClutterActor *
 gtk_clutter_texture_new_from_icon_name (GtkWidget   *widget,
@@ -549,8 +524,6 @@ gtk_clutter_texture_new_from_icon_name (GtkWidget   *widget,
  * current icon theme.
  *
  * Return value: %TRUE on success, %FALSE on failure.
- *
- * Since: 0.8
  */
 gboolean
 gtk_clutter_texture_set_from_icon_name (ClutterTexture *texture,
@@ -671,8 +644,6 @@ post_parse_hook (GOptionContext  *context,
  *
  * Return value: (transfer full): a #GOptionGroup for the commandline arguments
  *   recognized by ClutterGtk
- *
- * Since: 1.0
  */
 GOptionGroup *
 gtk_clutter_get_option_group  (void)
@@ -695,8 +666,6 @@ gtk_clutter_get_option_group  (void)
  *
  * Return value: %CLUTTER_INIT_SUCCESS on success, a negative integer
  *   on failure.
- *
- * Since: 0.8
  */
 ClutterInitError
 gtk_clutter_init (int    *argc,
@@ -743,8 +712,6 @@ gtk_clutter_init (int    *argc,
  *
  * Return value: %CLUTTER_INIT_SUCCESS on success, a negative integer
  *   on failure.
- *
- * Since: 0.10
  */
 ClutterInitError
 gtk_clutter_init_with_args (int            *argc,
@@ -790,188 +757,4 @@ gtk_clutter_init_with_args (int            *argc,
     return CLUTTER_INIT_ERROR_GTK;
 
   return CLUTTER_INIT_SUCCESS;
-}
-
-static void
-gtk_clutter_bind_dimensions_width_changed (ClutterActor *src,
-                                           GParamSpec   *pspec,
-                                           ClutterActor *dest)
-{
-  /* push these dimensions to the actor */
-  clutter_actor_set_width (dest, clutter_actor_get_width (src));
-}
-
-static void
-gtk_clutter_bind_dimensions_height_changed (ClutterActor *src,
-                                            GParamSpec   *pspec,
-                                            ClutterActor *dest)
-{
-  /* push these dimensions to the actor */
-  clutter_actor_set_height (dest, clutter_actor_get_height (src));
-}
-
-/**
- * gtk_clutter_bind_dimensions:
- * @src: actor to copy the dimensions from
- * @dest: actor to copy the dimensions to
- * @dir: the direction to copy the dimensions in
- *
- * This utility function copies the width/height from the actor @src to the
- * actor @dest.
- *
- * The primary use for this function is for packing actors in the
- * top-level #GtkClutterWindow, and having them resize with the window.
- */
-void
-gtk_clutter_bind_dimensions (ClutterActor            *src,
-                             ClutterActor            *dest,
-                             GtkClutterBindDirection  dir)
-{
-  g_return_if_fail (CLUTTER_IS_ACTOR (src));
-  g_return_if_fail (CLUTTER_IS_ACTOR (dest));
-
-  if (dir & GTK_CLUTTER_BIND_HORIZONTAL)
-    {
-      gtk_clutter_bind_dimensions_width_changed (src, NULL, dest);
-      g_signal_connect_object (src, "notify::width",
-          G_CALLBACK (gtk_clutter_bind_dimensions_width_changed), dest, 0);
-    }
-
-  if (dir & GTK_CLUTTER_BIND_VERTICAL)
-    {
-      gtk_clutter_bind_dimensions_height_changed (src, NULL, dest);
-      g_signal_connect_object (src, "notify::height",
-          G_CALLBACK (gtk_clutter_bind_dimensions_height_changed), dest, 0);
-    }
-}
-
-/**
- * gtk_clutter_calculate_root_allocation:
- * @widget: a #GtkWidget to calculate the root-window allocation for
- * @allocation: a #GtkAllocation to store the result in
- *
- * Returns the #GtkAllocation of a widget relative to the top-level.
- *
- * The #GtkAllocation of a widget is relative to the allocation of any
- * parent container that is backed by a #GdkWindow. Thus to work out the
- * allocation in the coordinates of the top-level (which is needed to be
- * provided to Clutter), we must add walk the widget tree and add the
- * allocations of any window-backed parent containers.
- *
- * Use this function if you want to find out the position of a widget in
- * stage coordinates (normally so that you can align some animation on the
- * stage).
- */
-void
-gtk_clutter_calculate_root_allocation (GtkWidget     *widget,
-                                       GtkAllocation *allocation)
-{
-  GtkAllocation widget_allocation;
-  GtkAllocation parent_allocation;
-  GtkWidget *parent;
-
-  g_return_if_fail (GTK_IS_WIDGET (widget));
-  g_return_if_fail (allocation != NULL);
-
-  gtk_widget_get_allocation (widget, &widget_allocation);
-
-  allocation->x = widget_allocation.x;
-  allocation->y = widget_allocation.y;
-  allocation->width = widget_allocation.width;
-  allocation->height = widget_allocation.height;
-
-  for (parent = gtk_widget_get_parent (widget);
-       parent != NULL;
-       parent = gtk_widget_get_parent (parent))
-    {
-      if (gtk_widget_get_has_window (parent))
-        {
-          /* add this allocation */
-          gtk_widget_get_allocation (parent, &parent_allocation);
-          allocation->x += parent_allocation.x;
-          allocation->y += parent_allocation.y;
-        }
-    }
-}
-
-/**
- * gtk_clutter_calculate_actor_allocation:
- * @widget: a #GtkWidget to calculate the root-window allocation for
- * @allocation: a #GtkAllocation to store the result in
- *
- * Returns the #GtkAllocation of a widget relative to a widget known to
- * Clutter-GTK+.
- *
- * This function is similar to gtk_clutter_calculate_root_allocation() but
- * returns the coordinates relative to a #GtkWidget that is already connected
- * to a #ClutterActor (for example, a #GtkClutterActor).
- *
- * This function is used internally by Clutter-GTK+ to position actors within
- * their #GtkClutterStandin, but is provided in case it's useful to find the
- * position of a widget within the #GtkClutterActor that contains it).
- */
-void
-gtk_clutter_calculate_actor_allocation (GtkWidget     *widget,
-                                        GtkAllocation *allocation)
-{
-  GtkAllocation widget_allocation;
-  GtkAllocation parent_allocation;
-  GtkWidget *parent;
-
-  g_return_if_fail (GTK_IS_WIDGET (widget));
-  g_return_if_fail (allocation != NULL);
-
-  gtk_widget_get_allocation (widget, &widget_allocation);
-
-  allocation->x = widget_allocation.x;
-  allocation->y = widget_allocation.y;
-  allocation->width = widget_allocation.width;
-  allocation->height = widget_allocation.height;
-
-  for (parent = gtk_widget_get_parent (widget);
-       parent != NULL;
-       parent = gtk_widget_get_parent (parent))
-    {
-      if (GTK_CLUTTER_IS_OFFSCREEN (parent))
-        {
-          break;
-        }
-      else if (gtk_widget_get_has_window (parent))
-        {
-          /* add this allocation */
-          gtk_widget_get_allocation (parent, &parent_allocation);
-          allocation->x += parent_allocation.x;
-          allocation->y += parent_allocation.y;
-        }
-    }
-}
-
-/**
- * clutter_gtk_check_version:
- * @major: major version, like 1 in 1.2.3
- * @minor: minor version, like 2 in 1.2.3
- * @micro: micro version, like 3 in 1.2.3
- *
- * Run-time version check, to check the version the Clutter-GTK library
- * that an application is currently linked against
- *
- * This is the run-time equivalent of the compile-time
- * %CLUTTER_GTK_CHECK_VERSION pre-processor macro
- *
- * Return value: %TRUE if the version of the Clutter-GTK library is
- *   greater than (@major, @minor, @micro), and %FALSE otherwise
- *
- * Since: 1.2
- */
-gboolean
-clutter_gtk_check_version (guint major,
-                           guint minor,
-                           guint micro)
-{
-  return (clutter_gtk_major_version > major ||
-          (clutter_gtk_major_version == major &&
-           clutter_gtk_minor_version > minor) ||
-          (clutter_gtk_major_version == major &&
-           clutter_gtk_minor_version == minor &&
-           clutter_gtk_micro_version >= micro));
 }
