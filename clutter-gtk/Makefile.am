@@ -61,28 +61,27 @@ cluttergtkheaders_HEADERS = \
 
 EXTRA_DIST += gtk-clutter-version.h.in
 
-INTROSPECTION_GIRS =
-
 -include $(INTROSPECTION_MAKEFILE)
 
 if HAVE_INTROSPECTION
+INTROSPECTION_GIRS = GtkClutter-1.0.gir
 
-GtkClutter-1.0.gir: $(INTROSPECTION_SCANNER) Makefile
+GtkClutter-1.0.gir: libclutter-gtk-@CLUTTER_GTK_API_VERSION@.la $(INTROSPECTION_SCANNER) Makefile
 
 GtkClutter_1_0_gir_SCANNERFLAGS = --strip-prefix=GtkClutter --add-include-path=$(top_builddir)
+GtkClutter_1_0_gir_NAMESPACE    = GtkClutter
+GtkClutter_1_0_gir_VERSION      = 1.0
 GtkClutter_1_0_gir_INCLUDES     = Gtk-3.0 Clutter-1.0
 GtkClutter_1_0_gir_PACKAGES     = gtk+-3.0 clutter-1.0
 GtkClutter_1_0_gir_CFLAGS       = $(INCLUDES) $(AM_CPPFLAGS)
 GtkClutter_1_0_gir_LIBS         = libclutter-gtk-@CLUTTER_GTK_API_VERSION@.la
 GtkClutter_1_0_gir_FILES        = $(source_h_public) $(source_c)
 
-INTROSPECTION_GIRS += GtkClutter-1.0.gir
+girdir = $(datadir)/gir-1.0/
+dist_gir_DATA = GtkClutter-1.0.gir
 
-girdir = $(datadir)/gir-1.0
-gir_DATA = $(INTROSPECTION_GIRS)
+typelibsdir = $(libdir)/girepository-1.0/
+typelibs_DATA = GtkClutter-1.0.typelib
 
-typelibsdir = $(libdir)/girepository-1.0
-typelibs_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
-
-CLEANFILES += $(gir_DATA) $(typelibs_DATA)
+CLEANFILES += $(dist_gir_DATA) $(typelibs_DATA)
 endif
