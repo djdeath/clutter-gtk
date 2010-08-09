@@ -115,6 +115,20 @@ on_stage_capture (ClutterActor *stage,
       }
       break;
 
+    case CLUTTER_KEY_PRESS:
+      {
+        gchar buf[8];
+        gint n_chars;
+
+        n_chars = g_unichar_to_utf8 (clutter_event_get_key_unicode (event), buf);
+        buf[n_chars] = '\0';
+        g_print ("the stage got a key press: '%s' (symbol: %d, unicode: 0x%x)\n",
+                 buf,
+                 clutter_event_get_key_symbol (event),
+                 clutter_event_get_key_unicode (event));
+      }
+      break;
+
     default:
       break;
     }
@@ -143,7 +157,7 @@ main (gint argc, gchar **argv)
   ClutterColor   stage_color = {255, 255, 255, 255};
   ClutterColor   text_color = {0, 0, 0, 255};
 
-  if (gtk_clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
+  if (gtk_clutter_init_with_args (&argc, &argv, "- Event test", NULL, NULL, NULL) != CLUTTER_INIT_SUCCESS)
     g_error ("Unable to initialize GtkClutter");
 
   /* Create the inital gtk window and widgets, just like normal */
@@ -172,6 +186,7 @@ main (gint argc, gchar **argv)
   create_colors (app, &stage_color, &text_color);
   widget = gtk_clutter_embed_new ();
   gtk_box_pack_start (GTK_BOX (hbox), widget, TRUE, TRUE, 0);
+  gtk_widget_grab_focus (widget);
   app->stage = gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (widget));
   clutter_stage_set_color (CLUTTER_STAGE (app->stage), &stage_color);
   gtk_widget_set_size_request (widget, 640, 480);
