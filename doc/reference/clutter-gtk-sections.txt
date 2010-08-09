@@ -46,7 +46,6 @@ GtkClutterWindow
 GtkClutterWindowClass
 gtk_clutter_window_new
 gtk_clutter_window_get_stage
-gtk_clutter_window_get_actor
 
 <SUBSECTION Standard>
 GTK_CLUTTER_WINDOW
