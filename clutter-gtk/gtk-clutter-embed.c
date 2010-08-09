@@ -172,9 +172,10 @@ gtk_clutter_embed_realize (GtkWidget *widget)
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv; 
   GdkWindowAttr attributes;
   GtkAllocation allocation;
-  int attributes_mask;
   GdkWindow *window;
   GtkStyle *style;
+  gint attributes_mask;
+  gint border_width;
 
 #ifdef HAVE_CLUTTER_GTK_X11
   {
@@ -199,14 +200,14 @@ gtk_clutter_embed_realize (GtkWidget *widget)
 
   gtk_widget_set_realized (widget, TRUE);
 
-  attributes.window_type = GDK_WINDOW_CHILD;
-
   gtk_widget_get_allocation (widget, &allocation);
-  attributes.x = allocation.x;
-  attributes.y = allocation.y;
-  attributes.width = allocation.width;
-  attributes.height = allocation.height;
+  border_width = gtk_container_get_border_width (GTK_CONTAINER (widget));
 
+  attributes.window_type = GDK_WINDOW_CHILD;
+  attributes.x = allocation.x + border_width;
+  attributes.y = allocation.y + border_width;
+  attributes.width = allocation.width - 2 * border_width;
+  attributes.height = allocation.height - 2 * border_width;
   attributes.wclass = GDK_INPUT_OUTPUT;
   attributes.visual = gtk_widget_get_visual (widget);
   attributes.colormap = gtk_widget_get_colormap (widget);
@@ -356,6 +357,8 @@ gtk_clutter_embed_focus_in (GtkWidget     *widget,
 
   g_signal_emit_by_name (priv->stage, "activate");
 
+  clutter_stage_set_key_focus (CLUTTER_STAGE (priv->stage), NULL);
+
   return FALSE;
 }
 
@@ -369,6 +372,38 @@ gtk_clutter_embed_focus_out (GtkWidget     *widget,
 
   /* give back key focus to the stage */
   clutter_stage_set_key_focus (CLUTTER_STAGE (priv->stage), NULL);
+
+  return FALSE;
+}
+
+static gboolean
+gtk_clutter_embed_key_event (GtkWidget   *widget,
+                             GdkEventKey *event)
+{
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
+  ClutterDeviceManager *manager;
+  ClutterInputDevice *device;
+  ClutterEvent cevent = { 0, };
+
+  if (event->type == GDK_KEY_PRESS)
+    cevent.key.type = CLUTTER_KEY_PRESS;
+  else if (event->type == GDK_KEY_RELEASE)
+    cevent.key.type = CLUTTER_KEY_RELEASE;
+  else
+    return FALSE;
+
+  manager = clutter_device_manager_get_default ();
+  device = clutter_device_manager_get_core_device (manager, CLUTTER_KEYBOARD_DEVICE);
+
+  cevent.key.stage = CLUTTER_STAGE (priv->stage);
+  cevent.key.time = event->time;
+  cevent.key.modifier_state = event->state;
+  cevent.key.keyval = event->keyval;
+  cevent.key.hardware_keycode = event->hardware_keycode;
+  cevent.key.unicode_value = gdk_keyval_to_unicode (event->keyval);
+  cevent.key.device = device;
+
+  clutter_do_event (&cevent);
 
   return FALSE;
 }
@@ -480,6 +515,8 @@ gtk_clutter_embed_class_init (GtkClutterEmbedClass *klass)
   widget_class->unmap_event = gtk_clutter_embed_unmap_event;
   widget_class->focus_in_event = gtk_clutter_embed_focus_in;
   widget_class->focus_out_event = gtk_clutter_embed_focus_out;
+  widget_class->key_press_event = gtk_clutter_embed_key_event;
+  widget_class->key_release_event = gtk_clutter_embed_key_event;
 
   container_class->add = gtk_clutter_embed_add;
   container_class->remove = gtk_clutter_embed_remove;

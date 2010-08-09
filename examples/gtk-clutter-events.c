@@ -68,17 +68,53 @@ create_colors (EventApp *app, ClutterColor *stage, ClutterColor *text)
 }
 
 static gboolean
-on_stage_capture (ClutterActor *actor,
+on_stage_capture (ClutterActor *stage,
                   ClutterEvent *event,
                   gpointer      dummy)
 {
-  if (event->type == CLUTTER_BUTTON_RELEASE)
+  switch (event->type)
     {
-      gfloat x, y;
+    case CLUTTER_BUTTON_PRESS:
+    case CLUTTER_BUTTON_RELEASE:
+      {
+        gfloat x, y;
 
-      clutter_event_get_coords (event, &x, &y);
+        clutter_event_get_coords (event, &x, &y);
 
-      g_print ("Event captured at (%.2f, %.2f)\n", x, y);
+        g_print ("Button %s captured at (%.2f, %.2f)\n",
+                 event->type == CLUTTER_BUTTON_PRESS ? "Press" : "Relase",
+                 x, y);
+      }
+      break;
+
+    case CLUTTER_ENTER:
+    case CLUTTER_LEAVE:
+      {
+        if (clutter_event_get_source (event) == stage &&
+            clutter_event_get_related (event) != NULL)
+          g_print ("%s the stage and %s '%s'\n",
+                   event->type == CLUTTER_ENTER ? "Entering" : "Leaving",
+                   event->type == CLUTTER_ENTER ? "leaving" : "entering",
+                   clutter_actor_get_name (clutter_event_get_related (event)));
+      }
+      break;
+
+    case CLUTTER_KEY_PRESS:
+      {
+        gchar buf[8];
+        gint n_chars;
+
+        n_chars = g_unichar_to_utf8 (clutter_event_get_key_unicode (event), buf);
+        buf[n_chars] = '\0';
+        g_print ("the stage got a key press: '%s' (symbol: %d, unicode: 0x%x)\n",
+                 buf,
+                 clutter_event_get_key_symbol (event),
+                 clutter_event_get_key_unicode (event));
+      }
+      break;
+
+    default:
+      break;
     }
 
   return FALSE;
@@ -106,7 +142,7 @@ main (gint argc, gchar **argv)
   ClutterColor   stage_color = {255, 255, 255, 255};
   ClutterColor   text_color = {0, 0, 0, 255};
 
-  if (gtk_clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
+  if (gtk_clutter_init_with_args (&argc, &argv, "- Event test", NULL, NULL, NULL) != CLUTTER_INIT_SUCCESS)
     g_error ("Unable to initialize GtkClutter");
 
   /* Create the inital gtk window and widgets, just like normal */
@@ -135,6 +171,7 @@ main (gint argc, gchar **argv)
   create_colors (app, &stage_color, &text_color);
   widget = gtk_clutter_embed_new ();
   gtk_box_pack_start (GTK_BOX (hbox), widget, TRUE, TRUE, 0);
+  gtk_widget_grab_focus (widget);
   app->stage = gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (widget));
   clutter_stage_set_color (CLUTTER_STAGE (app->stage), &stage_color);
   gtk_widget_set_size_request (widget, 640, 480);
@@ -155,6 +192,7 @@ main (gint argc, gchar **argv)
                               (CLUTTER_STAGE_WIDTH ()/2) - (width/2),
                               (CLUTTER_STAGE_HEIGHT ()/2) - (height/2));
   clutter_actor_set_reactive (actor, TRUE);
+  clutter_actor_set_name (actor, "texture");
   g_signal_connect (actor, "button-press-event",
                     G_CALLBACK (on_hand_button_press),
                     NULL);
