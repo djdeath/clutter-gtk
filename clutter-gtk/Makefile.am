@@ -34,18 +34,19 @@ source_c = \
 	$(NULL)
 
 source_h_public = \
-	$(top_srcdir)/clutter-gtk/gtk-clutter-actor.h 	\
-	$(top_srcdir)/clutter-gtk/gtk-clutter-embed.h 	\
-	$(top_srcdir)/clutter-gtk/gtk-clutter-util.h 	\
-	$(top_srcdir)/clutter-gtk/gtk-clutter-window.h	\
+	$(srcdir)/gtk-clutter-actor.h 	\
+	$(srcdir)/gtk-clutter-embed.h 	\
+	$(srcdir)/gtk-clutter-util.h 	\
+	$(srcdir)/gtk-clutter-window.h	\
 	$(NULL)
 
 source_h_private = \
 	$(srcdir)/gtk-clutter-offscreen.h	\
+	$(srcdir)/gtk-clutter-actor-internal.h	\
 	$(NULL)
 
 # please, keep the list sorted alphabetically
-libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_SOURCES = $(source_c) $(source_h) $(source_h_priv)
+libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_SOURCES = $(source_c) $(source_h) $(source_h_private)
 libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_LIBADD  = $(CLUTTER_LIBS) $(GTK_LIBS)
 libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_LDFLAGS = $(CLUTTER_LT_LDFLAGS)
 
