@@ -414,10 +414,8 @@ gtk_clutter_embed_style_set (GtkWidget *widget,
 {
   GdkScreen *screen;
   GtkSettings *gtk_settings;
-  ClutterSettings *clutter_settings;
   gchar *font_name;
   gint double_click_time, double_click_distance;
-  ClutterBackend *backend;
 #if HAVE_CLUTTER_GTK_X11
   gint xft_dpi, xft_hinting, xft_antialias;
   gchar *xft_hintstyle, *xft_rgba;
@@ -449,11 +447,34 @@ gtk_clutter_embed_style_set (GtkWidget *widget,
    * the ClutterBackend; this way, a scene embedded into
    * a GtkClutterEmbed will not look completely alien
    */
-  backend = clutter_get_default_backend ();
-  clutter_backend_set_double_click_time (backend, double_click_time);
-  clutter_backend_set_double_click_distance (backend, double_click_distance);
-  clutter_backend_set_resolution (backend, xft_dpi / 1024.0);
-  clutter_backend_set_font_name (backend, font_name);
+
+#if CLUTTER_CHECK_VERSION (1, 3, 8)
+  {
+    ClutterSettings *settings = clutter_settings_get_default ();
+
+    g_object_set (G_OBJECT (settings),
+                  "font-name", font_name,
+                  "double-click-time", double_click_time,
+                  "double-click-distance", double_click_distance,
+#if HAVE_CLUTTER_GTK_X11
+                  "font-dpi", xft_dpi,
+                  "font-antialias", xft_antialias,
+                  "font-hinting", xft_hinting,
+                  "font-hint-style", xft_hintstyle,
+                  "font-subpixel-order", xft_rgba,
+#endif
+                  NULL);
+  }
+#else
+  {
+    ClutterBackend *backend = clutter_get_default_backend ();
+
+    clutter_backend_set_double_click_time (backend, double_click_time);
+    clutter_backend_set_double_click_distance (backend, double_click_distance);
+    clutter_backend_set_resolution (backend, xft_dpi / 1024.0);
+    clutter_backend_set_font_name (backend, font_name);
+  }
+#endif /* CLUTTER_CHECK_VERSION (1, 3, 8) */
 
 #if HAVE_CLUTTER_GTK_X11
   g_free (xft_hintstyle);
