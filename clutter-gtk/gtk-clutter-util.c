@@ -588,7 +588,7 @@ post_parse_hook (GOptionContext  *context,
 {
 #if defined(GDK_WINDOWING_X11)
   /* share the X11 Display with GTK+ */
-  clutter_x11_set_display (GDK_DISPLAY());
+  clutter_x11_set_display (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()));
 
   /* let GTK+ in charge of the event handling */
   clutter_x11_disable_event_retrieval ();
@@ -681,7 +681,7 @@ gtk_clutter_init (int    *argc,
 # endif
 
   /* share the X11 Display with GTK+ */
-  clutter_x11_set_display (GDK_DISPLAY());
+  clutter_x11_set_display (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()));
 
   /* let GTK+ in charge of the event handling */
   clutter_x11_disable_event_retrieval ();
