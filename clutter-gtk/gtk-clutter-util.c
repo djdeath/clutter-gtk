@@ -292,7 +292,7 @@ gtk_clutter_get_text_aa_color (GtkWidget    *widget,
  * Creates a new #ClutterTexture and sets its contents with a copy
  * of @pixbuf.
  *
- * Return value: the newly created #ClutterTexture
+ * Return value: (transfer full): the newly created #ClutterTexture
  */
 ClutterActor *
 gtk_clutter_texture_new_from_pixbuf (GdkPixbuf *pixbuf)
@@ -367,7 +367,7 @@ gtk_clutter_texture_set_from_pixbuf (ClutterTexture *texture,
  * Creates a new #ClutterTexture and sets its contents using the stock
  * icon @stock_id as rendered by @widget.
  *
- * Return value: the newly created #ClutterTexture
+ * Return value: (transfer full): the newly created #ClutterTexture
  */
 ClutterActor *
 gtk_clutter_texture_new_from_stock (GtkWidget   *widget,
@@ -446,8 +446,8 @@ gtk_clutter_texture_set_from_stock (ClutterTexture *texture,
  * Creates a new #ClutterTexture and sets its contents to be
  * the @icon_name from the current icon theme.
  *
- * Return value: the newly created texture, or %NULL if @widget
- *   was %NULL and @icon_name was not found.
+ * Return value: (transfer full): the newly created texture,
+ *   or %NULL if @widget was %NULL and @icon_name was not found.
  */
 ClutterActor *
 gtk_clutter_texture_new_from_icon_name (GtkWidget   *widget,
