@@ -68,7 +68,7 @@ INTROSPECTION_GIRS = GtkClutter-1.0.gir
 
 GtkClutter-1.0.gir: libclutter-gtk-@CLUTTER_GTK_API_VERSION@.la $(INTROSPECTION_SCANNER) Makefile
 
-GtkClutter_1_0_gir_SCANNERFLAGS = --identifier-prefix=GtkClutter --add-include-path=$(top_builddir)
+GtkClutter_1_0_gir_SCANNERFLAGS = --identifier-prefix=GtkClutter --warn-all --add-include-path=$(top_builddir)
 GtkClutter_1_0_gir_NAMESPACE    = GtkClutter
 GtkClutter_1_0_gir_VERSION      = 1.0
 GtkClutter_1_0_gir_INCLUDES     = Gtk-3.0 Clutter-1.0
