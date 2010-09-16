@@ -622,7 +622,7 @@ gtk_clutter_init (int    *argc,
     return CLUTTER_INIT_ERROR_GTK;
 
 #if defined(HAVE_CLUTTER_GTK_X11)
-  clutter_x11_set_display (GDK_DISPLAY());
+  clutter_x11_set_display (gdk_x11_display_get_xdisplay (gdk_display_get_default ()));
   clutter_x11_disable_event_retrieval ();
 #elif defined(HAVE_CLUTTER_GTK_WIN32)
   clutter_win32_disable_event_retrieval ();
@@ -686,7 +686,7 @@ gtk_clutter_init_with_args (int            *argc,
     return CLUTTER_INIT_ERROR_GTK;
 
 #if defined(GDK_WINDOWING_X11)
-  clutter_x11_set_display (GDK_DISPLAY());
+  clutter_x11_set_display (gdk_x11_display_get_xdisplay (gdk_display_get_default ()));
   clutter_x11_disable_event_retrieval ();
 #elif defined(GDK_WINDOWING_WIN32)
   clutter_win32_disable_event_retrieval ();
