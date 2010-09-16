@@ -1,4 +1,10 @@
-Clutter-GTK 0.10.5      12/08/2010
+Clutter-GTK 0.10.8      16/09/2010
+==================================
+
+  » Clean up build environment
+  » Fix deprecations from GTK 2.21.*
+
+Clutter-GTK 0.10.6      12/08/2010
 ==================================
 
   » Fix event handling with Clutter 1.3.*
