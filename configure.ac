@@ -12,7 +12,7 @@ m4_define([clutter_gtk_version], [clutter_gtk_major.clutter_gtk_minor.clutter_gt
 m4_define([clutter_gtk_interface_age], [0])
 m4_define([clutter_gtk_binary_age], [m4_eval(100 * clutter_gtk_minor + clutter_gtk_micro)])
 
-AC_PREREQ([2.59])
+AC_PREREQ([2.63])
 
 AC_INIT([clutter-gtk],
         [clutter_gtk_version],
@@ -22,7 +22,8 @@ AC_CONFIG_MACRO_DIR([build/autotools])
 
 AM_CONFIG_HEADER([config.h])
 
-AM_INIT_AUTOMAKE([1.9])
+AM_INIT_AUTOMAKE([1.11 foreign -Wno-portability no-define dist-bzip2])
+AM_SILENT_RULES([yes])
 
 CLUTTER_GTK_MAJOR_VERSION=clutter_gtk_major
 CLUTTER_GTK_MINOR_VERSION=clutter_gtk_minor
@@ -50,9 +51,11 @@ AC_SUBST(CLUTTER_GTK_LT_LDFLAGS)
 dnl ========================================================================
 
 # Checks for programs.
-AC_PROG_CC
-AC_DISABLE_STATIC
-AC_PROG_LIBTOOL
+AC_PROG_CC_C_O
+AC_HEADER_STDC
+
+LT_PREREQ([2.2.6])
+LT_INIT([disable-static])
 
 m4_define([clutter_req_version], [1.2.0])
 m4_define([gtk_req_version], [2.19.5])
@@ -154,20 +157,16 @@ AC_SUBST(GTK_PREFIX)
 AC_SUBST(GDK_PIXBUF_PREFIX)
 AC_SUBST(CLUTTER_PREFIX)
 
-GTK_DOC_CHECK([1.11])
+GTK_DOC_CHECK([1.14])
 
-GOBJECT_INTROSPECTION_CHECK([0.6.4])
+GOBJECT_INTROSPECTION_CHECK([0.9.3])
 
 dnl ========================================================================
-
-SHAVE_INIT([build/autotools], [enable])
 
 AC_CONFIG_FILES([
         Makefile
         build/Makefile
         build/autotools/Makefile
-        build/autotools/shave-libtool
-        build/autotools/shave
         clutter-gtk/Makefile
         doc/Makefile
         doc/reference/Makefile

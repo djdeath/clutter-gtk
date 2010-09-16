@@ -1,13 +1,9 @@
 ACLOCAL_AMFLAGS = -I build/autotools
 
-V         = @
-Q         = $(V:1=)
-QUIET_GEN = $(Q:@=@echo '  GEN   '$@;)
-
 SUBDIRS = build clutter-gtk doc examples
 
 clutter-gtk-@CLUTTER_GTK_API_VERSION@.pc: clutter-gtk.pc
-	$(QUIET_GEN)cp -f clutter-gtk.pc clutter-gtk-$(CLUTTER_GTK_API_VERSION).pc
+	$(AM_V_GEN)cp -f clutter-gtk.pc clutter-gtk-$(CLUTTER_GTK_API_VERSION).pc
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = clutter-gtk-$(CLUTTER_GTK_API_VERSION).pc
