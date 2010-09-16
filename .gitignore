@@ -2,8 +2,7 @@ Makefile
 Makefile.in
 aclocal.m4
 autom4te.cache/
-clutter-gtk-0.9.pc
-clutter-gtk.pc
+*.pc
 .deps/
 .libs/
 /build/autotools/*.m4
