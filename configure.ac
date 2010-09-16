@@ -4,13 +4,18 @@
 m4_define([clutter_gtk_major], [0])
 m4_define([clutter_gtk_minor], [90])
 m4_define([clutter_gtk_micro], [3])
-
-m4_define([clutter_gtk_api_version], [1.0])
 m4_define([clutter_gtk_version], [clutter_gtk_major.clutter_gtk_minor.clutter_gtk_micro])
 
 # increase the interface age for each release; if the API changes, set to 0
 m4_define([clutter_gtk_interface_age], [0])
 m4_define([clutter_gtk_binary_age], [m4_eval(100 * clutter_gtk_minor + clutter_gtk_micro)])
+
+m4_define([clutter_gtk_release_status],
+          [m4_if(m4_eval(clutter_gtk_micro % 2), [1],
+                 [git],
+                 [m4_if(m4_eval(clutter_gtk_minor % 2), [1],
+                                [snapshot],
+                                [release])])])
 
 AC_PREREQ([2.63])
 
@@ -29,16 +34,13 @@ AM_INIT_AUTOMAKE([1.11 foreign -Wno-portability no-define dist-bzip2])
 
 AM_SILENT_RULES([yes])
 
-CLUTTER_GTK_MAJOR_VERSION=clutter_gtk_major
-CLUTTER_GTK_MINOR_VERSION=clutter_gtk_minor
-CLUTTER_GTK_MICRO_VERSION=clutter_gtk_micro
-CLUTTER_GTK_API_VERSION=clutter_gtk_api_version
-CLUTTER_GTK_VERSION=clutter_gtk_version
-AC_SUBST(CLUTTER_GTK_MAJOR_VERSION)
-AC_SUBST(CLUTTER_GTK_MINOR_VERSION)
-AC_SUBST(CLUTTER_GTK_MICRO_VERSION)
-AC_SUBST(CLUTTER_GTK_API_VERSION)
-AC_SUBST(CLUTTER_GTK_VERSION)
+AC_SUBST([CLUTTER_GTK_MAJOR_VERSION],  [clutter_gtk_major])
+AC_SUBST([CLUTTER_GTK_MINOR_VERSION],  [clutter_gtk_minor])
+AC_SUBST([CLUTTER_GTK_MICRO_VERSION],  [clutter_gtk_micro])
+AC_SUBST([CLUTTER_GTK_API_VERSION],    [1.0])
+AC_SUBST([CLUTTER_GTK_API_VERSION_AM], [1_0])
+AC_SUBST([CLUTTER_GTK_VERSION],        [clutter_gtk_version])
+AC_SUBST([CLUTTER_GTK_RELEASE_STATUS], [clutter_gtk_release_status])
 
 m4_define([lt_current], [m4_eval(100 * clutter_gtk_minor + clutter_gtk_micro - clutter_gtk_interface_age)])
 m4_define([lt_revision], [clutter_gtk_interface_age])
@@ -188,14 +190,13 @@ AC_OUTPUT
 dnl ========================================================================
 
 echo ""
-echo "                 Clutter-GTK $VERSION"
-echo "                 ===================="
+echo " Clutter-GTK $CLUTTER_GTK_VERSION ($CLUTTER_GTK_RELEASE_STATUS)"
 echo ""
-echo "                   prefix:   ${prefix}"
+echo "   Prefix: ${prefix}"
 echo ""
-echo "                  Flavour:   ${CLUTTER_GTK_FLAVOUR}"
-echo "              Debug level:   ${enable_debug}"
-echo "            Documentation:   ${enable_gtk_doc}"
-echo "           Compiler flags:   $MAINTAINER_CFLAGS"
-echo "       Introspection data:   ${enable_introspection}"
+echo "   Flavour: ${CLUTTER_GTK_FLAVOUR}"
+echo "   Debug level: ${enable_debug}"
+echo "   Documentation: ${enable_gtk_doc}"
+echo "   Compiler flags: $MAINTAINER_CFLAGS"
+echo "   Introspection data: ${enable_introspection}"
 echo ""
