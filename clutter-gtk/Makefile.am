@@ -15,6 +15,8 @@ AM_CPPFLAGS = \
 	-DCLUTTER_DISABLE_DEPRECATED		\
 	$(CLUTTER_GTK_DEBUG_CFLAGS)
 
+common_cflags = $(CLUTTER_CFLAGS) $(GTK_CFLAGS)
+
 # please, keep these lists sorted alphabetically
 sources_c = \
 	$(srcdir)/gtk-clutter-embed.c 		\
@@ -36,7 +38,7 @@ lib_LTLIBRARIES = libclutter-gtk-@CLUTTER_GTK_API_VERSION@.la
 libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_SOURCES = $(sources_c)
 libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_LIBADD = $(CLUTTER_LIBS) $(GTK_LIBS)
 libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_LDFLAGS = $(CLUTTER_LT_LDFLAGS)
-libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_CFLAGS = $(MAINTAINER_CFLAGS) $(GTK_CFLAGS) $(CLUTTER_CFLAGS) 
+libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_CFLAGS = $(common_cflags) $(MAINTAINER_CFLAGS)
 
 cluttergtkheadersdir = $(includedir)/clutter-1.0/clutter-gtk
 cluttergtkheaders_HEADERS = $(sources_h) $(srcdir)/clutter-gtk.h
@@ -48,7 +50,7 @@ GtkClutter-@CLUTTER_GTK_API_VERSION@.gir: $(INTROSPECTION_SCANNER) Makefile libc
 	$(AM_V_GEN)$(INTROSPECTION_SCANNER) -v \
 		--namespace GtkClutter --nsversion=@CLUTTER_GTK_API_VERSION@ \
 		--strip-prefix=GtkClutter \
-		$(INCLUDES) $(AM_CPPFLAGS) \
+		$(INCLUDES) $(AM_CPPFLAGS) $(common_cflags) \
 		--add-include-path=$(srcdir) --add-include=path=. \
 		--include=Clutter-1.0 \
 		--include=GdkPixbuf-2.0 \
