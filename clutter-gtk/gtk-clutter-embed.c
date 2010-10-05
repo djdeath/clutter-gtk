@@ -102,14 +102,6 @@ on_stage_queue_redraw (ClutterStage *stage,
   GtkWidget *embed = user_data;
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (embed)->priv;
 
-  /* we stop the emission of the Stage::queue-redraw signal to prevent
-   * the default handler from running; then we queue a redraw on the
-   * GtkClutterEmbed widget which will cause an expose event to be
-   * emitted. the Stage is redrawn in the expose event handler, thus
-   * "slaving" the Clutter redraw cycle to GTK+'s own
-   */
-  g_signal_stop_emission_by_name (stage, "queue-redraw");
-
   if (priv->n_active_children > 0)
     priv->geometry_changed = TRUE;
 
@@ -219,7 +211,6 @@ gtk_clutter_embed_realize (GtkWidget *widget)
   {
     const XVisualInfo *xvinfo;
     GdkVisual *visual;
-    GdkColormap *colormap;
 
     /* We need to use the colormap from the Clutter visual, since
      * the visual is tied to the GLX context
@@ -233,8 +224,7 @@ gtk_clutter_embed_realize (GtkWidget *widget)
 
     visual = gdk_x11_screen_lookup_visual (gtk_widget_get_screen (widget),
                                            xvinfo->visualid);
-    colormap = gdk_colormap_new (visual, FALSE);
-    gtk_widget_set_colormap (widget, colormap);
+    gtk_widget_set_visual (widget, visual);
   }
 #endif /* HAVE_CLUTTER_GTK_X11 */
 
@@ -250,7 +240,6 @@ gtk_clutter_embed_realize (GtkWidget *widget)
   attributes.height = allocation.height - 2 * border_width;
   attributes.wclass = GDK_INPUT_OUTPUT;
   attributes.visual = gtk_widget_get_visual (widget);
-  attributes.colormap = gtk_widget_get_colormap (widget);
 
   /* NOTE: GDK_MOTION_NOTIFY above should be safe as Clutter does its own
    *       throttling. 
@@ -265,7 +254,7 @@ gtk_clutter_embed_realize (GtkWidget *widget)
                         | GDK_ENTER_NOTIFY_MASK
                         | GDK_LEAVE_NOTIFY_MASK;
 
-  attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL | GDK_WA_COLORMAP;
+  attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL;
 
   window = gdk_window_new (gtk_widget_get_parent_window (widget),
                            &attributes,
@@ -283,8 +272,6 @@ gtk_clutter_embed_realize (GtkWidget *widget)
   gtk_widget_style_attach (widget);
   style = gtk_widget_get_style (widget);
   gtk_style_set_background (style, window, GTK_STATE_NORMAL);
-
-  gdk_window_set_back_pixmap (window, NULL, FALSE);
 
   gdk_window_add_filter (window, gtk_clutter_filter_func, widget);
 
@@ -342,6 +329,7 @@ gtk_clutter_embed_size_allocate (GtkWidget     *widget,
     }
 }
 
+#if 0
 static gboolean
 gtk_clutter_embed_expose_event (GtkWidget *widget,
                                 GdkEventExpose *event)
@@ -359,6 +347,7 @@ gtk_clutter_embed_expose_event (GtkWidget *widget,
 
   return FALSE;
 }
+#endif
 
 static gboolean
 gtk_clutter_embed_map_event (GtkWidget	 *widget,
@@ -617,8 +606,6 @@ gtk_clutter_embed_class_init (GtkClutterEmbedClass *klass)
   widget_class->show = gtk_clutter_embed_show;
   widget_class->hide = gtk_clutter_embed_hide;
   widget_class->unmap = gtk_clutter_embed_unmap;
-  widget_class->expose_event = gtk_clutter_embed_expose_event;
-  widget_class->expose_event = gtk_clutter_embed_expose_event;
   widget_class->map_event = gtk_clutter_embed_map_event;
   widget_class->unmap_event = gtk_clutter_embed_unmap_event;
   widget_class->focus_in_event = gtk_clutter_embed_focus_in;

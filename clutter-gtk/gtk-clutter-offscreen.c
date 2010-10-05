@@ -16,14 +16,6 @@ void _gtk_clutter_embed_set_child_active (GtkClutterEmbed *embed,
 					  GtkWidget *child,
 					  gboolean active);
 
-static gint
-gtk_clutter_offscreen_expose (GtkWidget      *widget,
-			      GdkEventExpose *event)
-{
-  return GTK_WIDGET_CLASS (_gtk_clutter_offscreen_parent_class)->expose_event (widget, event);
-
-}
-
 static void
 gtk_clutter_offscreen_add (GtkContainer *container,
                            GtkWidget    *child)
@@ -141,14 +133,13 @@ gtk_clutter_offscreen_realize (GtkWidget *widget)
   attributes.event_mask = gtk_widget_get_events (widget) |
     GDK_EXPOSURE_MASK;
   attributes.visual = gtk_widget_get_visual (widget);
-  attributes.colormap = gtk_widget_get_colormap (widget);
   attributes.wclass = GDK_INPUT_OUTPUT;
 
-  attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL | GDK_WA_COLORMAP;
+  attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL;
 
   parent = gtk_widget_get_parent (widget);
 
-  window = gdk_window_new (gdk_screen_get_root_window (gdk_drawable_get_screen (GDK_DRAWABLE (gtk_widget_get_window (parent)))),
+  window = gdk_window_new (gdk_screen_get_root_window (gdk_window_get_screen (gtk_widget_get_window (parent))),
 			   &attributes, attributes_mask);
   gtk_widget_set_window (widget, window);
   gdk_window_set_user_data (window, widget);
@@ -196,7 +187,7 @@ gtk_clutter_offscreen_size_request (GtkWidget      *widget,
     {
       GtkRequisition child_requisition;
 
-      gtk_widget_size_request (child, &child_requisition);
+      gtk_widget_get_preferred_size (child, &child_requisition, NULL);
 
       requisition->width += child_requisition.width;
       requisition->height += child_requisition.height;
@@ -274,7 +265,6 @@ _gtk_clutter_offscreen_class_init (GtkClutterOffscreenClass *klass)
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
   GtkContainerClass *container_class = GTK_CONTAINER_CLASS (klass);
 
-  widget_class->expose_event = gtk_clutter_offscreen_expose;
   widget_class->realize = gtk_clutter_offscreen_realize;
   widget_class->unrealize = gtk_clutter_offscreen_unrealize;
   widget_class->size_request = gtk_clutter_offscreen_size_request;
