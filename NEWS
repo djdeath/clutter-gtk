@@ -1,3 +1,22 @@
+Clutter-GTK 0.91.2                                                   05/10/2010
+===============================================================================
+
+Changes since 0.90.2:
+
+        • Depend on gtk+ ≥ 2.91.1
+
+        • Use cairo surfaces to replace the deprecated GdkPixmap.
+
+        • Remove GdkColormap.
+
+        • Use GtkWidget instead of GtkSizeRequest.
+
+        • Introspection and build fixes.
+
+Many thanks to:
+
+  Lucas Rocha
+
 Clutter-GTK 0.90.2                                                   09/08/2010
 ===============================================================================
 
