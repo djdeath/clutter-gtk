@@ -78,7 +78,9 @@ gtk_clutter_window_size_request (GtkWidget      *self,
    * can't ask Clutter for some reason (it always returns the allocated
    * size -- why?). This means things like any scaling applied to the actor
    * won't make the window change size (feature?) */
-  gtk_widget_size_request (gtk_bin_get_child (GTK_BIN (bin)), requisition);
+  gtk_widget_get_preferred_size (gtk_bin_get_child (GTK_BIN (bin)),
+                                 requisition,
+                                 NULL);
 }
 
 static void
