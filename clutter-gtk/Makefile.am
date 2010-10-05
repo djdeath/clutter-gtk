@@ -66,7 +66,6 @@ EXTRA_DIST += gtk-clutter-version.h.in
 INTROSPECTION_GIRS =
 
 if HAVE_INTROSPECTION
-
 GtkClutter-@CLUTTER_GTK_API_VERSION@.gir: libclutter-gtk-@CLUTTER_GTK_API_VERSION@.la Makefile
 
 GtkClutter_@CLUTTER_GTK_API_VERSION_AM@_gir_SCANNERFLAGS = \
@@ -82,7 +81,7 @@ GtkClutter_@CLUTTER_GTK_API_VERSION_AM@_gir_CFLAGS       = $(INCLUDES) $(AM_CPPF
 GtkClutter_@CLUTTER_GTK_API_VERSION_AM@_gir_LIBS         = libclutter-gtk-@CLUTTER_GTK_API_VERSION@.la
 GtkClutter_@CLUTTER_GTK_API_VERSION_AM@_gir_FILES        = $(source_h_public) $(source_c)
 
-INTROSPECTION_GIRS += GtkClutter-1.0.gir
+INTROSPECTION_GIRS += GtkClutter-@CLUTTER_GTK_API_VERSION@.gir
 
 girdir = $(datadir)/gir-1.0/
 gir_DATA = $(INTROSPECTION_GIRS)
