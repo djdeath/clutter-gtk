@@ -2,8 +2,8 @@
 # An odd micro number indicates in-progress development, (eg. from git)
 # An even micro number indicates a released version.
 m4_define([clutter_gtk_major], [0])
-m4_define([clutter_gtk_minor], [90])
-m4_define([clutter_gtk_micro], [3])
+m4_define([clutter_gtk_minor], [91])
+m4_define([clutter_gtk_micro], [1])
 m4_define([clutter_gtk_version], [clutter_gtk_major.clutter_gtk_minor.clutter_gtk_micro])
 
 # increase the interface age for each release; if the API changes, set to 0
@@ -67,7 +67,7 @@ LT_INIT([disable-static])
 AC_HEADER_STDC
 
 m4_define([clutter_req_version], [1.3.8])
-m4_define([gtk_req_version], [2.90.5])
+m4_define([gtk_req_version], [2.91.0])
 m4_define([flavour_default], [x11])
 AC_ARG_WITH([flavour],
             [AC_HELP_STRING([--with-flavour=@<:@x11/win32@:>@],
