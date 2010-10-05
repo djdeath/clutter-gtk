@@ -267,7 +267,7 @@ gtk_clutter_get_dark_color (GtkWidget    *widget,
  * gtk_clutter_get_text_aa_color:
  * @widget: a #GtkWidget
  * @state: a state
- * @color: return location for a #ClutterColor
+ * @color: (out): return location for a #ClutterColor
  *
  * Retrieves the text-aa color of @widget for the given @state and copies it
  * into @color.
@@ -604,7 +604,7 @@ post_parse_hook (GOptionContext  *context,
 }
 
 /**
- * gtk_clutter_get_option_group:
+ * gtk_clutter_get_option_group: (skip)
  *
  * Returns a #GOptionGroup for the command line arguments recognized
  * by Clutter. You should add this group to your #GOptionContext with
@@ -658,8 +658,9 @@ gtk_clutter_get_option_group  (void)
 
 /**
  * gtk_clutter_init:
- * @argc: pointer to the arguments count, or %NULL
- * @argv: (array length=argc): pointer to the arguments vector, or %NULL
+ * @argc: (inout) (allow-none): pointer to the arguments count, or %NULL
+ * @argv: (array length=argc) (inout) (allow-none): pointer to the
+ *   arguments vector, or %NULL
  *
  * This function should be called instead of clutter_init() and
  * gtk_init().
@@ -695,17 +696,19 @@ gtk_clutter_init (int    *argc,
 
 /**
  * gtk_clutter_init_with_args:
- * @argc: a pointer to the number of command line arguments.
- * @argv: (array length=argc): a pointer to the array of command line arguments.
- * @parameter_string: a string which is displayed in
+ * @argc: (inout) (allow-none): a pointer to the number of command line
+ *   arguments, or %NULL
+ * @argv: (inout) (allow-none) (array length=argc): a pointer to the array
+ *   of command line arguments, or %NULL
+ * @parameter_string: (allow-none): a string which is displayed in
  *    the first line of <option>--help</option> output, after
  *    <literal><replaceable>programname</replaceable> [OPTION...]</literal>
- * @entries: a %NULL-terminated array of #GOptionEntry<!-- -->s
+ * @entries: (allow-none): a %NULL-terminated array of #GOptionEntry<!-- -->s
  *    describing the options of your program
- * @translation_domain: a translation domain to use for translating
- *    the <option>--help</option> output for the options in @entries
- *    with gettext(), or %NULL
- * @error: a return location for errors
+ * @translation_domain: (allow-none): a translation domain to use for
+ *    translating the <option>--help</option> output for the options
+ *    in @entries with gettext(), or %NULL
+ * @error: (allow-none): a return location for errors, or %NULL
  *
  * This function should be called instead of clutter_init() and
  * gtk_init_with_args().
