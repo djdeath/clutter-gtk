@@ -346,7 +346,7 @@ gtk_clutter_actor_hide_all (ClutterActor *self)
   /* proxy this call through to GTK+ */
   GtkWidget *widget = gtk_bin_get_child (GTK_BIN (priv->widget));
   if (widget != NULL)
-    gtk_widget_hide_all (widget);
+    gtk_widget_hide (widget);
 
   g_list_foreach (priv->children, (GFunc) clutter_actor_hide_all, NULL);
 
