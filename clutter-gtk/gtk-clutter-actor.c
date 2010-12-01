@@ -134,19 +134,21 @@ gtk_clutter_actor_realize (ClutterActor *actor)
 
   gtk_widget_realize (priv->widget);
 
+  priv->surface = gdk_offscreen_window_get_surface (gtk_widget_get_window (priv->widget));
+
 #if HAVE_CLUTTER_GTK_X11
-  {
-    Drawable pixmap;
-    gint pixmap_width, pixmap_height;
+  if (cairo_surface_get_type (priv->surface) == CAIRO_SURFACE_TYPE_XLIB)
+    {
+      Drawable pixmap;
+      gint pixmap_width, pixmap_height;
 
-    priv->surface = gdk_offscreen_window_get_surface (gtk_widget_get_window (priv->widget));
-    pixmap_width = cairo_xlib_surface_get_width (priv->surface);
-    pixmap_height = cairo_xlib_surface_get_height (priv->surface);
-    pixmap = cairo_xlib_surface_get_drawable (priv->surface);
+      pixmap_width = cairo_xlib_surface_get_width (priv->surface);
+      pixmap_height = cairo_xlib_surface_get_height (priv->surface);
+      pixmap = cairo_xlib_surface_get_drawable (priv->surface);
 
-    clutter_x11_texture_pixmap_set_pixmap (CLUTTER_X11_TEXTURE_PIXMAP (priv->texture), pixmap);
-    clutter_actor_set_size (priv->texture, pixmap_width, pixmap_height);
-  }
+      clutter_x11_texture_pixmap_set_pixmap (CLUTTER_X11_TEXTURE_PIXMAP (priv->texture), pixmap);
+      clutter_actor_set_size (priv->texture, pixmap_width, pixmap_height);
+    }
 #endif
 }
 
@@ -175,9 +177,14 @@ gtk_clutter_actor_get_preferred_width (ClutterActor *actor,
   GtkClutterActorPrivate *priv = clutter->priv;
   gint min_width, natural_width;
 
+  if (for_height >= 0)
+    for_height = floorf (for_height + 0.5);
+  else
+    for_height = -1;
+
   min_width = natural_width = 0;
   gtk_widget_get_preferred_width_for_height (priv->widget,
-                                             floorf (for_height + 0.5),
+                                             for_height,
                                              &min_width,
                                              &natural_width);
 
@@ -198,9 +205,14 @@ gtk_clutter_actor_get_preferred_height (ClutterActor *actor,
   GtkClutterActorPrivate *priv = clutter->priv;
   gint min_height, natural_height;
 
+  if (for_width >= 0)
+    for_width = floorf (for_width + 0.5);
+  else
+    for_width = -1;
+
   min_height = natural_height = 0;
   gtk_widget_get_preferred_height_for_width (priv->widget,
-                                             floorf (for_width + 0.5),
+                                             for_width,
                                              &min_height,
                                              &natural_height);
 
@@ -242,11 +254,12 @@ gtk_clutter_actor_allocate (ClutterActor           *actor,
     {
       cairo_surface_t *surface;
 
-      /* The former size allocate may have queued exposed, we then need to
-       * process them immediately, since we will paint the pixmap when this
+      /* The former size allocate may have queued an expose we then need to
+       * process immediately, since we will paint the pixmap when this
        * returns (as size allocation is done from clutter_redraw which is
-       * called from gtk_clutter_expose_event(). If we don't do this we
-       * may see an intermediate state of the pixmap, causing flicker */
+       * called from gtk_clutter_embed_expose_event(). If we don't do this
+       * we may see an intermediate state of the pixmap, causing flicker
+       */
       window = gtk_widget_get_window (priv->widget);
       gdk_window_process_updates (window, TRUE);
 
@@ -471,6 +484,7 @@ gtk_clutter_actor_init (GtkClutterActor *self)
   actor = CLUTTER_ACTOR (self);
 
   priv->widget = _gtk_clutter_offscreen_new (actor);
+  gtk_widget_set_name (priv->widget, "Offscreen Container");
   g_object_ref_sink (priv->widget);
   gtk_widget_show (priv->widget);
 
@@ -478,8 +492,10 @@ gtk_clutter_actor_init (GtkClutterActor *self)
 
 #if HAVE_CLUTTER_GTK_X11
   priv->texture = clutter_x11_texture_pixmap_new ();
+
   clutter_texture_set_sync_size (CLUTTER_TEXTURE (priv->texture), FALSE);
   clutter_actor_set_parent (priv->texture, actor);
+  clutter_actor_set_name (priv->texture, "Onscreen Texture");
   clutter_actor_show (priv->texture);
 #endif
 
