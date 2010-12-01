@@ -63,24 +63,31 @@ gtk_clutter_window_finalize (GObject *self)
 }
 
 static void
-gtk_clutter_window_size_request (GtkWidget      *self,
-                                 GtkRequisition *requisition)
+gtk_clutter_window_get_preferred_width (GtkWidget *self,
+                                        gint      *minimum,
+                                        gint      *natural)
 {
-  GtkClutterWindowPrivate *priv;
+  GtkClutterWindowPrivate *priv = GTK_CLUTTER_WINDOW (self)->priv;
   GtkWidget *bin;
 
-  g_return_if_fail (GTK_CLUTTER_IS_WINDOW (self));
-  priv = GTK_CLUTTER_WINDOW (self)->priv;
+  bin = gtk_clutter_actor_get_widget (GTK_CLUTTER_ACTOR (priv->actor));
+  gtk_widget_get_preferred_width (gtk_bin_get_child (GTK_BIN (bin)),
+                                  minimum,
+                                  natural);
+}
+
+static void
+gtk_clutter_window_get_preferred_height (GtkWidget *self,
+                                         gint      *minimum,
+                                         gint      *natural)
+{
+  GtkClutterWindowPrivate *priv = GTK_CLUTTER_WINDOW (self)->priv;
+  GtkWidget *bin;
 
   bin = gtk_clutter_actor_get_widget (GTK_CLUTTER_ACTOR (priv->actor));
-
-  /* find out what the preferred size of the bin contents are, since we
-   * can't ask Clutter for some reason (it always returns the allocated
-   * size -- why?). This means things like any scaling applied to the actor
-   * won't make the window change size (feature?) */
-  gtk_widget_get_preferred_size (gtk_bin_get_child (GTK_BIN (bin)),
-                                 requisition,
-                                 NULL);
+  gtk_widget_get_preferred_height (gtk_bin_get_child (GTK_BIN (bin)),
+                                   minimum,
+                                   natural);
 }
 
 static void
@@ -230,7 +237,8 @@ gtk_clutter_window_class_init (GtkClutterWindowClass *klass)
 
   gobject_class->finalize = gtk_clutter_window_finalize;
 
-  widget_class->size_request = gtk_clutter_window_size_request;
+  widget_class->get_preferred_width = gtk_clutter_window_get_preferred_width;
+  widget_class->get_preferred_height = gtk_clutter_window_get_preferred_height;
 
   /* connect all of the container methods up to our bin */
   container_class->add                = gtk_clutter_window_add;
