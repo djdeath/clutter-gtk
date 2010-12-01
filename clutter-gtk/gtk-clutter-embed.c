@@ -329,26 +329,6 @@ gtk_clutter_embed_size_allocate (GtkWidget     *widget,
     }
 }
 
-#if 0
-static gboolean
-gtk_clutter_embed_expose_event (GtkWidget *widget,
-                                GdkEventExpose *event)
-{
-  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
-
-  if (priv->geometry_changed)
-    {
-      gdk_window_geometry_changed (gtk_widget_get_window (widget));
-      priv->geometry_changed = FALSE;
-    }
-
-  /* force a redraw on expose */
-  clutter_stage_ensure_redraw (CLUTTER_STAGE (priv->stage));
-
-  return FALSE;
-}
-#endif
-
 static gboolean
 gtk_clutter_embed_map_event (GtkWidget	 *widget,
                              GdkEventAny *event)
