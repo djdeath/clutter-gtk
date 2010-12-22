@@ -155,6 +155,18 @@ AS_IF([test "x$enable_maintainer_flags" = "xyes" && test "x$GCC" = "xyes"],
 
 AC_SUBST(MAINTAINER_CFLAGS)
 
+dnl = I18N =================================================================
+
+AM_GNU_GETTEXT_VERSION([0.17])
+AM_GNU_GETTEXT([external])
+
+GETTEXT_PACKAGE="cluttergtk10"
+AC_SUBST(GETTEXT_PACKAGE)
+AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,
+                   "$GETTEXT_PACKAGE",
+                   [The prefix for our gettext translation domains.])
+AS_ALL_LINGUAS
+
 dnl = GTK Doc check ========================================================
 
 G_PREFIX=`$PKG_CONFIG --variable=prefix glib-2.0`
@@ -168,9 +180,9 @@ AC_SUBST(GTK_PREFIX)
 AC_SUBST(GDK_PIXBUF_PREFIX)
 AC_SUBST(CLUTTER_PREFIX)
 
-GTK_DOC_CHECK([1.14], [--flavour no-tmpl])
+GTK_DOC_CHECK([1.14], [--flavour=no-tmpl])
 
-GOBJECT_INTROSPECTION_CHECK([0.6.14])
+GOBJECT_INTROSPECTION_CHECK([0.9.12])
 
 AC_CONFIG_FILES([
         Makefile
