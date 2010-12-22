@@ -89,7 +89,7 @@ gtk_clutter_texture_set_from_stock
 gtk_clutter_texture_set_from_icon_name
 
 <SUBSECTION Standard>
-GTK_TYPE_CLUTTER_TEXTURE
+GTK_CLUTTER_TYPE_TEXTURE
 GTK_CLUTTER_TEXTURE
 GTK_CLUTTER_TEXTURE_CLASS
 GTK_CLUTTER_IS_TEXTURE

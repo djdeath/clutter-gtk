@@ -67,6 +67,33 @@
     <title>Index</title>
   </index>
 
+  <part id="cluttergtk-objects">
+    <title>Clutter-GTK Actors and Objects</title>
+
+    <chapter id="cluttergtk-object-hierarchy">
+      <title>Object Hierarchy</title>
+
+      <xi:include href="xml/tree_index.sgml"><xi:fallback /></xi:include>
+    </chapter>
+
+    <chapter id="cluttergtk-object-index">
+      <title>Object Index</title>
+
+      <xi:include href="xml/object_index.sgml"><xi:fallback /></xi:include>
+    </chapter>
+  </part>
+
+  <part id="cluttergtk-glossary">
+    <title>Glossaries</title>
+
+    <xi:include href="xml/annotation-glossary.xml"><xi:fallback /></xi:include>
+  </part>
+
+  <index>
+    <title>Index of all symbols</title>
+    <xi:include href="xml/api-index-full.xml"><xi:fallback /></xi:include>
+  </index>
+
   <index role="1.0">
     <title>Index of new symbols in 1.0</title>
     <xi:include href="xml/api-index-1.0.xml"><xi:fallback /></xi:include>
