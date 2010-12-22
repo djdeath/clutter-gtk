@@ -6,6 +6,8 @@ clutter-gtk-[0-9].[0-9]*.pc
 clutter-gtk.pc
 .deps/
 .libs/
+/ABOUT-NLS
+/build/config.rpath
 /build/autotools/*.m4
 /build/compile
 /clutter-gtk/*.lo
@@ -61,5 +63,14 @@ stamp-h1
 /clutter-gtk/gtk-clutter-version.h
 /clutter-gtk/GtkClutter-*.gir
 /clutter-gtk/GtkClutter-*.typelib
+/po/Makefile.in.in
+/po/Makevars.template
+/po/Rules-quot
+/po/boldquot.sed
+/po/en@boldquot.header
+/po/en@quot.header
+/po/insert-header.sin
+/po/quot.sed
+/po/remove-potcdate.sin
 *~
 .*.swp
