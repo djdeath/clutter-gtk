@@ -188,9 +188,12 @@ main (int argc, char *argv[])
 
       /* Create a texture from pixbuf, then clone in to same resources */
       if (i == 0)
-       oh->hand[i] = gtk_clutter_texture_new_from_pixbuf (pixbuf);
-     else
-       oh->hand[i] = clutter_clone_new (oh->hand[0]);
+        {
+          oh->hand[i] = gtk_clutter_texture_new ();
+          gtk_clutter_texture_set_from_pixbuf (GTK_CLUTTER_TEXTURE (oh->hand[i]), pixbuf, NULL);
+        }
+      else
+        oh->hand[i] = clutter_clone_new (oh->hand[0]);
 
       /* Place around a circle */
       w = clutter_actor_get_width (oh->hand[0]);

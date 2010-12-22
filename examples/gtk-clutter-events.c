@@ -205,8 +205,8 @@ main (gint argc, gchar **argv)
   if (pixbuf == NULL)
     g_error ("Unable to load pixbuf\n");
 
-  actor = gtk_clutter_texture_new_from_pixbuf (pixbuf);
-  app->hand = actor;
+  app->hand = actor = gtk_clutter_texture_new ();
+  gtk_clutter_texture_set_from_pixbuf (GTK_CLUTTER_TEXTURE (actor), pixbuf, NULL);
   clutter_container_add_actor (CLUTTER_CONTAINER (app->stage), actor);
   clutter_actor_set_anchor_point_from_gravity (actor, CLUTTER_GRAVITY_CENTER);
   clutter_actor_set_position (actor,

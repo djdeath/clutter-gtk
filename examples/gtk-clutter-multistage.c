@@ -49,9 +49,12 @@ main (int argc, char *argv[])
   gtk_widget_set_size_request (clutter1, 320, 240);
   stage1 = gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (clutter1));
   clutter_stage_set_color (CLUTTER_STAGE(stage1), &col1);
-  tex1 = gtk_clutter_texture_new_from_stock (clutter1,
-                                             GTK_STOCK_DIALOG_INFO,
-                                             GTK_ICON_SIZE_DIALOG);
+  tex1 = gtk_clutter_texture_new ();
+  gtk_clutter_texture_set_from_stock (GTK_CLUTTER_TEXTURE (tex1),
+                                      clutter1,
+                                      GTK_STOCK_DIALOG_INFO,
+                                      GTK_ICON_SIZE_DIALOG,
+                                      NULL);
   clutter_actor_set_anchor_point (tex1,
                                   clutter_actor_get_width (tex1) / 2,
                                   clutter_actor_get_height (tex1) / 2);
@@ -65,9 +68,12 @@ main (int argc, char *argv[])
   gtk_widget_set_size_request (clutter2, 320, 120);
   stage2 = gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (clutter2));
   clutter_stage_set_color (CLUTTER_STAGE(stage2), &col2);
-  tex2 = gtk_clutter_texture_new_from_icon_name (clutter1,
-                                                 "user-info",
-                                                 GTK_ICON_SIZE_BUTTON);
+  tex2 = gtk_clutter_texture_new ();
+  gtk_clutter_texture_set_from_icon_name (GTK_CLUTTER_TEXTURE (tex2),
+                                          clutter1,
+                                          "user-info",
+                                          GTK_ICON_SIZE_BUTTON,
+                                          NULL);
   clutter_actor_set_anchor_point (tex2,
                                   clutter_actor_get_width (tex2) / 2,
                                   clutter_actor_get_height (tex2) / 2);

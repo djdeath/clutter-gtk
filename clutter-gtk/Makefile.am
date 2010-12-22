@@ -29,6 +29,7 @@ source_c = \
 	$(srcdir)/gtk-clutter-actor.c 		\
 	$(srcdir)/gtk-clutter-embed.c 		\
 	$(srcdir)/gtk-clutter-offscreen.c	\
+	$(srcdir)/gtk-clutter-texture.c		\
 	$(srcdir)/gtk-clutter-util.c 		\
 	$(srcdir)/gtk-clutter-window.c		\
 	$(NULL)
@@ -36,6 +37,7 @@ source_c = \
 source_h_public = \
 	$(srcdir)/gtk-clutter-actor.h 	\
 	$(srcdir)/gtk-clutter-embed.h 	\
+	$(srcdir)/gtk-clutter-texture.h	\
 	$(srcdir)/gtk-clutter-util.h 	\
 	$(srcdir)/gtk-clutter-window.h	\
 	$(NULL)

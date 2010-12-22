@@ -71,16 +71,15 @@ button_clicked (GtkButton *button, char *stock_id)
         GtkIconSize size;
 
         /* create a texture from the button image */
-        ClutterActor *texture = clutter_texture_new ();
+        ClutterActor *texture = gtk_clutter_texture_new ();
         GtkWidget *image = gtk_button_get_image (button);
         gtk_image_get_stock (GTK_IMAGE (image), &icon_name, &size);
-        gtk_clutter_texture_set_from_stock (CLUTTER_TEXTURE (texture),
+        gtk_clutter_texture_set_from_stock (GTK_CLUTTER_TEXTURE (texture),
                                             GTK_WIDGET (button),
                                             icon_name, size, NULL);
 
         /* position the texture on top of the existing icon */
-        ClutterActor *stage = gtk_clutter_window_get_stage (
-                GTK_CLUTTER_WINDOW (toplevel));
+        ClutterActor *stage = gtk_clutter_window_get_stage (GTK_CLUTTER_WINDOW (toplevel));
         clutter_container_add_actor (CLUTTER_CONTAINER (stage), texture);
 
         g_object_set_data (G_OBJECT (texture), "image", image);

@@ -102,43 +102,7 @@ G_BEGIN_DECLS
          (CLUTTER_GTK_MAJOR_VERSION == (major) && CLUTTER_GTK_MINOR_VERSION > (minor)) || \
          (CLUTTER_GTK_MAJOR_VERSION == (major) && CLUTTER_GTK_MINOR_VERSION == (minor) && CLUTTER_GTK_MICRO_VERSION >= (micro)))
 
-/**
- * clutter_gtk_major_version:
- *
- * The major component of the Clutter library version, e.g. 1 if the version
- * is 1.2.3
- *
- * This value can be used for run-time version checks
- *
- * For a compile-time check, use %CLUTTER_GTK_MAJOR_VERSION
- */
-extern const guint clutter_gtk_major_version;
-
-/**
- * clutter_gtk_minor_version:
- *
- * The minor component of the Clutter library version, e.g. 2 if the version
- * is 1.2.3
- *
- * This value can be used for run-time version checks
- *
- * For a compile-time check, use %CLUTTER_GTK_MINOR_VERSION
- */
-extern const guint clutter_gtk_minor_version;
-
-/**
- * clutter_gtk_micro_version:
- *
- * The micro component of the Clutter library version, e.g. 3 if the version
- * is 1.2.3
- *
- * This value can be used for run-time version checks
- *
- * For a compile-time check, use %CLUTTER_GTK_MICRO_VERSION
- */
-extern const guint clutter_gtk_micro_version;
-
-gboolean clutter_gtk_check_version (guint major,
+gboolean gtk_clutter_check_version (guint major,
                                     guint minor,
                                     guint micro);
 
