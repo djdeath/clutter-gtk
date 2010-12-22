@@ -1,6 +1,7 @@
 #ifndef __GTK_CLUTTER_OFFSCREEN_H__
 #define __GTK_CLUTTER_OFFSCREEN_H__
 
+#include <cairo/cairo.h>
 #include <gtk/gtk.h>
 #include <clutter/clutter.h>
 
@@ -37,6 +38,7 @@ void       _gtk_clutter_offscreen_set_active (GtkClutterOffscreen *offscreen,
                                               gboolean             active);
 void       _gtk_clutter_offscreen_set_in_allocation (GtkClutterOffscreen *offscreen,
                                                      gboolean             in_allocation);
+cairo_surface_t *_gtk_clutter_offscreen_get_surface (GtkClutterOffscreen *offscreen);
 
 G_END_DECLS
 

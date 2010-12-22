@@ -134,7 +134,7 @@ gtk_clutter_actor_realize (ClutterActor *actor)
 
   gtk_widget_realize (priv->widget);
 
-  priv->surface = gdk_offscreen_window_get_surface (gtk_widget_get_window (priv->widget));
+  priv->surface = _gtk_clutter_offscreen_get_surface (GTK_CLUTTER_OFFSCREEN (priv->widget));
 
 #if HAVE_CLUTTER_GTK_X11
   if (cairo_surface_get_type (priv->surface) == CAIRO_SURFACE_TYPE_XLIB)
@@ -267,9 +267,12 @@ gtk_clutter_actor_allocate (ClutterActor           *actor,
       if (surface != priv->surface)
         {
 #if HAVE_CLUTTER_GTK_X11
-          Drawable pixmap = cairo_xlib_surface_get_drawable (surface);
+          if (cairo_surface_get_type (surface) == CAIRO_SURFACE_TYPE_XLIB)
+            {
+              Drawable pixmap = cairo_xlib_surface_get_drawable (surface);
 
-          clutter_x11_texture_pixmap_set_pixmap (CLUTTER_X11_TEXTURE_PIXMAP (priv->texture), pixmap);
+              clutter_x11_texture_pixmap_set_pixmap (CLUTTER_X11_TEXTURE_PIXMAP (priv->texture), pixmap);
+            }
 #endif
 
           priv->surface = surface;
@@ -310,15 +313,15 @@ static void
 gtk_clutter_actor_show (ClutterActor *self)
 {
   GtkClutterActorPrivate *priv = GTK_CLUTTER_ACTOR (self)->priv;
+  GtkWidget *widget = gtk_bin_get_child (GTK_BIN (priv->widget));
+
+  CLUTTER_ACTOR_CLASS (gtk_clutter_actor_parent_class)->show (self);
 
   /* proxy this call through to GTK+ */
-  GtkWidget *widget = gtk_bin_get_child (GTK_BIN (priv->widget));
   if (widget != NULL)
     gtk_widget_show (widget);
 
   g_list_foreach (priv->children, (GFunc) clutter_actor_show, NULL);
-
-  CLUTTER_ACTOR_CLASS (gtk_clutter_actor_parent_class)->show (self);
 }
 
 static void
@@ -341,14 +344,14 @@ gtk_clutter_actor_hide (ClutterActor *self)
 {
   GtkClutterActorPrivate *priv = GTK_CLUTTER_ACTOR (self)->priv;
 
+  CLUTTER_ACTOR_CLASS (gtk_clutter_actor_parent_class)->hide (self);
+
   /* proxy this call through to GTK+ */
   GtkWidget *widget = gtk_bin_get_child (GTK_BIN (priv->widget));
   if (widget != NULL)
     gtk_widget_hide (widget);
 
   g_list_foreach (priv->children, (GFunc) clutter_actor_hide, NULL);
-
-  CLUTTER_ACTOR_CLASS (gtk_clutter_actor_parent_class)->hide (self);
 }
 
 static void

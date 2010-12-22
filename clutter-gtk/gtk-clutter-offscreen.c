@@ -136,7 +136,7 @@ gtk_clutter_offscreen_realize (GtkWidget *widget)
 
   parent = gtk_widget_get_parent (widget);
 
-  window = gdk_window_new (gdk_screen_get_root_window (gdk_window_get_screen (gtk_widget_get_window (parent))),
+  window = gdk_window_new (gtk_widget_get_root_window (widget),
 			   &attributes,
                            attributes_mask);
   gtk_widget_set_window (widget, window);
@@ -233,6 +233,9 @@ gtk_clutter_offscreen_size_allocate (GtkWidget     *widget,
 				     GtkAllocation *allocation)
 {
   GtkAllocation old_allocation;
+  GtkBin *bin = GTK_BIN (widget);
+  GtkWidget *child;
+  gint border_width;
 
   gtk_widget_get_allocation (widget, &old_allocation);
 
@@ -255,7 +258,25 @@ gtk_clutter_offscreen_size_allocate (GtkWidget     *widget,
                               allocation->height);
     }
 
-  GTK_WIDGET_CLASS (_gtk_clutter_offscreen_parent_class)->size_allocate (widget, allocation);
+  gtk_widget_set_allocation (widget, allocation);
+
+  border_width = gtk_container_get_border_width (GTK_CONTAINER (widget));
+
+  child = gtk_bin_get_child (bin);
+
+  if (child != NULL && gtk_widget_get_visible (child))
+    {
+      GtkAllocation  child_alloc;
+
+      child_alloc.x = border_width;
+      child_alloc.y = border_width;
+      child_alloc.width = allocation->width - 2 * border_width;
+      child_alloc.height = allocation->height - 2 * border_width;
+
+      gtk_widget_size_allocate (child, &child_alloc);
+    }
+
+  gtk_widget_queue_draw (widget);
 }
 
 static gboolean
@@ -339,4 +360,10 @@ _gtk_clutter_offscreen_set_in_allocation (GtkClutterOffscreen *offscreen,
   in_allocation = !!in_allocation;
 
   offscreen->in_allocation = in_allocation;
+}
+
+cairo_surface_t *
+_gtk_clutter_offscreen_get_surface (GtkClutterOffscreen *offscreen)
+{
+  return gdk_offscreen_window_get_surface (gtk_widget_get_window (GTK_WIDGET (offscreen)));
 }
