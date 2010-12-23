@@ -132,6 +132,8 @@ ClutterInitError
 gtk_clutter_init (int    *argc,
                   char ***argv)
 {
+  gdk_disable_multidevice ();
+
   if (!gtk_init_check (argc, argv))
     return CLUTTER_INIT_ERROR_UNKNOWN;
 
@@ -187,6 +189,8 @@ gtk_clutter_init_with_args (int            *argc,
   GOptionGroup *gtk_group, *clutter_group, *cogl_group, *clutter_gtk_group;
   GOptionContext *context;
   gboolean res;
+
+  gdk_disable_multidevice ();
 
 #if defined(GDK_WINDOWING_X11) && CLUTTER_CHECK_VERSION (1, 1, 5)
   /* enable ARGB visuals by default for Clutter */
