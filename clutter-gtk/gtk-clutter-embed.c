@@ -432,9 +432,9 @@ gtk_clutter_embed_key_event (GtkWidget   *widget,
 }
 
 static void
-gtk_clutter_embed_style_set (GtkWidget *widget,
-                             GtkStyle  *old_style)
+gtk_clutter_embed_style_updated (GtkWidget *widget)
 {
+  GtkClutterEmbedPrivate *priv;
   GdkScreen *screen;
   GtkSettings *gtk_settings;
   ClutterSettings *clutter_settings;
@@ -445,8 +445,31 @@ gtk_clutter_embed_style_set (GtkWidget *widget,
   gchar *xft_hintstyle, *xft_rgba;
 #endif /* HAVE_CLUTTER_GTK_X11 */
 
-  GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->style_set (widget,
-                                                                old_style);
+  priv = GTK_CLUTTER_EMBED (widget)->priv;
+
+  if (gtk_widget_get_realized (widget))
+    {
+#if 0
+      GtkStyleContext *style_context;
+      GtkStateFlags state_flags;
+      GdkRGBA *bg_color;
+      ClutterColor color;
+
+      style_context = gtk_widget_get_style_context (widget);
+      state_flags = gtk_widget_get_state_flags (widget);
+      gtk_style_context_get (style_context, state_flags,
+                             "background-color", &bg_color,
+                             NULL);
+
+      color.red   = CLAMP (bg_color->red   * 255, 0, 255);
+      color.green = CLAMP (bg_color->green * 255, 0, 255);
+      color.blue  = CLAMP (bg_color->blue  * 255, 0, 255);
+      color.alpha = CLAMP (bg_color->alpha * 255, 0, 255);
+      clutter_stage_set_color (CLUTTER_STAGE (priv->stage), &color);
+
+      gdk_rgba_free (bg_color);
+#endif
+    }
 
   if (gtk_widget_has_screen (widget))
     screen = gtk_widget_get_screen (widget);
@@ -491,6 +514,8 @@ gtk_clutter_embed_style_set (GtkWidget *widget,
 #endif /* HAVE_CLUTTER_GTK_X11 */
 
   g_free (font_name);
+
+  GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->style_updated (widget);
 }
 
 void
@@ -578,7 +603,7 @@ gtk_clutter_embed_class_init (GtkClutterEmbedClass *klass)
 
   gobject_class->dispose = gtk_clutter_embed_dispose;
 
-  widget_class->style_set = gtk_clutter_embed_style_set;
+  widget_class->style_updated = gtk_clutter_embed_style_updated;
   widget_class->size_allocate = gtk_clutter_embed_size_allocate;
   widget_class->realize = gtk_clutter_embed_realize;
   widget_class->unrealize = gtk_clutter_embed_unrealize;
