@@ -67,7 +67,7 @@ LT_INIT([disable-static])
 AC_HEADER_STDC
 
 m4_define([clutter_req_version], [1.3.8])
-m4_define([gtk_req_version], [2.91.0])
+m4_define([gtk_req_version], [2.91.7])
 m4_define([flavour_default], [x11])
 AC_ARG_WITH([flavour],
             [AC_HELP_STRING([--with-flavour=@<:@x11/win32@:>@],
