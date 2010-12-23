@@ -201,7 +201,7 @@ gtk_clutter_embed_realize (GtkWidget *widget)
 {
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
   GtkAllocation allocation;
-  GtkStyle *style;
+  GtkStyleContext *style_context;
   GdkWindow *window;
   GdkWindowAttr attributes;
   gint attributes_mask;
@@ -269,9 +269,8 @@ gtk_clutter_embed_realize (GtkWidget *widget)
 		    G_CALLBACK (pick_embedded_child),
                     widget);
 
-  gtk_widget_style_attach (widget);
-  style = gtk_widget_get_style (widget);
-  gtk_style_set_background (style, window, GTK_STATE_NORMAL);
+  style_context = gtk_widget_get_style_context (widget);
+  gtk_style_context_set_background (style_context, window);
 
   gdk_window_add_filter (window, gtk_clutter_filter_func, widget);
 

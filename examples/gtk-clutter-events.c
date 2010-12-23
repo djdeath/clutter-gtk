@@ -75,14 +75,6 @@ on_opacity_changed (GtkSpinButton *button, EventApp *app)
   clutter_actor_set_opacity (app->hand, gtk_spin_button_get_value (button)); 
 }
 
-/* Set the clutter colors form the current gtk theme */
-static void
-create_colors (EventApp *app, ClutterColor *stage, ClutterColor *text)
-{
-  gtk_clutter_get_bg_color (app->window, GTK_STATE_NORMAL, stage);
-  gtk_clutter_get_text_color (app->window, GTK_STATE_NORMAL, text);
-}
-
 static gboolean
 on_stage_capture (ClutterActor *stage,
                   ClutterEvent *event,
@@ -154,8 +146,6 @@ main (gint argc, gchar **argv)
   GtkWidget     *widget, *vbox, *hbox, *button, *label, *box;
   ClutterActor  *actor;
   GdkPixbuf     *pixbuf = NULL;
-  ClutterColor   stage_color = {255, 255, 255, 255};
-  ClutterColor   text_color = {0, 0, 0, 255};
 
   if (gtk_clutter_init_with_args (&argc, &argv, "- Event test", NULL, NULL, NULL) != CLUTTER_INIT_SUCCESS)
     g_error ("Unable to initialize GtkClutter");
@@ -183,12 +173,10 @@ main (gint argc, gchar **argv)
   gtk_box_pack_start (GTK_BOX (vbox), hbox, TRUE, TRUE, 0);
   
   /* Set up clutter & create our stage */
-  create_colors (app, &stage_color, &text_color);
   widget = gtk_clutter_embed_new ();
   gtk_box_pack_start (GTK_BOX (hbox), widget, TRUE, TRUE, 0);
   gtk_widget_grab_focus (widget);
   app->stage = gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (widget));
-  clutter_stage_set_color (CLUTTER_STAGE (app->stage), &stage_color);
   gtk_widget_set_size_request (widget, 640, 480);
   g_signal_connect (app->stage, "captured-event",
                     G_CALLBACK (on_stage_capture),
@@ -219,7 +207,7 @@ main (gint argc, gchar **argv)
                     NULL);
 
   /* Setup the clutter entry */
-  actor = clutter_text_new_full ("Sans 10", "", &text_color);
+  actor = clutter_text_new_full (NULL, "", CLUTTER_COLOR_Black);
   app->clutter_entry = actor;
   clutter_group_add (CLUTTER_GROUP (app->stage), actor);
   clutter_actor_set_position (actor, 0, 0);

@@ -41,31 +41,6 @@ ClutterInitError gtk_clutter_init_with_args (int            *argc,
                                              GError        **error);
 GOptionGroup *gtk_clutter_get_option_group  (void);
 
-void          gtk_clutter_get_fg_color               (GtkWidget      *widget,
-                                                      GtkStateType    state,
-                                                      ClutterColor   *color);
-void          gtk_clutter_get_bg_color               (GtkWidget      *widget,
-                                                      GtkStateType    state,
-                                                      ClutterColor   *color);
-void          gtk_clutter_get_text_color             (GtkWidget      *widget,
-                                                      GtkStateType    state,
-                                                      ClutterColor   *color);
-void          gtk_clutter_get_text_aa_color          (GtkWidget      *widget,
-                                                      GtkStateType    state,
-                                                      ClutterColor   *color);
-void          gtk_clutter_get_base_color             (GtkWidget      *widget,
-                                                      GtkStateType    state,
-                                                      ClutterColor   *color);
-void          gtk_clutter_get_light_color            (GtkWidget      *widget,
-                                                      GtkStateType    state,
-                                                      ClutterColor   *color);
-void          gtk_clutter_get_dark_color             (GtkWidget      *widget,
-                                                      GtkStateType    state,
-                                                      ClutterColor   *color);
-void          gtk_clutter_get_mid_color              (GtkWidget      *widget,
-                                                      GtkStateType    state,
-                                                      ClutterColor   *color);
-
 G_END_DECLS
 
 #endif /* __GTK_CLUTTER_UTIL_H__ */

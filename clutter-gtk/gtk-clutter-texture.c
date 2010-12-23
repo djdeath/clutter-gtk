@@ -125,8 +125,8 @@ gtk_clutter_texture_set_from_stock (GtkClutterTexture  *texture,
   g_return_val_if_fail (stock_id != NULL, FALSE);
   g_return_val_if_fail ((icon_size > GTK_ICON_SIZE_INVALID) || (icon_size == -1), FALSE);
 
-  pixbuf = gtk_widget_render_icon (widget, stock_id, icon_size, NULL);
-  if (!pixbuf)
+  pixbuf = gtk_widget_render_icon_pixbuf (widget, stock_id, icon_size);
+  if (pixbuf == NULL)
     {
       g_set_error (error,
                    GTK_CLUTTER_TEXTURE_ERROR,

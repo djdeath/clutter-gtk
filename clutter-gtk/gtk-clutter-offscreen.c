@@ -109,7 +109,7 @@ gtk_clutter_offscreen_realize (GtkWidget *widget)
 {
   GtkClutterOffscreen *offscreen = GTK_CLUTTER_OFFSCREEN (widget);
   GtkAllocation allocation;
-  GtkStyle *style;
+  GtkStyleContext *style_context;
   GdkWindow *window;
   GdkWindowAttr attributes;
   gint attributes_mask;
@@ -153,9 +153,8 @@ gtk_clutter_offscreen_realize (GtkWidget *widget)
   if (child != NULL)
     gtk_widget_set_parent_window (child, window);
 
-  gtk_widget_style_attach (widget);
-  style = gtk_widget_get_style (widget);
-  gtk_style_set_background (style, window, GTK_STATE_NORMAL);
+  style_context = gtk_widget_get_style_context (widget);
+  gtk_style_context_set_background (style_context, window);
 
   if (offscreen->active)
     _gtk_clutter_embed_set_child_active (GTK_CLUTTER_EMBED (parent),

@@ -65,16 +65,6 @@ gtk_clutter_window_get_type
 gtk_clutter_init
 gtk_clutter_init_with_args
 gtk_clutter_get_option_group
-
-<SUBSECTION>
-gtk_clutter_get_fg_color
-gtk_clutter_get_bg_color
-gtk_clutter_get_text_color
-gtk_clutter_get_base_color
-gtk_clutter_get_text_aa_color
-gtk_clutter_get_light_color
-gtk_clutter_get_mid_color
-gtk_clutter_get_dark_color
 </SECTION>
 
 <SECTION>
