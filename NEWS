@@ -1,3 +1,19 @@
+Clutter-GTK 0.91.8
+===============================================================================
+
+Changes since 0.91.6:
+
+        • Depend on gtk+ ≥ 2.91.7.
+
+        • Disable multi-device support in GDK to unbreak the event
+          filter function we use to dispatch events from GDK to
+          Clutter.
+
+        • Update to the new StyleContext API.
+
+        • Remove the GdkColor/GtkStyle/ClutterColor utility API: the
+          old GtkStyle colors have been deprecated in GTK+.
+
 Clutter-GTK 0.91.6                                                   22/12/2010
 ===============================================================================
 
