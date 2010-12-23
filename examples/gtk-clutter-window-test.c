@@ -64,6 +64,32 @@ add_toolbar_items (GtkToolbar *toolbar,
     va_end (var_args);
 }
 
+static gboolean
+on_toolbar_enter (ClutterActor *actor,
+                  ClutterEvent *event,
+                  gpointer      dummy G_GNUC_UNUSED)
+{
+  clutter_actor_animate (actor, CLUTTER_LINEAR, 250,
+                         "opacity", 255,
+                         "y", 0.0,
+                         NULL);
+
+  return TRUE;
+}
+
+static gboolean
+on_toolbar_leave (ClutterActor *actor,
+                  ClutterEvent *event,
+                  gpointer      dummy G_GNUC_UNUSED)
+{
+  clutter_actor_animate (actor, CLUTTER_LINEAR, 250,
+                         "opacity", 128,
+                         "y", clutter_actor_get_height (actor) * -0.5,
+                         NULL);
+
+  return TRUE;
+}
+
 int
 main (int argc, char **argv)
 {
@@ -76,19 +102,18 @@ main (int argc, char **argv)
     GtkListStore *store = gtk_list_store_new (N_COLUMNS,
 		    G_TYPE_STRING, GDK_TYPE_PIXBUF);
     add_liststore_rows (store,
-                        "gnome-sudoku",
-                        "gnome-blackjack",
-                        "gnome-mahjongg",
-                        "gnome-sticky-notes-applet",
-                        "tracker",
-                        "gnome-cpu-frequency-applet",
+                        "devhelp",
+                        "empathy",
                         "evince",
+                        "gnome-panel",
+                        "seahorse",
+                        "sound-juicer",
+                        "totem",
                         NULL);
 
     GtkWidget *iconview = gtk_icon_view_new_with_model (GTK_TREE_MODEL (store));
     gtk_icon_view_set_text_column (GTK_ICON_VIEW (iconview), NAME_COLUMN);
     gtk_icon_view_set_pixbuf_column (GTK_ICON_VIEW (iconview), PIXBUF_COLUMN);
-    gtk_icon_view_set_columns (GTK_ICON_VIEW (iconview), 2);
 
     GtkWidget *sw = gtk_scrolled_window_new (NULL, NULL);
 
@@ -112,9 +137,13 @@ main (int argc, char **argv)
     gtk_widget_show_all (toolbar);
     ClutterActor *actor = gtk_clutter_actor_new_with_contents (toolbar);
     clutter_actor_add_constraint (actor, clutter_bind_constraint_new (stage, CLUTTER_BIND_WIDTH, 0.0));
+    g_signal_connect (actor, "enter-event", G_CALLBACK (on_toolbar_enter), NULL);
+    g_signal_connect (actor, "leave-event", G_CALLBACK (on_toolbar_leave), NULL);
 
     clutter_container_add_actor (CLUTTER_CONTAINER (stage), actor);
-    clutter_actor_set_opacity (actor, 0xa0);
+    clutter_actor_set_y (actor, clutter_actor_get_height (actor) * -0.5);
+    clutter_actor_set_opacity (actor, 128);
+    clutter_actor_set_reactive (actor, TRUE);
 
     gtk_widget_show_all (window);
     gtk_main ();
