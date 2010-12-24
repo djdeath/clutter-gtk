@@ -2,7 +2,7 @@ include $(top_srcdir)/build/autotools/Makefile.am.silent
 
 ACLOCAL_AMFLAGS = -I build/autotools
 
-SUBDIRS = build clutter-gtk doc examples
+SUBDIRS = build clutter-gtk doc examples po
 
 clutter-gtk-1.0.pc: clutter-gtk.pc
 	$(QUIET_GEN)cp -f clutter-gtk.pc clutter-gtk-1.0.pc

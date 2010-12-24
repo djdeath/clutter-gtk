@@ -157,10 +157,10 @@ AC_SUBST(MAINTAINER_CFLAGS)
 
 dnl = I18N =================================================================
 
-AM_GNU_GETTEXT_VERSION([0.17])
+AM_GNU_GETTEXT_VERSION([0.18])
 AM_GNU_GETTEXT([external])
 
-GETTEXT_PACKAGE="cluttergtk10"
+GETTEXT_PACKAGE="cluttergtk-1.0"
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,
                    "$GETTEXT_PACKAGE",
@@ -188,12 +188,18 @@ AC_CONFIG_FILES([
         Makefile
         build/Makefile
         build/autotools/Makefile
+        
         clutter-gtk/Makefile
         clutter-gtk/gtk-clutter-version.h
+        
         doc/Makefile
         doc/reference/Makefile
         doc/reference/version.xml
+
         examples/Makefile
+
+        po/Makefile.in
+
         clutter-gtk.pc
 ])
 
