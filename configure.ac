@@ -157,7 +157,7 @@ AC_SUBST(MAINTAINER_CFLAGS)
 
 dnl = I18N =================================================================
 
-AM_GNU_GETTEXT_VERSION([0.17])
+AM_GNU_GETTEXT_VERSION([0.18])
 AM_GNU_GETTEXT([external])
 
 GETTEXT_PACKAGE="cluttergtk-0.12"
