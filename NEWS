@@ -1,4 +1,4 @@
-Clutter-GTK 0.91.8
+Clutter-GTK 0.91.8                                                   14/01/2011
 ===============================================================================
 
 Changes since 0.91.6:
@@ -13,6 +13,8 @@ Changes since 0.91.6:
 
         • Remove the GdkColor/GtkStyle/ClutterColor utility API: the
           old GtkStyle colors have been deprecated in GTK+.
+
+        • Use gettext to localize messages.
 
 Clutter-GTK 0.91.6                                                   22/12/2010
 ===============================================================================
