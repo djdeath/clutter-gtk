@@ -22,18 +22,15 @@
 
 /**
  * SECTION:gtk-clutter-embed
+ * @Title: GtkClutterEmbed
  * @short_description: Widget for embedding a Clutter scene
+ * @See_Also: #ClutterStage
  *
- * #GtkClutterEmbed is a GTK+ widget embedding a #ClutterStage. Using
- * a #GtkClutterEmbed widget is possible to build, show and interact with
- * a scene built using Clutter inside a GTK+ application.
+ * #GtkClutterEmbed is a GTK+ widget embedding a #ClutterStage inside
+ * a GTK+ application.
  *
- * <note>To avoid flickering on show, you should call gtk_widget_show()
- * or gtk_widget_realize() before calling clutter_actor_show() on the
- * embedded #ClutterStage actor. This is needed for Clutter to be able
- * to paint on the #GtkClutterEmbed widget.</note>
- *
- * Since: 0.6
+ * By using a #GtkClutterEmbed widget is possible to build, show and
+ * interact with a scene built using Clutter inside a GTK+ application.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -41,6 +38,8 @@
 #endif
 
 #include "gtk-clutter-embed.h"
+#include "gtk-clutter-offscreen.h"
+#include "gtk-clutter-actor.h"
 
 #include <glib-object.h>
 
@@ -66,15 +65,20 @@ struct _GtkClutterEmbedPrivate
 {
   ClutterActor *stage;
 
+  GList *children;
+  int n_active_children;
+
   guint queue_redraw_id;
+
+  guint geometry_changed : 1;
 };
 
 static void
 gtk_clutter_embed_send_configure (GtkClutterEmbed *embed)
 {
-  GdkEvent *event = gdk_event_new (GDK_CONFIGURE);
-  GtkAllocation allocation;
   GtkWidget *widget;
+  GtkAllocation allocation;
+  GdkEvent *event = gdk_event_new (GDK_CONFIGURE);
 
   widget = GTK_WIDGET (embed);
   gtk_widget_get_allocation (widget, &allocation);
@@ -96,14 +100,10 @@ on_stage_queue_redraw (ClutterStage *stage,
                        gpointer      user_data)
 {
   GtkWidget *embed = user_data;
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (embed)->priv;
 
-  /* we stop the emission of the Stage::queue-redraw signal to prevent
-   * the default handler from running; then we queue a redraw on the
-   * GtkClutterEmbed widget which will cause an expose event to be
-   * emitted. the Stage is redrawn in the expose event handler, thus
-   * "slaving" the Clutter redraw cycle to GTK+'s own
-   */
-  g_signal_stop_emission_by_name (stage, "queue-redraw");
+  if (priv->n_active_children > 0)
+    priv->geometry_changed = TRUE;
 
   gtk_widget_queue_draw (embed);
 }
@@ -115,7 +115,9 @@ gtk_clutter_embed_dispose (GObject *gobject)
 
   if (priv->queue_redraw_id)
     {
-      g_signal_handler_disconnect (priv->stage, priv->queue_redraw_id);
+      if (priv->stage != NULL)
+        g_signal_handler_disconnect (priv->stage, priv->queue_redraw_id);
+
       priv->queue_redraw_id = 0;
     }
 
@@ -152,28 +154,56 @@ gtk_clutter_embed_hide (GtkWidget *widget)
   GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->hide (widget);
 }
 
+static GdkWindow *
+pick_embedded_child (GdkWindow       *offscreen_window,
+                     double           widget_x,
+                     double           widget_y,
+                     GtkClutterEmbed *embed)
+{
+  GtkClutterEmbedPrivate *priv = embed->priv;
+  ClutterActor *a;
+  GtkWidget *widget;
+
+  a = clutter_stage_get_actor_at_pos (CLUTTER_STAGE (priv->stage),
+				      CLUTTER_PICK_ALL,
+				      widget_x, widget_y);
+  if (GTK_CLUTTER_IS_ACTOR (a))
+    {
+      widget = gtk_clutter_actor_get_widget (GTK_CLUTTER_ACTOR (a));
+
+      if (GTK_CLUTTER_OFFSCREEN (widget)->active)
+	return gtk_widget_get_window (widget);
+    }
+
+  return NULL;
+}
+
 static GdkFilterReturn
 gtk_clutter_filter_func (GdkXEvent *native_event,
                          GdkEvent  *event         G_GNUC_UNUSED,
                          gpointer   user_data     G_GNUC_UNUSED)
 {
-#ifdef HAVE_CLUTTER_GTK_X11
   XEvent *xevent = native_event;
 
+#ifdef HAVE_CLUTTER_GTK_X11
+  /* let Clutter handle all events coming from the windowing system */
   clutter_x11_handle_event (xevent);
 #endif
 
+  /* we don't care if Clutter handled the event: we want GDK to continue
+   * the event processing as usual
+   */
   return GDK_FILTER_CONTINUE;
 }
 
 static void
 gtk_clutter_embed_realize (GtkWidget *widget)
 {
-  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv; 
-  GdkWindowAttr attributes;
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
   GtkAllocation allocation;
-  GdkWindow *window;
   GtkStyle *style;
+  GdkWindow *window;
+  GdkWindowAttr attributes;
   gint attributes_mask;
   gint border_width;
 
@@ -183,7 +213,9 @@ gtk_clutter_embed_realize (GtkWidget *widget)
     GdkVisual *visual;
     GdkColormap *colormap;
 
-    /* We need to use the colormap from the Clutter visual */
+    /* We need to use the colormap from the Clutter visual, since
+     * the visual is tied to the GLX context
+     */
     xvinfo = clutter_x11_get_visual_info ();
     if (xvinfo == None)
       {
@@ -210,35 +242,43 @@ gtk_clutter_embed_realize (GtkWidget *widget)
   attributes.height = allocation.height - 2 * border_width;
   attributes.wclass = GDK_INPUT_OUTPUT;
   attributes.visual = gtk_widget_get_visual (widget);
-  attributes.colormap = gtk_widget_get_colormap (widget);
 
   /* NOTE: GDK_MOTION_NOTIFY above should be safe as Clutter does its own
    *       throttling. 
-  */
+   */
   attributes.event_mask = gtk_widget_get_events (widget)
                         | GDK_EXPOSURE_MASK
                         | GDK_BUTTON_PRESS_MASK
                         | GDK_BUTTON_RELEASE_MASK
                         | GDK_KEY_PRESS_MASK
                         | GDK_KEY_RELEASE_MASK
+                        | GDK_POINTER_MOTION_MASK
                         | GDK_ENTER_NOTIFY_MASK
-                        | GDK_LEAVE_NOTIFY_MASK
-                        | GDK_POINTER_MOTION_MASK;
+                        | GDK_LEAVE_NOTIFY_MASK;
 
-  attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL | GDK_WA_COLORMAP;
+  attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL;
 
   window = gdk_window_new (gtk_widget_get_parent_window (widget),
                            &attributes,
                            attributes_mask);
-  gdk_window_set_user_data (window, widget);
-  gdk_window_set_back_pixmap (window, NULL, FALSE);
   gtk_widget_set_window (widget, window);
+  gdk_window_set_user_data (window, widget);
 
-  gdk_window_add_filter (NULL, gtk_clutter_filter_func, widget);
+  /* this does the translation of the event from Clutter to GDK
+   * we embedding a GtkWidget inside a GtkClutterActor
+   */
+  g_signal_connect (window, "pick-embedded-child",
+		    G_CALLBACK (pick_embedded_child),
+                    widget);
 
   gtk_widget_style_attach (widget);
   style = gtk_widget_get_style (widget);
   gtk_style_set_background (style, window, GTK_STATE_NORMAL);
+
+  /* FIXME: Not sure, if this is required, just copying from an earlier version of code. */
+  gdk_window_set_back_pixmap (window, NULL, FALSE);
+
+  gdk_window_add_filter (NULL, gtk_clutter_filter_func, widget);
 
 #if defined(HAVE_CLUTTER_GTK_X11)
   clutter_x11_set_stage_foreign (CLUTTER_STAGE (priv->stage), 
@@ -264,6 +304,8 @@ gtk_clutter_embed_unrealize (GtkWidget *widget)
   if (priv->stage != NULL)
     clutter_actor_hide (priv->stage);
 
+  gdk_window_remove_filter (NULL, gtk_clutter_filter_func, widget);
+
   GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->unrealize (widget);
 }
 
@@ -275,6 +317,11 @@ gtk_clutter_embed_size_allocate (GtkWidget     *widget,
 
   gtk_widget_set_allocation (widget, allocation);
 
+  /* change the size of the stage and ensure that the viewport
+   * has been updated as well
+   */
+  clutter_actor_set_size (priv->stage, allocation->width, allocation->height);
+
   if (gtk_widget_get_realized (widget))
     {
       gdk_window_move_resize (gtk_widget_get_window (widget),
@@ -283,26 +330,10 @@ gtk_clutter_embed_size_allocate (GtkWidget     *widget,
                               allocation->width,
                               allocation->height);
 
+      clutter_stage_ensure_viewport (CLUTTER_STAGE (priv->stage));
+
       gtk_clutter_embed_send_configure (GTK_CLUTTER_EMBED (widget));
     }
-
-  /* change the size of the stage and ensure that the viewport
-   * has been updated as well
-   */
-  clutter_actor_set_size (priv->stage, allocation->width, allocation->height);
-  clutter_stage_ensure_viewport (CLUTTER_STAGE (priv->stage));
-}
-
-static gboolean
-gtk_clutter_embed_expose_event (GtkWidget *widget,
-                                GdkEventExpose *event)
-{
-  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
-
-  /* force a redraw on expose */
-  clutter_redraw (CLUTTER_STAGE (priv->stage));
-
-  return FALSE;
 }
 
 static gboolean
@@ -414,6 +445,7 @@ gtk_clutter_embed_style_set (GtkWidget *widget,
 {
   GdkScreen *screen;
   GtkSettings *gtk_settings;
+  ClutterSettings *clutter_settings;
   gchar *font_name;
   gint double_click_time, double_click_distance;
 #if HAVE_CLUTTER_GTK_X11
@@ -447,34 +479,19 @@ gtk_clutter_embed_style_set (GtkWidget *widget,
    * the ClutterBackend; this way, a scene embedded into
    * a GtkClutterEmbed will not look completely alien
    */
-
-#if CLUTTER_CHECK_VERSION (1, 3, 8)
-  {
-    ClutterSettings *settings = clutter_settings_get_default ();
-
-    g_object_set (G_OBJECT (settings),
-                  "font-name", font_name,
-                  "double-click-time", double_click_time,
-                  "double-click-distance", double_click_distance,
+  clutter_settings = clutter_settings_get_default ();
+  g_object_set (G_OBJECT (clutter_settings),
+                "font-name", font_name,
+                "double-click-time", double_click_time,
+                "double-click-distance", double_click_distance,
 #if HAVE_CLUTTER_GTK_X11
-                  "font-dpi", xft_dpi,
-                  "font-antialias", xft_antialias,
-                  "font-hinting", xft_hinting,
-                  "font-hint-style", xft_hintstyle,
-                  "font-subpixel-order", xft_rgba,
-#endif
-                  NULL);
-  }
-#else
-  {
-    ClutterBackend *backend = clutter_get_default_backend ();
-
-    clutter_backend_set_double_click_time (backend, double_click_time);
-    clutter_backend_set_double_click_distance (backend, double_click_distance);
-    clutter_backend_set_resolution (backend, xft_dpi / 1024.0);
-    clutter_backend_set_font_name (backend, font_name);
-  }
-#endif /* CLUTTER_CHECK_VERSION (1, 3, 8) */
+                "font-antialias", xft_antialias,
+                "font-dpi", xft_dpi,
+                "font-hinting", xft_hinting,
+                "font-hint-style", xft_hintstyle,
+                "font-subpixel-order", xft_rgba,
+#endif /* HAVE_CLUTTER_GTK_X11 */
+                NULL);
 
 #if HAVE_CLUTTER_GTK_X11
   g_free (xft_hintstyle);
@@ -484,18 +501,52 @@ gtk_clutter_embed_style_set (GtkWidget *widget,
   g_free (font_name);
 }
 
-static void
-gtk_clutter_embed_add (GtkContainer	 *container,
-		       GtkWidget	 *widget)
+void
+_gtk_clutter_embed_set_child_active (GtkClutterEmbed *embed,
+                                     GtkWidget       *child,
+                                     gboolean         active)
 {
-  g_warning ("GtkClutterEmbed children not yet supported");
+  GdkWindow *child_window;
+
+  child_window = gtk_widget_get_window (child);
+
+  if (active)
+    {
+      embed->priv->n_active_children++;
+      gdk_offscreen_window_set_embedder (child_window, gtk_widget_get_window (GTK_WIDGET (embed)));
+    }
+  else
+    {
+      embed->priv->n_active_children--;
+      gdk_offscreen_window_set_embedder (child_window, NULL);
+    }
 }
 
 static void
-gtk_clutter_embed_remove (GtkContainer	 *container,
-			  GtkWidget	 *widget)
+gtk_clutter_embed_add (GtkContainer *container,
+		       GtkWidget    *widget)
 {
-  g_warning ("GtkClutterEmbed children not yet supported");
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (container)->priv;
+
+  g_assert (GTK_CLUTTER_IS_OFFSCREEN (widget));
+
+  priv->children = g_list_prepend (priv->children, widget);
+  gtk_widget_set_parent (widget, GTK_WIDGET (container));
+}
+
+static void
+gtk_clutter_embed_remove (GtkContainer *container,
+			  GtkWidget    *widget)
+{
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (container)->priv;
+  GList *l;
+
+  l = g_list_find (priv->children, widget);
+  if (l != NULL)
+    {
+      priv->children = g_list_delete_link (priv->children, l);
+      gtk_widget_unparent (widget);
+    }
 }
 
 static void
@@ -504,13 +555,21 @@ gtk_clutter_embed_forall (GtkContainer	 *container,
 			  GtkCallback	  callback,
 			  gpointer	  callback_data)
 {
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (container)->priv;
+  GList *l;
+
+  if (include_internals)
+    {
+      for (l = priv->children; l != NULL; l = l->next)
+	callback (l->data, callback_data);
+    }
 }
 
 static GType
 gtk_clutter_embed_child_type (GtkContainer *container)
 {
-  /* No children supported yet */
-  return G_TYPE_NONE;
+  /* we only accept GtkClutterOffscreen children */
+  return GTK_CLUTTER_TYPE_OFFSCREEN;
 }
 
 static void
@@ -531,7 +590,6 @@ gtk_clutter_embed_class_init (GtkClutterEmbedClass *klass)
   widget_class->show = gtk_clutter_embed_show;
   widget_class->hide = gtk_clutter_embed_hide;
   widget_class->unmap = gtk_clutter_embed_unmap;
-  widget_class->expose_event = gtk_clutter_embed_expose_event;
   widget_class->map_event = gtk_clutter_embed_map_event;
   widget_class->unmap_event = gtk_clutter_embed_unmap_event;
   widget_class->focus_in_event = gtk_clutter_embed_focus_in;
@@ -548,13 +606,12 @@ gtk_clutter_embed_class_init (GtkClutterEmbedClass *klass)
 static void
 gtk_clutter_embed_init (GtkClutterEmbed *embed)
 {
-  GtkWidget *widget = GTK_WIDGET (embed);
   GtkClutterEmbedPrivate *priv;
 
   embed->priv = priv = GTK_CLUTTER_EMBED_GET_PRIVATE (embed);
 
-  gtk_widget_set_can_focus (widget, TRUE);
-  gtk_widget_set_has_window (widget, TRUE);
+  gtk_widget_set_can_focus (GTK_WIDGET (embed), TRUE);
+  gtk_widget_set_has_window (GTK_WIDGET (embed), TRUE);
 
   /* disable double-buffering: it's automatically provided
    * by OpenGL
@@ -563,6 +620,9 @@ gtk_clutter_embed_init (GtkClutterEmbed *embed)
 
   /* we always create new stages rather than use the default */
   priv->stage = clutter_stage_new ();
+  g_object_set_data (G_OBJECT (priv->stage),
+		     "gtk-clutter-embed",
+		     embed);
 
   /* intercept the queue-redraw signal of the stage to know when
    * Clutter-side requests a redraw; this way we can also request
@@ -581,8 +641,6 @@ gtk_clutter_embed_init (GtkClutterEmbed *embed)
  * used to build a scene using Clutter API into a GTK+ application.
  *
  * Return value: the newly created #GtkClutterEmbed
- *
- * Since: 0.6
  */
 GtkWidget *
 gtk_clutter_embed_new (void)
@@ -595,13 +653,10 @@ gtk_clutter_embed_new (void)
  * @embed: a #GtkClutterEmbed
  *
  * Retrieves the #ClutterStage from @embed. The returned stage can be
- * used to add actors to the Clutter scene. Multiple calls to this function
- * on the same #GtkClutterEmbed widget will return the same stage.
+ * used to add actors to the Clutter scene.
  *
- * Return value: (transfer none): a #ClutterStage. You should never destroy
- *   or unref the returned actor.
- *
- * Since: 0.6
+ * Return value: (transfer full): the Clutter stage. You should never
+ *   destroy or unref the returned actor.
  */
 ClutterActor *
 gtk_clutter_embed_get_stage (GtkClutterEmbed *embed)

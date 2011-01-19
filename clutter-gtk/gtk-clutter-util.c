@@ -3,6 +3,8 @@
 #endif
 
 #include "gtk-clutter-util.h"
+#include "gtk-clutter-offscreen.h"
+#include "gtk-clutter-version.h"
 
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <gdk/gdk.h>
@@ -23,6 +25,7 @@
 
 /**
  * SECTION:gtk-clutter-util
+ * @Title: Utility Functions
  * @short_description: Utility functions for integrating Clutter in GTK+
  *
  * In order to properly integrate a Clutter scene into a GTK+ applications
@@ -32,6 +35,10 @@
  * with the current GTK+ theme and for loading image sources from #GdkPixbuf,
  * GTK+ stock items and icon themes.
  */
+
+static const guint clutter_gtk_major_version = CLUTTER_GTK_MAJOR_VERSION;
+static const guint clutter_gtk_minor_version = CLUTTER_GTK_MINOR_VERSION;
+static const guint clutter_gtk_micro_version = CLUTTER_GTK_MICRO_VERSION;
 
 enum
 {
@@ -294,316 +301,85 @@ gtk_clutter_get_text_aa_color (GtkWidget    *widget,
   gtk_clutter_get_component (widget, TEXT_AA_COMPONENT, state, color);
 }
 
-/**
- * gtk_clutter_texture_new_from_pixbuf:
- * @pixbuf: a #GdkPixbuf
- *
- * Creates a new #ClutterTexture and sets its contents with a copy
- * of @pixbuf.
- *
- * Return value: the newly created #ClutterTexture
- *
- * Since: 0.8
- */
-ClutterActor *
-gtk_clutter_texture_new_from_pixbuf (GdkPixbuf *pixbuf)
+static gboolean
+post_parse_hook (GOptionContext  *context,
+                 GOptionGroup    *group,
+                 gpointer         data,
+                 GError         **error)
 {
-  ClutterActor *retval;
-  GError *error;
+#if defined(GDK_WINDOWING_X11)
+  /* share the X11 Display with GTK+ */
+  clutter_x11_set_display (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()));
 
-  g_return_val_if_fail (GDK_IS_PIXBUF (pixbuf), NULL);
+  /* let GTK+ in charge of the event handling */
+  clutter_x11_disable_event_retrieval ();
+#elif defined(GDK_WINDOWING_WIN32)
+  /* let GTK+ in charge of the event handling */
+  clutter_win32_disable_event_retrieval ();
+#endif /* GDK_WINDOWING_{X11,WIN32} */
 
-  retval = clutter_texture_new ();
-
-  error = NULL;
-  clutter_texture_set_from_rgb_data (CLUTTER_TEXTURE (retval),
-                                     gdk_pixbuf_get_pixels (pixbuf),
-                                     gdk_pixbuf_get_has_alpha (pixbuf),
-                                     gdk_pixbuf_get_width (pixbuf),
-                                     gdk_pixbuf_get_height (pixbuf),
-                                     gdk_pixbuf_get_rowstride (pixbuf),
-                                     gdk_pixbuf_get_has_alpha (pixbuf) ? 4 : 3,
-                                     0,
-                                     &error);
-  if (error)
-    {
-      g_warning ("Unable to set the pixbuf: %s", error->message);
-      g_error_free (error);
-    }
-
-  return retval; 
-}
-
-GQuark
-gtk_clutter_texture_error_quark (void)
-{
-  return g_quark_from_static_string ("clutter-gtk-texture-error-quark");
+  /* this is required since parsing clutter's option group did not
+   * complete the initialization process
+   */
+  return clutter_init_with_args (NULL, NULL, NULL, NULL, NULL, error);
 }
 
 /**
- * gtk_clutter_texture_set_from_pixbuf:
- * @texture: a #ClutterTexture
- * @pixbuf: a #GdkPixbuf
- * @error: a return location for errors
+ * gtk_clutter_get_option_group: (skip)
  *
- * Sets the contents of @texture with a copy of @pixbuf.
+ * Returns a #GOptionGroup for the command line arguments recognized
+ * by Clutter. You should add this group to your #GOptionContext with
+ * g_option_context_add_group(), if you are using g_option_context_parse()
+ * to parse your commandline arguments instead of using gtk_clutter_init()
+ * or gtk_clutter_init_with_args().
  *
- * Return value: %TRUE on success, %FALSE on failure.
+ * You should add this option group to your #GOptionContext after
+ * the GTK option group created with gtk_get_option_group(), and after
+ * the clutter option group obtained from clutter_get_option_group_without_init().
+ * You should not use clutter_get_option_group() together with this function.
  *
- * Since: 0.8
+ * You must pass %TRUE to gtk_get_option_group() since gtk-clutter's option
+ * group relies on it.
+ *
+ * Parsing options using g_option_context_parse() with a #GOptionContext
+ * containing the returned #GOptionGroupwith will result in Clutter's and
+ * GTK-Clutter's initialisation.  That is, the following code:
+ *
+ * |[
+ *   g_option_context_add_group (context, gtk_get_option_group (TRUE));
+ *   g_option_context_add_group (context, cogl_get_option_group ());
+ *   g_option_context_add_group (context, clutter_get_option_group_without_init ());
+ *   g_option_context_add_group (context, gtk_clutter_get_option_group ());
+ *   res = g_option_context_parse (context, &amp;argc, &amp;argc, NULL);
+ * ]|
+ *
+ * is functionally equivalent to:
+ *
+ * |[
+ *   gtk_clutter_init (&amp;argc, &amp;argv);
+ * ]|
+ *
+ * After g_option_context_parse() on a #GOptionContext containing the
+ * the returned #GOptionGroup has returned %TRUE, Clutter and GTK-Clutter are
+ * guaranteed to be initialized.
+ *
+ * Return value: (transfer full): a #GOptionGroup for the commandline arguments
+ *   recognized by ClutterGtk
  */
-gboolean
-gtk_clutter_texture_set_from_pixbuf (ClutterTexture *texture,
-                                     GdkPixbuf      *pixbuf,
-                                     GError        **error)
+GOptionGroup *
+gtk_clutter_get_option_group  (void)
 {
-  g_return_val_if_fail (CLUTTER_IS_TEXTURE (texture), FALSE);
-  g_return_val_if_fail (GDK_IS_PIXBUF (pixbuf), FALSE);
+  GOptionGroup *group;
 
-  return clutter_texture_set_from_rgb_data (texture,
-                                     gdk_pixbuf_get_pixels (pixbuf),
-                                     gdk_pixbuf_get_has_alpha (pixbuf),
-                                     gdk_pixbuf_get_width (pixbuf),
-                                     gdk_pixbuf_get_height (pixbuf),
-                                     gdk_pixbuf_get_rowstride (pixbuf),
-                                     gdk_pixbuf_get_has_alpha (pixbuf) ? 4 : 3,
-                                     0,
-                                     error);
-}
+  group = g_option_group_new ("clutter-gtk", "", "", NULL, NULL);
+  g_option_group_set_parse_hooks (group, NULL, post_parse_hook);
 
-/**
- * gtk_clutter_texture_new_from_stock:
- * @widget: a #GtkWidget
- * @stock_id: the stock id of the icon
- * @size: the size of the icon, or -1
- *
- * Creates a new #ClutterTexture and sets its contents using the stock
- * icon @stock_id as rendered by @widget.
- *
- * Return value: the newly created #ClutterTexture
- *
- * Since: 0.8
- */
-ClutterActor *
-gtk_clutter_texture_new_from_stock (GtkWidget   *widget,
-                                    const gchar *stock_id,
-                                    GtkIconSize  size)
-{
-  GdkPixbuf *pixbuf;
-  ClutterActor *retval;
-
-  g_return_val_if_fail (GTK_IS_WIDGET (widget), NULL);
-  g_return_val_if_fail (stock_id != NULL, NULL);
-  g_return_val_if_fail (size > GTK_ICON_SIZE_INVALID || size == -1, NULL);
-
-  pixbuf = gtk_widget_render_icon (widget, stock_id, size, NULL);
-  if (!pixbuf)
-    pixbuf = gtk_widget_render_icon (widget,
-                                     GTK_STOCK_MISSING_IMAGE, size,
-                                     NULL);
-
-  retval = gtk_clutter_texture_new_from_pixbuf (pixbuf);
-  g_object_unref (pixbuf);
-
-  return retval;
-}
-
-/**
- * gtk_clutter_texture_set_from_stock:
- * @texture: a #ClutterTexture
- * @widget: a #GtkWidget
- * @stock_id: the stock id of the icon
- * @size: the size of the icon, or -1
- * @error: a return location for errors
- *
- * Sets the contents of @texture using the stock icon @stock_id, as
- * rendered by @widget.
- *
- * Return value: %TRUE on success, %FALSE on failure.
- *
- * Since: 0.8
- */
-gboolean
-gtk_clutter_texture_set_from_stock (ClutterTexture *texture,
-                                    GtkWidget      *widget,
-                                    const gchar    *stock_id,
-                                    GtkIconSize     size,
-                                    GError        **error)
-{
-  GdkPixbuf *pixbuf;
-  gboolean returnval;
-
-  g_return_val_if_fail (CLUTTER_IS_TEXTURE (texture), FALSE);
-  g_return_val_if_fail (GTK_IS_WIDGET (widget), FALSE);
-  g_return_val_if_fail (stock_id != NULL, FALSE);
-  g_return_val_if_fail ((size > GTK_ICON_SIZE_INVALID) || (size == -1), FALSE);
-
-  pixbuf = gtk_widget_render_icon (widget, stock_id, size, NULL);
-  if (!pixbuf)
-    {
-      g_set_error (error,
-                   CLUTTER_GTK_TEXTURE_ERROR,
-                   CLUTTER_GTK_TEXTURE_INVALID_STOCK_ID,
-                   "Stock ID '%s' not found", stock_id);
-      return FALSE;
-    }
-
-  returnval = gtk_clutter_texture_set_from_pixbuf (texture, pixbuf, error);
-  g_object_unref (pixbuf);
-
-  return returnval;
-}
-
-/**
- * gtk_clutter_texture_new_from_icon_name:
- * @widget: a #GtkWidget or %NULL
- * @icon_name: the name of the icon
- * @size: the size of the icon, or -1
- *
- * Creates a new #ClutterTexture and sets its contents to be
- * the @icon_name from the current icon theme.
- *
- * Return value: the newly created texture, or %NULL if @widget
- *   was %NULL and @icon_name was not found.
- *
- * Since: 0.8
- */
-ClutterActor *
-gtk_clutter_texture_new_from_icon_name (GtkWidget   *widget,
-                                        const gchar *icon_name,
-                                        GtkIconSize  size)
-{
-  GtkSettings *settings;
-  GtkIconTheme *icon_theme;
-  gint width, height;
-  GdkPixbuf *pixbuf;
-  GError *error;
-  ClutterActor *retval;
-
-  g_return_val_if_fail (widget == NULL || GTK_IS_WIDGET (widget), NULL);
-  g_return_val_if_fail (icon_name != NULL, NULL);
-  g_return_val_if_fail (size > GTK_ICON_SIZE_INVALID || size == -1, NULL);
-
-  if (widget && gtk_widget_has_screen (widget))
-    {
-      GdkScreen *screen;
-
-      screen = gtk_widget_get_screen (widget);
-      settings = gtk_settings_get_for_screen (screen);
-      icon_theme = gtk_icon_theme_get_for_screen (screen);
-    }
-  else
-    {
-      settings = gtk_settings_get_default ();
-      icon_theme = gtk_icon_theme_get_default ();
-    }
-
-  if (size == -1 ||
-      !gtk_icon_size_lookup_for_settings (settings, size, &width, &height))
-    {
-      width = height = 48;
-    }
-
-  error = NULL;
-  pixbuf = gtk_icon_theme_load_icon (icon_theme,
-                                     icon_name,
-                                     MIN (width, height), 0,
-                                     &error);
-  if (error)
-    {
-      g_warning ("Unable to load the icon `%s' from the theme: %s",
-                 icon_name,
-                 error->message);
-
-      g_error_free (error);
-
-      if (widget)
-        return gtk_clutter_texture_new_from_stock (widget,
-                                             GTK_STOCK_MISSING_IMAGE,
-                                             size);
-      else
-        return NULL;
-    }
-
-  retval = gtk_clutter_texture_new_from_pixbuf (pixbuf);
-  g_object_unref (pixbuf);
-
-  return retval; 
-}
-
-/**
- * gtk_clutter_texture_set_from_icon_name:
- * @texture: a #ClutterTexture
- * @widget: a #GtkWidget or %NULL
- * @icon_name: the name of the icon
- * @size: the icon size or -1
- * @error: a return location for errors
- *
- * Sets the contents of @texture using the @icon_name from the
- * current icon theme.
- *
- * Return value: %TRUE on success, %FALSE on failure.
- *
- * Since: 0.8
- */
-gboolean
-gtk_clutter_texture_set_from_icon_name (ClutterTexture *texture,
-                                        GtkWidget      *widget,
-                                        const gchar    *icon_name,
-                                        GtkIconSize     size,
-                                        GError        **error)
-{
-  GError *local_error = NULL;
-  GtkSettings *settings;
-  GtkIconTheme *icon_theme;
-  gboolean returnval;
-  gint width, height;
-  GdkPixbuf *pixbuf;
-
-  g_return_val_if_fail (CLUTTER_IS_TEXTURE (texture), FALSE);
-  g_return_val_if_fail (GTK_IS_WIDGET (widget), FALSE);
-  g_return_val_if_fail (icon_name != NULL, FALSE);
-  g_return_val_if_fail ((size > GTK_ICON_SIZE_INVALID) || (size == -1), FALSE);
-
-  if (widget && gtk_widget_has_screen (widget))
-    {
-      GdkScreen *screen;
-
-      screen = gtk_widget_get_screen (widget);
-      settings = gtk_settings_get_for_screen (screen);
-      icon_theme = gtk_icon_theme_get_for_screen (screen);
-    }
-  else
-    {
-      settings = gtk_settings_get_default ();
-      icon_theme = gtk_icon_theme_get_default ();
-    }
-
-  if (size == -1 ||
-      !gtk_icon_size_lookup_for_settings (settings, size, &width, &height))
-    {
-      width = height = 48;
-    }
-
-  pixbuf = gtk_icon_theme_load_icon (icon_theme,
-                                     icon_name,
-                                     MIN (width, height), 0,
-                                     &local_error);
-  if (local_error)
-    {
-      g_propagate_error (error, local_error);
-      return FALSE;
-    }
-
-  returnval = gtk_clutter_texture_set_from_pixbuf (texture, pixbuf, error);
-  g_object_unref (pixbuf);
-
-  return returnval;
+  return group;
 }
 
 /**
  * gtk_clutter_init:
- * @argc: (inout): pointer to the arguments count, or %NULL
+ * @argc: (inout) (allow-none): pointer to the arguments count, or %NULL
  * @argv: (array length=argc) (inout) (allow-none): pointer to the
  *   arguments vector, or %NULL
  *
@@ -612,20 +388,27 @@ gtk_clutter_texture_set_from_icon_name (ClutterTexture *texture,
  *
  * Return value: %CLUTTER_INIT_SUCCESS on success, a negative integer
  *   on failure.
- *
- * Since: 0.8
  */
 ClutterInitError
 gtk_clutter_init (int    *argc,
                   char ***argv)
 {
   if (!gtk_init_check (argc, argv))
-    return CLUTTER_INIT_ERROR_GTK;
+    return CLUTTER_INIT_ERROR_UNKNOWN;
 
 #if defined(HAVE_CLUTTER_GTK_X11)
-  clutter_x11_set_display (gdk_x11_display_get_xdisplay (gdk_display_get_default ()));
+# if CLUTTER_CHECK_VERSION (1, 1, 5)
+  /* enable ARGB visuals by default for Clutter */
+  clutter_x11_set_use_argb_visual (TRUE);
+# endif
+
+  /* share the X11 Display with GTK+ */
+  clutter_x11_set_display (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()));
+
+  /* let GTK+ in charge of the event handling */
   clutter_x11_disable_event_retrieval ();
 #elif defined(HAVE_CLUTTER_GTK_WIN32)
+  /* let GTK+ in charge of the event handling */
   clutter_win32_disable_event_retrieval ();
 #endif /* HAVE_CLUTTER_GTK_{X11,WIN32} */
 
@@ -634,17 +417,18 @@ gtk_clutter_init (int    *argc,
 
 /**
  * gtk_clutter_init_with_args:
- * @argc: (inout): a pointer to the number of command line arguments.
- * @argv: (array length=argc) (inout) (allow-none): a pointer to the array
- *   of command line arguments.
+ * @argc: (inout) (allow-none): a pointer to the number of command line
+ *   arguments, or %NULL
+ * @argv: (inout) (allow-none) (array length=argc): a pointer to the array
+ *   of command line arguments, or %NULL
  * @parameter_string: (allow-none): a string which is displayed in
- *   the first line of <option>--help</option> output, after
- *   <literal><replaceable>programname</replaceable> [OPTION...]</literal>
+ *    the first line of <option>--help</option> output, after
+ *    <literal><replaceable>programname</replaceable> [OPTION...]</literal>
  * @entries: (allow-none): a %NULL-terminated array of #GOptionEntry<!-- -->s
- *   describing the options of your program, or %NULL
+ *    describing the options of your program
  * @translation_domain: (allow-none): a translation domain to use for
- *   translating the <option>--help</option> output for the options
- *   in @entries with gettext(), or %NULL
+ *    translating the <option>--help</option> output for the options
+ *    in @entries with gettext(), or %NULL
  * @error: (allow-none): a return location for errors, or %NULL
  *
  * This function should be called instead of clutter_init() and
@@ -652,8 +436,6 @@ gtk_clutter_init (int    *argc,
  *
  * Return value: %CLUTTER_INIT_SUCCESS on success, a negative integer
  *   on failure.
- *
- * Since: 0.10
  */
 ClutterInitError
 gtk_clutter_init_with_args (int            *argc,
@@ -663,9 +445,14 @@ gtk_clutter_init_with_args (int            *argc,
                             const char     *translation_domain,
                             GError        **error)
 {
-  GOptionGroup *gtk_group, *clutter_group;
+  GOptionGroup *gtk_group, *clutter_group, *cogl_group, *clutter_gtk_group;
   GOptionContext *context;
   gboolean res;
+
+#if defined(GDK_WINDOWING_X11) && CLUTTER_CHECK_VERSION (1, 1, 5)
+  /* enable ARGB visuals by default for Clutter */
+  clutter_x11_set_use_argb_visual (TRUE);
+#endif
 
   /* we let gtk+ open the display */
   gtk_group = gtk_get_option_group (TRUE);
@@ -673,10 +460,16 @@ gtk_clutter_init_with_args (int            *argc,
   /* and we prevent clutter from doing so too */
   clutter_group = clutter_get_option_group_without_init ();
 
+  cogl_group = cogl_get_option_group ();
+
+  clutter_gtk_group = gtk_clutter_get_option_group ();
+
   context = g_option_context_new (parameter_string);
 
   g_option_context_add_group (context, gtk_group);
+  g_option_context_add_group (context, cogl_group);
   g_option_context_add_group (context, clutter_group);
+  g_option_context_add_group (context, clutter_gtk_group);
 
   if (entries)
     g_option_context_add_main_entries (context, entries, translation_domain);
@@ -685,21 +478,33 @@ gtk_clutter_init_with_args (int            *argc,
   g_option_context_free (context);
 
   if (!res)
-    return CLUTTER_INIT_ERROR_GTK;
+    return CLUTTER_INIT_ERROR_UNKNOWN;
 
-#if defined(GDK_WINDOWING_X11)
-  clutter_x11_set_display (gdk_x11_display_get_xdisplay (gdk_display_get_default ()));
-  clutter_x11_disable_event_retrieval ();
-#elif defined(GDK_WINDOWING_WIN32)
-  clutter_win32_disable_event_retrieval ();
-#endif /* GDK_WINDOWING_{X11,WIN32} */
+  return CLUTTER_INIT_SUCCESS;
+}
 
-  /* this is required since parsing clutter's option group did not
-   * complete the initialization process
-   */
-  return clutter_init_with_args (argc, argv,
-                                 NULL,
-                                 NULL,
-                                 NULL,
-                                 error);
+/**
+ * gtk_clutter_check_version:
+ * @major: the major component of the version,
+ *   i.e. 1 if the version is 1.2.3
+ * @minor: the minor component of the version,
+ *   i.e. 2 if the version is 1.2.3
+ * @micro: the micro component of the version,
+ *   i.e. 3 if the version is 1.2.3
+ *
+ * Checks the version of the Clutter-GTK library at run-time.
+ *
+ * Return value: %TRUE if the version of the library is greater or
+ *   equal than the one requested
+ *
+ * Since: 1.0
+ */
+gboolean
+gtk_clutter_check_version (guint major,
+                           guint minor,
+                           guint micro)
+{
+  return (major > clutter_gtk_major_version) ||
+         ((major == clutter_gtk_major_version) && (minor > clutter_gtk_minor_version)) ||
+         ((major == clutter_gtk_major_version) && (minor == clutter_gtk_minor_version) && (micro >= clutter_gtk_micro_version));
 }

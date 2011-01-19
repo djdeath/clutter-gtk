@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <gtk/gtk.h>
 #include <clutter/clutter.h>
 
@@ -35,6 +36,7 @@ main (int argc, char *argv[])
   GtkWidget       *window, *embed;
   GtkWidget       *table, *scrollbar, *slider;
   GtkAdjustment   *h_adjustment, *v_adjustment, *z_adjustment;
+  GError *error = NULL;
 
   g_thread_init (NULL);
   gdk_threads_init ();
@@ -68,13 +70,25 @@ main (int argc, char *argv[])
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), viewport);
 
   if (argc < 2)
-    tex = gtk_clutter_texture_new_from_stock (embed,
-                                              GTK_STOCK_DIALOG_INFO,
-                                              GTK_ICON_SIZE_DIALOG);
+    {
+      tex = gtk_clutter_texture_new ();
+      gtk_clutter_texture_set_from_stock (GTK_CLUTTER_TEXTURE (tex),
+                                          embed,
+                                          GTK_STOCK_DIALOG_INFO,
+                                          GTK_ICON_SIZE_DIALOG,
+                                          &error);
+      if (error)
+        {
+          g_warning ("Unable to open `%s': %s", argv[1], error->message);
+          g_error_free (error);
+        }
+
+      gtk_widget_destroy (window);
+
+      return EXIT_FAILURE;
+    }
   else
     {
-      GError *error = NULL;
-
       tex = clutter_texture_new ();
       clutter_texture_set_load_async (CLUTTER_TEXTURE (tex), TRUE);
       g_signal_connect (tex,
@@ -140,5 +154,5 @@ main (int argc, char *argv[])
 
   gtk_main();
 
-  return 0;
+  return EXIT_SUCCESS;
 }

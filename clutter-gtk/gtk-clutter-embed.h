@@ -48,7 +48,8 @@ typedef struct _GtkClutterEmbedClass    GtkClutterEmbedClass;
  *
  * A #GtkWidget containing the default Clutter stage.
  *
- * Since: 0.6
+ * The <structname>GtkClutterEmbed</structname> structure contains only
+ * private data and should be accessed using the provided API.
  */
 struct _GtkClutterEmbed
 {
@@ -63,7 +64,8 @@ struct _GtkClutterEmbed
  *
  * Base class for #GtkClutterEmbed.
  *
- * Since: 0.6
+ * The <structname>GtkClutterEmbedClass</structname> contains only private
+ * data.
  */
 struct _GtkClutterEmbedClass
 {
@@ -80,6 +82,7 @@ struct _GtkClutterEmbedClass
 };
 
 GType         gtk_clutter_embed_get_type  (void) G_GNUC_CONST;
+
 GtkWidget *   gtk_clutter_embed_new       (void);
 ClutterActor *gtk_clutter_embed_get_stage (GtkClutterEmbed *embed);
 

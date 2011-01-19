@@ -1,83 +1,96 @@
-CLEANFILES=
+include $(top_srcdir)/build/autotools/Makefile.am.silent
 
-INCLUDES = -I$(srcdir) -I$(top_srcdir)
+NULL =
+
+CLEANFILES =
+DISTCLEANFILES =
+EXTRA_DIST =
+
+INCLUDES = -I$(srcdir) -I$(top_srcdir) -I $(top_builddir)
 
 AM_CPPFLAGS = \
-	-DG_LOG_DOMAIN=\"Clutter-Gtk\" 		\
-	-DPREFIX=\""$(prefix)"\" 		\
-	-DLIBDIR=\""$(libdir)"\" 		\
-        -DCLUTTER_GTK_COMPILATION               \
-        -DG_DISABLE_DEPRECATED                  \
-        -DGDK_PIXBUF_DISABLE_DEPRECATED         \
-        -DGDK_DISABLE_DEPRECATED                \
-        -DGTK_DISABLE_DEPRECATED                \
-	-DCOGL_DISABLE_DEPRECATED		\
-	-DCLUTTER_DISABLE_DEPRECATED		\
-	$(CLUTTER_GTK_DEBUG_CFLAGS)
+	-DG_LOG_DOMAIN=\"Clutter-Gtk\" 	\
+	-DPREFIX=\""$(prefix)"\" 	\
+	-DLIBDIR=\""$(libdir)"\"	\
+	-DCLUTTER_GTK_COMPILATION	\
+	$(CLUTTER_GTK_DEBUG_CFLAGS) 	\
+	$(NULL)
 
-common_cflags = $(CLUTTER_CFLAGS) $(GTK_CFLAGS)
-
-# please, keep these lists sorted alphabetically
-sources_c = \
-	$(srcdir)/gtk-clutter-embed.c 		\
-	$(srcdir)/gtk-clutter-scrollable.c 	\
-	$(srcdir)/gtk-clutter-util.c 		\
-	$(srcdir)/gtk-clutter-viewport.c	\
-	$(srcdir)/gtk-clutter-zoomable.c
-
-sources_h = \
-	$(srcdir)/gtk-clutter-embed.h 		\
-	$(srcdir)/gtk-clutter-scrollable.h 	\
-	$(srcdir)/gtk-clutter-util.h 		\
-	$(srcdir)/gtk-clutter-viewport.h	\
-	$(srcdir)/gtk-clutter-zoomable.h
+AM_CFLAGS = $(MAINTAINER_CFLAGS) $(CLUTTER_CFLAGS) $(GTK_CFLAGS)
 
 lib_LTLIBRARIES = libclutter-gtk-@CLUTTER_GTK_API_VERSION@.la
 
-# please, keep the list sorted alphabetically
-libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_SOURCES = $(sources_c)
-libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_LIBADD = $(CLUTTER_LIBS) $(GTK_LIBS)
-libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_LDFLAGS = $(CLUTTER_LT_LDFLAGS)
-libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_CFLAGS = $(common_cflags) $(MAINTAINER_CFLAGS)
+source_c = \
+	$(srcdir)/gtk-clutter-actor.c 		\
+	$(srcdir)/gtk-clutter-embed.c 		\
+	$(srcdir)/gtk-clutter-offscreen.c	\
+	$(srcdir)/gtk-clutter-scrollable.c	\
+	$(srcdir)/gtk-clutter-texture.c		\
+	$(srcdir)/gtk-clutter-util.c 		\
+	$(srcdir)/gtk-clutter-viewport.c	\
+	$(srcdir)/gtk-clutter-window.c		\
+	$(srcdir)/gtk-clutter-zoomable.c	\
+	$(NULL)
 
-cluttergtkheadersdir = $(includedir)/clutter-1.0/clutter-gtk
-cluttergtkheaders_HEADERS = $(sources_h) $(srcdir)/clutter-gtk.h
+source_h_public = \
+	$(srcdir)/gtk-clutter-actor.h 		\
+	$(srcdir)/gtk-clutter-embed.h 		\
+	$(srcdir)/gtk-clutter-scrollable.h	\
+	$(srcdir)/gtk-clutter-texture.h		\
+	$(srcdir)/gtk-clutter-util.h 		\
+	$(srcdir)/gtk-clutter-viewport.h	\
+	$(srcdir)/gtk-clutter-window.h		\
+	$(srcdir)/gtk-clutter-zoomable.h	\
+	$(NULL)
+
+source_h_private = \
+	$(srcdir)/gtk-clutter-offscreen.h	\
+	$(srcdir)/gtk-clutter-actor-internal.h	\
+	$(NULL)
+
+# please, keep the list sorted alphabetically
+libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_SOURCES = $(source_c) $(source_h) $(source_h_private)
+libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_LIBADD  = $(CLUTTER_LIBS) $(GTK_LIBS)
+libclutter_gtk_@CLUTTER_GTK_API_VERSION@_la_LDFLAGS = $(CLUTTER_LT_LDFLAGS)
+
+cluttergtkheadersdir = $(includedir)/clutter-gtk-@CLUTTER_GTK_API_VERSION@/clutter-gtk
+
+# please, keep the list sorted alphabetically
+cluttergtkheaders_HEADERS = \
+	$(top_srcdir)/clutter-gtk/clutter-gtk.h 		\
+	$(top_builddir)/clutter-gtk/gtk-clutter-version.h	\
+	$(source_h_public)					\
+	$(NULL)
+
+EXTRA_DIST += gtk-clutter-version.h.in
+
+-include $(INTROSPECTION_MAKEFILE)
+
+INTROSPECTION_GIRS =
 
 if HAVE_INTROSPECTION
-BUILT_GIRSOURCES =
+GtkClutter-@CLUTTER_GTK_API_VERSION@.gir: libclutter-gtk-@CLUTTER_GTK_API_VERSION@.la Makefile
 
-GtkClutter-@CLUTTER_GTK_API_VERSION@.gir: $(INTROSPECTION_SCANNER) Makefile libclutter-gtk-@CLUTTER_GTK_API_VERSION@.la
-	$(AM_V_GEN)$(INTROSPECTION_SCANNER) -v \
-		--namespace GtkClutter --nsversion=@CLUTTER_GTK_API_VERSION@ \
-		--strip-prefix=GtkClutter \
-		$(INCLUDES) $(AM_CPPFLAGS) $(common_cflags) \
-		--add-include-path=$(srcdir) --add-include=path=. \
-		--include=Clutter-1.0 \
-		--include=GdkPixbuf-2.0 \
-		--include=Gtk-2.0 \
-		--library=libclutter-gtk-@CLUTTER_GTK_API_VERSION@.la \
-		--libtool="$(top_builddir)/libtool" \
-		--output $@ \
-		$(sources_h) $(sources_c)
+GtkClutter_@CLUTTER_GTK_API_VERSION_AM@_gir_SCANNERFLAGS = \
+	--identifier-prefix=GtkClutter \
+	--warn-all \
+	--pkg-export clutter-gtk-@CLUTTER_GTK_API_VERSION@ \
+	--c-include='clutter-gtk/clutter-gtk.h'
+GtkClutter_@CLUTTER_GTK_API_VERSION_AM@_gir_NAMESPACE    = GtkClutter
+GtkClutter_@CLUTTER_GTK_API_VERSION_AM@_gir_VERSION      = @CLUTTER_GTK_API_VERSION@
+GtkClutter_@CLUTTER_GTK_API_VERSION_AM@_gir_INCLUDES     = Gtk-2.0 Clutter-1.0
+GtkClutter_@CLUTTER_GTK_API_VERSION_AM@_gir_PACKAGES     = gtk+-2.0 clutter-1.0
+GtkClutter_@CLUTTER_GTK_API_VERSION_AM@_gir_CFLAGS       = $(INCLUDES) $(AM_CPPFLAGS)
+GtkClutter_@CLUTTER_GTK_API_VERSION_AM@_gir_LIBS         = libclutter-gtk-@CLUTTER_GTK_API_VERSION@.la
+GtkClutter_@CLUTTER_GTK_API_VERSION_AM@_gir_FILES        = $(source_h_public) $(source_c)
 
-BUILT_GIRSOURCES += GtkClutter-@CLUTTER_GTK_API_VERSION@.gir
+INTROSPECTION_GIRS += GtkClutter-@CLUTTER_GTK_API_VERSION@.gir
 
-# INTROSPECTION_GIRDIR/INTROSPECTION_TYPELIBDIR aren't the right place to
-# install anything - we need to install inside our prefix.
-girdir = $(datadir)/gir-1.0
-gir_DATA = $(BUILT_GIRSOURCES)
+girdir = $(datadir)/gir-1.0/
+gir_DATA = $(INTROSPECTION_GIRS)
 
 typelibsdir = $(libdir)/girepository-1.0/
-typelibs_DATA = $(BUILT_GIRSOURCES:.gir=.typelib)
+typelibs_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
 
-%.typelib: %.gir $(INTROSPECTION_COMPILER)
-	$(AM_V_GEN)\
-	LD_LIBRARY_PATH=.libs$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH} \
-	$(INTROSPECTION_COMPILER) \
-		--includedir=$(srcdir) \
-		--includedir=. \
-		$(INTROSPECTION_COMPILER_OPTS) \
-	$< -o $(builddir)/$(@F)
-
-CLEANFILES += $(BUILT_GIRSOURCES) $(typelibs_DATA)
-endif
+CLEANFILES += $(gir_DATA) $(typelibs_DATA)
+endif # HAVE_INTROSPECTION

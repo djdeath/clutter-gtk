@@ -31,47 +31,6 @@
 
 G_BEGIN_DECLS
 
-/**
- * ClutterGtkInitError:
- * @CLUTTER_INIT_ERROR_LAST: Placeholder
- * @CLUTTER_INIT_ERROR_GTK: Unable to initialize GTK+
- *
- * Extension of the #ClutterInitError enumeration for the integration
- * with GTK+
- *
- * Since: 0.8
- */
-typedef enum {
-  CLUTTER_INIT_ERROR_LAST = CLUTTER_INIT_ERROR_INTERNAL,
-
-  CLUTTER_INIT_ERROR_GTK  = (CLUTTER_INIT_ERROR_LAST - 1)
-} ClutterGtkInitError;
-
-/**
- * ClutterGtkTextureError:
- * @CLUTTER_INVALID_TYPE: Invalid type given as parameter
- *
- * An enumeration of error types used in ClutterGtk texture functions
- *
- * Since: 0.10
- * */
-typedef enum {
-  CLUTTER_GTK_TEXTURE_INVALID_STOCK_ID,
-
-  CLUTTER_GTK_TEXTURE_ERROR_LAST
-} ClutterGtkTextureError;
-
-#define CLUTTER_GTK_TEXTURE_ERROR gtk_clutter_texture_error_quark ()
-
-ClutterInitError gtk_clutter_init           (int            *argc,
-                                             char         ***argv);
-ClutterInitError gtk_clutter_init_with_args (int            *argc,
-                                             char         ***argv,
-                                             const char     *parameter_string,
-                                             GOptionEntry   *entries,
-                                             const char     *translation_domain,
-                                             GError        **error);
-
 void          gtk_clutter_get_fg_color               (GtkWidget      *widget,
                                                       GtkStateType    state,
                                                       ClutterColor   *color);
@@ -97,27 +56,15 @@ void          gtk_clutter_get_mid_color              (GtkWidget      *widget,
                                                       GtkStateType    state,
                                                       ClutterColor   *color);
 
-ClutterActor *gtk_clutter_texture_new_from_pixbuf    (GdkPixbuf      *pixbuf);
-ClutterActor *gtk_clutter_texture_new_from_stock     (GtkWidget      *widget,
-                                                      const gchar    *stock_id,
-                                                      GtkIconSize     size);
-ClutterActor *gtk_clutter_texture_new_from_icon_name (GtkWidget      *widget,
-                                                      const gchar    *icon_name,
-                                                      GtkIconSize     size);
-GQuark        gtk_clutter_texture_error_quark        (void);
-gboolean      gtk_clutter_texture_set_from_pixbuf    (ClutterTexture *texture,
-                                                      GdkPixbuf      *pixbuf,
-                                                      GError        **error);
-gboolean      gtk_clutter_texture_set_from_stock     (ClutterTexture *texture,
-                                                      GtkWidget      *widget,
-                                                      const gchar    *stock_id,
-                                                      GtkIconSize     size,
-                                                      GError        **error);
-gboolean      gtk_clutter_texture_set_from_icon_name (ClutterTexture *texture,
-                                                      GtkWidget      *widget,
-                                                      const gchar    *icon_name,
-                                                      GtkIconSize     size,
-                                                      GError        **error);
+ClutterInitError gtk_clutter_init           (int            *argc,
+                                             char         ***argv);
+ClutterInitError gtk_clutter_init_with_args (int            *argc,
+                                             char         ***argv,
+                                             const char     *parameter_string,
+                                             GOptionEntry   *entries,
+                                             const char     *translation_domain,
+                                             GError        **error);
+GOptionGroup *gtk_clutter_get_option_group  (void);
 
 G_END_DECLS
 

@@ -8,17 +8,17 @@
 
 #include <clutter-gtk/clutter-gtk.h>
 
-#define TRAILS 0
-#define NHANDS  2
-#define WINWIDTH   400
-#define WINHEIGHT  400
-#define RADIUS     150
+#define NHANDS          2
+#define WINWIDTH        400
+#define WINHEIGHT       400
+#define RADIUS          150
 
 typedef struct SuperOH
 {
+  ClutterActor *stage;
   ClutterActor *hand[NHANDS], *bgtex;
-  ClutterGroup   *group;
-  GdkPixbuf      *bgpixb;
+  ClutterActor *group;
+  GdkPixbuf    *bgpixb;
 
 } SuperOH; 
 
@@ -63,16 +63,6 @@ frame_cb (ClutterTimeline *timeline,
   gint            i;
   guint           rotation = clutter_timeline_get_progress (timeline) * 360.0f;
 
-#if TRAILS
-  oh->bgpixb = clutter_stage_snapshot (CLUTTER_STAGE (stage),
-				       0, 0,
-				       WINWIDTH,
-				       WINHEIGHT);
-  clutter_texture_set_pixbuf (CLUTTER_TEXTURE (oh->bgtex), oh->bgpixb);
-  g_object_unref (G_OBJECT (oh->bgpixb));
-  g_object_unref (stage);
-#endif
-
   /* Rotate everything clockwise about stage center*/
   clutter_actor_set_rotation (CLUTTER_ACTOR (oh->group),
                               CLUTTER_Z_AXIS,
@@ -91,12 +81,6 @@ frame_cb (ClutterTimeline *timeline,
       if (fade == TRUE)
         clutter_actor_set_opacity (oh->hand[i], (255 - (rotation % 255)));
     }
-
-  /*
-  clutter_actor_rotate_x (CLUTTER_ACTOR(oh->group),
-			    75.0,
-			    WINHEIGHT/2, 0);
-  */
 }
 
 static void
@@ -128,6 +112,7 @@ main (int argc, char *argv[])
   ClutterTimeline *timeline;
   ClutterActor    *stage;
   ClutterColor     stage_color = { 0x61, 0x64, 0x8c, 0xff };
+  ClutterConstraint *constraint;
   GtkWidget       *window, *clutter;
   GtkWidget       *label, *button, *vbox;
   GdkPixbuf       *pixbuf;
@@ -191,33 +176,25 @@ main (int argc, char *argv[])
   clutter_stage_set_color (CLUTTER_STAGE (stage),
 		           &stage_color);
 
-  oh = g_new(SuperOH, 1);
-
-#if TRAILS
-  oh->bgtex = clutter_texture_new();
-  clutter_actor_set_size (oh->bgtex, WINWIDTH, WINHEIGHT);
-  clutter_actor_set_opacity (oh->bgtex, 0x99);
-  clutter_group_add (CLUTTER_GROUP (stage), oh->bgtex);
-#endif
+  oh = g_new (SuperOH, 1);
+  oh->stage = stage;
 
   /* create a new group to hold multiple actors in a group */
-  oh->group = CLUTTER_GROUP (clutter_group_new ());
+  oh->group = clutter_group_new ();
   
   for (i = 0; i < NHANDS; i++)
     {
       gint x, y, w, h;
-#if 1
+
       /* Create a texture from pixbuf, then clone in to same resources */
       if (i == 0)
-       oh->hand[i] = gtk_clutter_texture_new_from_pixbuf (pixbuf);
-     else
-       oh->hand[i] = clutter_clone_new (oh->hand[0]);
-#else
-      ClutterColor colour = { 255, 0, 0, 255 };
+        {
+          oh->hand[i] = gtk_clutter_texture_new ();
+          gtk_clutter_texture_set_from_pixbuf (GTK_CLUTTER_TEXTURE (oh->hand[i]), pixbuf, NULL);
+        }
+      else
+        oh->hand[i] = clutter_clone_new (oh->hand[0]);
 
-      oh->hand[i] = clutter_rectangle_new_with_color (&colour);
-      clutter_actor_set_size (oh->hand[i], 50, 50);
-#endif
       /* Place around a circle */
       w = clutter_actor_get_width (oh->hand[0]);
       h = clutter_actor_get_height (oh->hand[0]);
@@ -228,12 +205,18 @@ main (int argc, char *argv[])
       clutter_actor_set_position (oh->hand[i], x, y);
 
       /* Add to our group group */
-      clutter_group_add (oh->group, oh->hand[i]);
+      clutter_container_add_actor (CLUTTER_CONTAINER (oh->group),
+                                   oh->hand[i]);
     }
 
   /* Add the group to the stage */
   clutter_container_add_actor (CLUTTER_CONTAINER (stage),
                                CLUTTER_ACTOR (oh->group));
+
+  constraint = clutter_align_constraint_new (oh->stage, CLUTTER_ALIGN_X_AXIS, 0.5);
+  clutter_actor_add_constraint (oh->group, constraint);
+  constraint = clutter_align_constraint_new (oh->stage, CLUTTER_ALIGN_Y_AXIS, 0.5);
+  clutter_actor_add_constraint (oh->group, constraint);
 
   g_signal_connect (stage, "button-press-event",
 		    G_CALLBACK (input_cb), 

@@ -2,39 +2,45 @@
 # An odd micro number indicates in-progress development, (eg. from git)
 # An even micro number indicates a released version.
 m4_define([clutter_gtk_major], [0])
-m4_define([clutter_gtk_minor], [10])
-m4_define([clutter_gtk_micro], [9])
-
-m4_define([clutter_gtk_api_version], [clutter_gtk_major.clutter_gtk_minor])
+m4_define([clutter_gtk_minor], [11])
+m4_define([clutter_gtk_micro], [1])
 m4_define([clutter_gtk_version], [clutter_gtk_major.clutter_gtk_minor.clutter_gtk_micro])
 
 # increase the interface age for each release; if the API changes, set to 0
-m4_define([clutter_gtk_interface_age], [3])
+m4_define([clutter_gtk_interface_age], [0])
 m4_define([clutter_gtk_binary_age], [m4_eval(100 * clutter_gtk_minor + clutter_gtk_micro)])
+
+m4_define([clutter_gtk_release_status],
+          [m4_if(m4_eval(clutter_gtk_micro % 2), [1],
+                 [git],
+                 [m4_if(m4_eval(clutter_gtk_minor % 2), [1],
+                                [snapshot],
+                                [release])])])
 
 AC_PREREQ([2.63])
 
 AC_INIT([clutter-gtk],
         [clutter_gtk_version],
-        [http://bugzilla.o-hand.com/enter_bug.cgi?product=Clutter])
+        [http://bugzilla.clutter-project.org/enter_bug.cgi?product=clutter-gtk],
+        [clutter-gtk],
+        [http://www.clutter-project.org])
+
+AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_SRCDIR([clutter-gtk/clutter-gtk.h])
+AC_CONFIG_AUX_DIR([build])
 AC_CONFIG_MACRO_DIR([build/autotools])
 
-AM_CONFIG_HEADER([config.h])
-
 AM_INIT_AUTOMAKE([1.11 foreign -Wno-portability no-define dist-bzip2])
+
 AM_SILENT_RULES([yes])
 
-CLUTTER_GTK_MAJOR_VERSION=clutter_gtk_major
-CLUTTER_GTK_MINOR_VERSION=clutter_gtk_minor
-CLUTTER_GTK_MICRO_VERSION=clutter_gtk_micro
-CLUTTER_GTK_API_VERSION=clutter_gtk_api_version
-CLUTTER_GTK_VERSION=clutter_gtk_version
-AC_SUBST(CLUTTER_GTK_MAJOR_VERSION)
-AC_SUBST(CLUTTER_GTK_MINOR_VERSION)
-AC_SUBST(CLUTTER_GTK_MICRO_VERSION)
-AC_SUBST(CLUTTER_GTK_API_VERSION)
-AC_SUBST(CLUTTER_GTK_VERSION)
+AC_SUBST([CLUTTER_GTK_MAJOR_VERSION],  [clutter_gtk_major])
+AC_SUBST([CLUTTER_GTK_MINOR_VERSION],  [clutter_gtk_minor])
+AC_SUBST([CLUTTER_GTK_MICRO_VERSION],  [clutter_gtk_micro])
+AC_SUBST([CLUTTER_GTK_API_VERSION],    [0.12])
+AC_SUBST([CLUTTER_GTK_API_VERSION_AM], [0_12])
+AC_SUBST([CLUTTER_GTK_VERSION],        [clutter_gtk_version])
+AC_SUBST([CLUTTER_GTK_RELEASE_STATUS], [clutter_gtk_release_status])
 
 m4_define([lt_current], [m4_eval(100 * clutter_gtk_minor + clutter_gtk_micro - clutter_gtk_interface_age)])
 m4_define([lt_revision], [clutter_gtk_interface_age])
@@ -51,14 +57,17 @@ AC_SUBST(CLUTTER_GTK_LT_LDFLAGS)
 dnl ========================================================================
 
 # Checks for programs.
-AC_PROG_CC_C_O
-AC_HEADER_STDC
+AM_PROG_CC_C_O
 
+# require libtool >= 2.2
 LT_PREREQ([2.2.6])
 LT_INIT([disable-static])
 
-m4_define([clutter_req_version], [1.2.0])
-m4_define([gtk_req_version], [2.19.5])
+# Checks for header files.
+AC_HEADER_STDC
+
+m4_define([clutter_req_version], [1.3.8])
+m4_define([gtk_req_version], [2.22.0])
 m4_define([flavour_default], [x11])
 AC_ARG_WITH([flavour],
             [AC_HELP_STRING([--with-flavour=@<:@x11/win32@:>@],
@@ -67,18 +76,20 @@ AC_ARG_WITH([flavour],
             [with_flavour=flavour_default])
 
 AS_CASE([$with_flavour],
-        [x11], [
+        [x11],
+        [
           AC_DEFINE([HAVE_CLUTTER_GTK_X11], 1, [Using the X11 flavour])
           PKG_CHECK_MODULES(CLUTTER, clutter-x11-1.0 >= clutter_req_version)
-          PKG_CHECK_MODULES(GTK, gtk+-x11-2.0 >= gtk_req_version)
-          CLUTTER_GTK_REQUIRES="clutter-x11-1.0 gtk+-x11-2.0"
+          PKG_CHECK_MODULES(GTK, gtk+-2.0 >= gtk_req_version)
+          CLUTTER_GTK_REQUIRES="clutter-x11-1.0 gtk+-2.0"
         ],
 
-        [win32], [
+        [win32],
+        [
           AC_DEFINE([HAVE_CLUTTER_GTK_WIN32], 1, [Using the Win32 flavour])
           PKG_CHECK_MODULES(CLUTTER, clutter-win32-1.0 >= $CLUTTER_REQUIRED)
-          PKG_CHECK_MODULES(GTK, gtk+-win32-2.0 >= gtk_req_version)
-          CLUTTER_GTK_REQUIRES="clutter-win32-1.0 gtk+-win32-2.0"
+          PKG_CHECK_MODULES(GTK, gtk+-2.0 >= gtk_req_version)
+          CLUTTER_GTK_REQUIRES="clutter-win32-1.0 gtk+-2.0"
         ]
 
         [AC_MSG_ERROR([Invalid argument for --with-flavour])]
@@ -86,12 +97,9 @@ AS_CASE([$with_flavour],
 
 CLUTTER_GTK_FLAVOUR=$with_flavour
 AC_SUBST(CLUTTER_GTK_FLAVOUR)
-
 AC_SUBST(CLUTTER_GTK_REQUIRES)
-
 AC_SUBST(CLUTTER_CFLAGS)
 AC_SUBST(CLUTTER_LIBS)
-
 AC_SUBST(GTK_CFLAGS)
 AC_SUBST(GTK_LIBS)
 
@@ -106,16 +114,19 @@ AC_ARG_ENABLE([debug],
 
 AS_CASE([$enable_debug],
 
-        [yes], [
+        [yes],
+        [
           test "$cflags_set" = set || CFLAGS="$CFLAGS -g"
           CLUTTER_GTK_DEBUG_CFLAGS="-DCLUTTER_GTK_ENABLE_DEBUG"
         ],
 
-        [minimum], [
+        [minimum],
+        [
           CLUTTER_GTK_DEBUG_CFLAGS="-DCLUTTER_GTK_ENABLE_DEBUG -DG_DISABLE_CAST_CHECKS"
         ],
 
-        [no], [
+        [no],
+        [
           CLUTTER_GTK_DEBUG_CFLAGS="-DG_DISABLE_ASSERT -DG_DISABLE_CHECKS -DG_DISABLE_CAST_CHECKS"
         ],
 
@@ -136,13 +147,25 @@ MAINTAINER_CFLAGS=""
 AS_IF([test "x$enable_maintainer_flags" = "xyes" && test "x$GCC" = "xyes"],
       [
         AS_COMPILER_FLAGS([MAINTAINER_CFLAGS],
-                          ["-Werror -Wall -Wshadow -Wcast-align
-                            -Wno-uninitialized -Wempty-body -Wformat-security
-                            -Winit-self"])
+                          ["-Wall -Wshadow -Wcast-align -Wuninitialized
+                            -Wno-strict-aliasing -Wempty-body -Wformat
+                            -Wformat-security -Winit-self"])
       ]
 )
 
 AC_SUBST(MAINTAINER_CFLAGS)
+
+dnl = I18N =================================================================
+
+AM_GNU_GETTEXT_VERSION([0.17])
+AM_GNU_GETTEXT([external])
+
+GETTEXT_PACKAGE="cluttergtk-0.12"
+AC_SUBST(GETTEXT_PACKAGE)
+AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,
+                   "$GETTEXT_PACKAGE",
+                   [The prefix for our gettext translation domains.])
+AS_ALL_LINGUAS
 
 dnl = GTK Doc check ========================================================
 
@@ -157,21 +180,26 @@ AC_SUBST(GTK_PREFIX)
 AC_SUBST(GDK_PIXBUF_PREFIX)
 AC_SUBST(CLUTTER_PREFIX)
 
-GTK_DOC_CHECK([1.14])
+GTK_DOC_CHECK([1.14], [--flavour=no-tmpl])
 
-GOBJECT_INTROSPECTION_CHECK([0.9.3])
-
-dnl ========================================================================
+GOBJECT_INTROSPECTION_CHECK([0.9.12])
 
 AC_CONFIG_FILES([
         Makefile
         build/Makefile
         build/autotools/Makefile
+        
         clutter-gtk/Makefile
+        clutter-gtk/gtk-clutter-version.h
+        
         doc/Makefile
         doc/reference/Makefile
         doc/reference/version.xml
+
         examples/Makefile
+
+        po/Makefile.in
+
         clutter-gtk.pc
 ])
 
@@ -180,14 +208,13 @@ AC_OUTPUT
 dnl ========================================================================
 
 echo ""
-echo "                 ClutterGTK $VERSION"
-echo "                 ==================="
+echo " Clutter-GTK $CLUTTER_GTK_VERSION ($CLUTTER_GTK_RELEASE_STATUS)"
 echo ""
-echo "                   prefix:   ${prefix}"
+echo "   Prefix: ${prefix}"
 echo ""
-echo "                  Flavour:   ${CLUTTER_GTK_FLAVOUR}"
-echo "              Debug level:   ${enable_debug}"
-echo "            Documentation:   ${enable_gtk_doc}"
-echo "           Compiler flags:   $MAINTAINER_CFLAGS"
-echo "       Introspection data:   ${enable_introspection}"
+echo "   Flavour: ${CLUTTER_GTK_FLAVOUR}"
+echo "   Debug level: ${enable_debug}"
+echo "   Documentation: ${enable_gtk_doc}"
+echo "   Compiler flags: $MAINTAINER_CFLAGS"
+echo "   Introspection data: ${enable_introspection}"
 echo ""
