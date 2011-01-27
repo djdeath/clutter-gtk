@@ -272,7 +272,7 @@ gtk_clutter_embed_realize (GtkWidget *widget)
   style_context = gtk_widget_get_style_context (widget);
   gtk_style_context_set_background (style_context, window);
 
-  gdk_window_add_filter (window, gtk_clutter_filter_func, widget);
+  gdk_window_add_filter (NULL, gtk_clutter_filter_func, widget);
 
 #if defined(HAVE_CLUTTER_GTK_X11)
   clutter_x11_set_stage_foreign (CLUTTER_STAGE (priv->stage), 
@@ -294,6 +294,8 @@ static void
 gtk_clutter_embed_unrealize (GtkWidget *widget)
 {
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
+
+  gdk_window_remove_filter (NULL, gtk_clutter_filter_func, widget);
 
   if (priv->stage != NULL)
     clutter_actor_hide (priv->stage);
