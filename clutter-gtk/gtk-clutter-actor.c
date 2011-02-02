@@ -51,7 +51,6 @@
 #if defined(HAVE_CLUTTER_GTK_X11)
 
 #include <clutter/x11/clutter-x11.h>
-#include <clutter/glx/clutter-glx-texture-pixmap.h>
 #include <gdk/gdkx.h>
 #include <cairo/cairo-xlib.h>
 
