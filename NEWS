@@ -1,3 +1,10 @@
+Clutter-GTK 0.11.4      10/02/2011
+==================================
+
+  » Downgrade the GTK requirement to 2.20
+
+  » Fix build on EGL/GLES platforms
+
 Clutter-GTK 0.11.2      09/02/2011
 ==================================
 
