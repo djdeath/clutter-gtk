@@ -40,12 +40,16 @@ static const guint clutter_gtk_major_version = CLUTTER_GTK_MAJOR_VERSION;
 static const guint clutter_gtk_minor_version = CLUTTER_GTK_MINOR_VERSION;
 static const guint clutter_gtk_micro_version = CLUTTER_GTK_MICRO_VERSION;
 
+static gboolean gtk_clutter_is_initialized = FALSE;
+
 static gboolean
 post_parse_hook (GOptionContext  *context,
                  GOptionGroup    *group,
                  gpointer         data,
                  GError         **error)
 {
+  gtk_clutter_is_initialized = TRUE;
+
 #if defined(GDK_WINDOWING_X11)
   /* share the X11 Display with GTK+ */
   clutter_x11_set_display (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()));
@@ -60,7 +64,7 @@ post_parse_hook (GOptionContext  *context,
   /* this is required since parsing clutter's option group did not
    * complete the initialization process
    */
-  return clutter_init_with_args (NULL, NULL, NULL, NULL, NULL, error);
+  return clutter_init_with_args (NULL, NULL, NULL, NULL, NULL, error) == CLUTTER_INIT_SUCCESS;
 }
 
 /**
@@ -132,6 +136,11 @@ ClutterInitError
 gtk_clutter_init (int    *argc,
                   char ***argv)
 {
+  if (gtk_clutter_is_initialized)
+    return CLUTTER_INIT_SUCCESS;
+
+  gtk_clutter_is_initialized = TRUE;
+
   gdk_disable_multidevice ();
 
   if (!gtk_init_check (argc, argv))
@@ -189,6 +198,9 @@ gtk_clutter_init_with_args (int            *argc,
   GOptionGroup *gtk_group, *clutter_group, *cogl_group, *clutter_gtk_group;
   GOptionContext *context;
   gboolean res;
+
+  if (gtk_clutter_is_initialized)
+    return CLUTTER_INIT_SUCCESS;
 
   gdk_disable_multidevice ();
 

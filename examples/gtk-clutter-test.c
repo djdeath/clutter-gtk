@@ -1,10 +1,8 @@
-#include "config.h"
+#include <stdlib.h>
+#include <math.h>
 
 #include <gtk/gtk.h>
 #include <clutter/clutter.h>
-#include <math.h>
-
-#include <glib/gi18n.h>
 
 #include <clutter-gtk/clutter-gtk.h>
 
@@ -121,13 +119,24 @@ main (int argc, char *argv[])
   GError          *error;
 
   error = NULL;
-  gtk_clutter_init_with_args (&argc, &argv,
-                              NULL,
-                              NULL,
-                              NULL,
-                              &error);
-  if (error)
-    g_error ("Unable to initialize: %s", error->message);
+  if (gtk_clutter_init_with_args (&argc, &argv,
+                                  NULL,
+                                  NULL,
+                                  NULL,
+                                  &error) != CLUTTER_INIT_SUCCESS)
+    {
+      if (error)
+        {
+          g_critical ("Unable to initialize Clutter-GTK: %s", error->message);
+          g_error_free (error);
+          return EXIT_FAILURE;
+        }
+      else
+        g_error ("Unable to initialize Clutter-GTK");
+    }
+
+  /* calling gtk_clutter_init* multiple times should be safe */
+  g_assert (gtk_clutter_init (NULL, NULL) == CLUTTER_INIT_SUCCESS);
 
   pixbuf = gdk_pixbuf_new_from_file ("redhand.png", NULL);
 
