@@ -436,7 +436,6 @@ gtk_clutter_embed_key_event (GtkWidget   *widget,
 static void
 gtk_clutter_embed_style_updated (GtkWidget *widget)
 {
-  GtkClutterEmbedPrivate *priv;
   GdkScreen *screen;
   GtkSettings *gtk_settings;
   ClutterSettings *clutter_settings;
@@ -447,11 +446,10 @@ gtk_clutter_embed_style_updated (GtkWidget *widget)
   gchar *xft_hintstyle, *xft_rgba;
 #endif /* HAVE_CLUTTER_GTK_X11 */
 
-  priv = GTK_CLUTTER_EMBED (widget)->priv;
-
   if (gtk_widget_get_realized (widget))
     {
 #if 0
+      GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
       GtkStyleContext *style_context;
       GtkStateFlags state_flags;
       GdkRGBA *bg_color;

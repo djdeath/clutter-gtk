@@ -124,9 +124,7 @@ gtk_clutter_actor_realize (ClutterActor *actor)
   GtkClutterActor *clutter = GTK_CLUTTER_ACTOR (actor);
   GtkClutterActorPrivate *priv = clutter->priv;
   ClutterActor *stage;
-  GtkWidget *new_embed;
 
-  new_embed = NULL;
   stage = clutter_actor_get_stage (actor);
   priv->embed = g_object_get_data (G_OBJECT (stage), "gtk-clutter-embed");
   gtk_container_add (GTK_CONTAINER (priv->embed), priv->widget);
