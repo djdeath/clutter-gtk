@@ -73,5 +73,8 @@ stamp-h1
 /po/quot.sed
 /po/remove-potcdate.sin
 /po/POTFILES
+/po/*.pot
+/po/remove-potcdate.sed
+/po/stamp-po
 *~
 .*.swp
