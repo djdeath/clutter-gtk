@@ -103,6 +103,17 @@ AC_SUBST(CLUTTER_LIBS)
 AC_SUBST(GTK_CFLAGS)
 AC_SUBST(GTK_LIBS)
 
+AS_IF([test clutter_gtk_release_status = 'git'],
+      [
+        CLUTTER_GTK_DEPRECATED_CFLAGS="-DG_DISABLE_DEPRECATED -DGDK_PIXBUF_DISABLE_DEPRECATED -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED -DCOGL_DISABLE_DEPRECATED -DCLUTTER_DISABLE_DEPRECATED"
+      ],
+      [
+        CLUTTER_GTK_DEPRECATED_CFLAGS=""
+      ]
+)
+
+AC_SUBST(CLUTTER_GTK_DEPRECATED_CFLAGS)
+
 dnl = Enable debug level ===================================================
 
 m4_define([debug_default], [m4_if(m4_eval(clutter_gtk_minor % 2), [1], [yes], [minimum])])
@@ -153,6 +164,8 @@ AS_IF([test "x$enable_maintainer_flags" = "xyes" && test "x$GCC" = "xyes"],
       ]
 )
 
+# strip leading spaces
+MAINTAINER_CFLAGS=${MAINTAINER_CFLAGS#*  }
 AC_SUBST(MAINTAINER_CFLAGS)
 
 dnl = I18N =================================================================
@@ -215,6 +228,6 @@ echo ""
 echo "   Flavour: ${CLUTTER_GTK_FLAVOUR}"
 echo "   Debug level: ${enable_debug}"
 echo "   Documentation: ${enable_gtk_doc}"
-echo "   Compiler flags: $MAINTAINER_CFLAGS"
+echo "   Compiler flags: $CFLAGS $MAINTAINER_CFLAGS"
 echo "   Introspection data: ${enable_introspection}"
 echo ""
