@@ -51,6 +51,19 @@ CLUTTER_GTK_LT_AGE=lt_age
 CLUTTER_GTK_LT_VERSION="$CLUTTER_GTK_LT_CURRENT:$CLUTTER_GTK_LT_REV:$CLUTTER_GTK_LT_AGE"
 CLUTTER_GTK_LT_LDFLAGS="-version-info $CLUTTER_GTK_LT_VERSION"
 
+AC_CANONICAL_HOST
+AC_MSG_CHECKING([if building for some Win32 platform])
+AS_CASE([$host],
+        [*-*-mingw*|*-*-cygwin*],
+        [
+          CLUTTER_LT_LDFLAGS="$CLUTTER_GTK_LT_LDFLAGS -no-undefined"
+          platform_win32=yes
+        ],
+
+        [platform_win32=no]
+)
+AC_MSG_RESULT([$platform_win32])
+
 AC_SUBST(CLUTTER_GTK_LT_VERSION)
 AC_SUBST(CLUTTER_GTK_LT_LDFLAGS)
 
@@ -87,10 +100,10 @@ AS_CASE([$with_flavour],
         [win32],
         [
           AC_DEFINE([HAVE_CLUTTER_GTK_WIN32], 1, [Using the Win32 flavour])
-          PKG_CHECK_MODULES(CLUTTER, clutter-win32-1.0 >= $CLUTTER_REQUIRED)
+          PKG_CHECK_MODULES(CLUTTER, clutter-win32-1.0 >= clutter_req_version)
           PKG_CHECK_MODULES(GTK, gtk+-win32-3.0 >= gtk_req_version)
           CLUTTER_GTK_REQUIRES="clutter-win32-1.0 gtk+-win32-3.0"
-        ]
+        ],
 
         [AC_MSG_ERROR([Invalid argument for --with-flavour])]
 )

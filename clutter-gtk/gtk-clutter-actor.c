@@ -497,6 +497,10 @@ gtk_clutter_actor_init (GtkClutterActor *self)
   clutter_actor_set_parent (priv->texture, actor);
   clutter_actor_set_name (priv->texture, "Onscreen Texture");
   clutter_actor_show (priv->texture);
+#else
+  g_critical ("Embedding GtkWidget inside ClutterActor through "
+              "GtkClutterActor does not yet work on non-X11 "
+              "platforms.");
 #endif
 
   clutter_actor_pop_internal (actor);

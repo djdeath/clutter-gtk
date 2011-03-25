@@ -18,7 +18,7 @@
 
 #elif defined(HAVE_CLUTTER_GTK_WIN32)
 
-#include <clutter/clutter-win32.h>
+#include <clutter/win32/clutter-win32.h>
 #include <gdk/gdkwin32.h>
 
 #endif /* HAVE_CLUTTER_GTK_{X11,WIN32} */
