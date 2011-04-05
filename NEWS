@@ -1,3 +1,27 @@
+Clutter-GTK 1.0.0                                                    05/04/2011
+===============================================================================
+
+Changes since 0.91.8:
+
+        • Depend on gtk+ ≥ 3.0.0.
+
+        • Depend on clutter ≥ 1.4.0.
+
+        • Fix build for GLES environments. [Andreas Mueller]
+
+        • Use a global filter for GDK events.
+
+        • Fix various compiler warnings.
+
+        • Allow calling gtk_clutter_init* multiple times.
+
+        • Fix build on Windows.
+
+        • Append the API version to the API reference. [Marvin Schmidt]
+
+        • Do not export private symbols from the shared
+          library. [Emilio Pozuelo Monfort]
+
 Clutter-GTK 0.91.8                                                   14/01/2011
 ===============================================================================
 
