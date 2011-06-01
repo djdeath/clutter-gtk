@@ -15,9 +15,11 @@ test $TEST_TYPE $FILE || {
         exit 1
 }
 
+AUTOMAKE=
+ACLOCAL=
 if automake-1.11 --version < /dev/null > /dev/null 2>&1 ; then
-    AUTOMAKE=automake-1.11
-    ACLOCAL=aclocal-1.11
+        AUTOMAKE=automake-1.11
+        ACLOCAL=aclocal-1.11
 else
         echo
         echo "You must have automake 1.11.x installed to compile $PROJECT
@@ -46,7 +48,7 @@ fi
 rm -rf autom4te.cache
 
 gtkdocize || exit $?
-ACLOCAL="${ACLOCAL-aclocal} $ACLOCAL_FLAGS" autoreconf -v --install || exit $?
+ACLOCAL="${ACLOCAL-aclocal} $ACLOCAL_FLAGS" AUTOMAKE=${AUTOMAKE} autoreconf -v --install || exit $?
 cd $ORIGDIR || exit $?
 
 if test -z "$NOCONFIGURE"; then
