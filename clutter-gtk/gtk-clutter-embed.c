@@ -369,7 +369,10 @@ gtk_clutter_embed_unmap (GtkWidget *widget)
 {
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
 
-  clutter_actor_unmap (priv->stage);
+  /* gtk may emit an unmap signal after dispose, so it's possible we may
+   * have already disposed priv->stage. */
+  if (priv->stage != NULL)
+    clutter_actor_unmap (priv->stage);
 
   GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->unmap (widget);
 }
