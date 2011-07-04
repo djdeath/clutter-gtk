@@ -678,7 +678,7 @@ gtk_clutter_embed_new (void)
  * Retrieves the #ClutterStage from @embed. The returned stage can be
  * used to add actors to the Clutter scene.
  *
- * Return value: (transfer full): the Clutter stage. You should never
+ * Return value: (transfer none): the Clutter stage. You should never
  *   destroy or unref the returned actor.
  */
 ClutterActor *
