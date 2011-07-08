@@ -174,16 +174,22 @@ gtk_clutter_actor_get_preferred_width (ClutterActor *actor,
   GtkClutterActorPrivate *priv = clutter->priv;
   gint min_width, natural_width;
 
-  if (for_height >= 0)
-    for_height = floorf (for_height + 0.5);
-  else
-    for_height = -1;
-
   min_width = natural_width = 0;
-  gtk_widget_get_preferred_width_for_height (priv->widget,
-                                             for_height,
-                                             &min_width,
-                                             &natural_width);
+
+  if (for_height >= 0)
+    {
+      for_height = floorf (for_height + 0.5);
+      gtk_widget_get_preferred_width_for_height (priv->widget,
+                                                 for_height,
+                                                 &min_width,
+                                                 &natural_width);
+    }
+  else
+    {
+      gtk_widget_get_preferred_width (priv->widget,
+                                      &min_width,
+                                      &natural_width);
+    }
 
   if (min_width_p)
     *min_width_p = min_width;
@@ -202,16 +208,23 @@ gtk_clutter_actor_get_preferred_height (ClutterActor *actor,
   GtkClutterActorPrivate *priv = clutter->priv;
   gint min_height, natural_height;
 
-  if (for_width >= 0)
-    for_width = floorf (for_width + 0.5);
-  else
-    for_width = -1;
-
   min_height = natural_height = 0;
-  gtk_widget_get_preferred_height_for_width (priv->widget,
-                                             for_width,
-                                             &min_height,
-                                             &natural_height);
+
+  if (for_width >= 0)
+    {
+      for_width = floorf (for_width + 0.5);
+
+      gtk_widget_get_preferred_height_for_width (priv->widget,
+                                                 for_width,
+                                                 &min_height,
+                                                 &natural_height);
+    }
+  else
+    {
+      gtk_widget_get_preferred_height (priv->widget,
+                                       &min_height,
+                                       &natural_height);
+    }
 
   if (min_height_p)
     *min_height_p = min_height;
