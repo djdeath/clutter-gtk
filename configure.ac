@@ -21,16 +21,16 @@ AC_PREREQ([2.63])
 
 AC_INIT([clutter-gtk],
         [clutter_gtk_version],
-        [http://bugzilla.clutter-project.org/enter_bug.cgi?product=clutter-gtk],
+        [http://bugzilla.gnome.org/enter_bug.cgi?product=clutter-gtk],
         [clutter-gtk],
-        [http://www.clutter-project.org])
+        [http://www.clutter-project.org/libraries/clutter-gtk])
 
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_SRCDIR([clutter-gtk/clutter-gtk.h])
 AC_CONFIG_AUX_DIR([build])
 AC_CONFIG_MACRO_DIR([build/autotools])
 
-AM_INIT_AUTOMAKE([1.11 foreign -Wno-portability no-define no-dist-gzip dist-bzip2])
+AM_INIT_AUTOMAKE([1.11 foreign -Wno-portability no-define no-dist-gzip dist-xz tar-ustar])
 
 AM_SILENT_RULES([yes])
 
@@ -83,8 +83,8 @@ m4_define([clutter_req_version], [1.4.0])
 m4_define([gtk_req_version], [3.0.0])
 m4_define([flavour_default], [x11])
 AC_ARG_WITH([flavour],
-            [AC_HELP_STRING([--with-flavour=@<:@x11/win32@:>@],
-                            [Select the Clutter backend, default=flavour_default])],
+            [AS_HELP_STRING([--with-flavour=@<:@x11/win32@:>@],
+                            [Select the Clutter-GTK implementation @<:@default=]flavour_default[@:>@])],
             [],
             [with_flavour=flavour_default])
 
@@ -131,8 +131,8 @@ dnl = Enable debug level ===================================================
 
 m4_define([debug_default], [m4_if(m4_eval(clutter_gtk_minor % 2), [1], [yes], [minimum])])
 AC_ARG_ENABLE([debug],
-              [AC_HELP_STRING([--enable-debug=@<:@no/minimum/yes@:>@],
-                              [Turns on debugging. @<:@default=debug_default@:>@])],
+              [AS_HELP_STRING([--enable-debug=@<:@no/minimum/yes@:>@],
+                              [Turns on debugging. @<:@default=]debug_default[@:>@])],
               [],
               [enable_debug=debug_default])
 
@@ -162,8 +162,8 @@ AC_SUBST(CLUTTER_GTK_DEBUG_CFLAGS)
 # use strict compiler flags only on development releases
 m4_define([maintainer_flags_default], [m4_if(m4_eval(clutter_gtk_minor % 2), [1], [yes], [no])])
 AC_ARG_ENABLE([maintainer-flags],
-              [AC_HELP_STRING([--enable-maintainer-flags=@<:@no/yes@:>@],
-                              [Use strict compiler flags @<:@default=no@:>@])],
+              [AS_HELP_STRING([--enable-maintainer-flags=@<:@no/yes@:>@],
+                              [Use strict compiler flags @<:@default=]maintainer_flags_default[@:>@])],
               [],
               [enable_maintainer_flags=maintainer_flags_default])
 
