@@ -10,13 +10,14 @@
 
 	<shortdesc xml:lang="en">Clutter integration with GTK+</shortdesc>
 
-	<description xml:lang="en">Clutter-Gtk is a library which allows the embedding of a Clutter canvas (or "stage") into a GTK+ application.</description>
+	<description xml:lang="en">Clutter-Gtk is a library which allows the embedding of a Clutter canvas (or "stage") into a GTK+ application, as well as embedding GTK+ widgets inside the stage.</description>
 
-	<homepage rdf:resource="http://www.clutter-project.org/" />
-        <download-page rdf:resource="http://source.clutter-project.org/sources/clutter-gtk/" />
+	<homepage rdf:resource="http://www.clutter-project.org/libraries/clutter-gtk" />
+        <download-page rdf:resource="http://download.gnome.org/sources/clutter-gtk/" />
 	<license rdf:resource="http://usefulinc.com/doap/licenses/lgpl" />
-        <bug-database rdf:resource="http://bugzilla.clutter-project.org/enter_bug.cgi?product=clutter-gtk"/>
+        <bug-database rdf:resource="http://bugzilla.gnome.org/enter_bug.cgi?product=clutter-gtk"/>
         <mailing-list rdf:resource="mailto:clutter-devel-list@clutter-project.org" />
+
         <programming-language>C</programming-language>
 
 	<maintainer>
