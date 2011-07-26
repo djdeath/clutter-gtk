@@ -1,3 +1,16 @@
+Clutter-GTK 1.0.2                                                    26/07/2011
+===============================================================================
+
+Changes since 1.0.0:
+
+        • Build fixes
+
+        • Make sure that GtkClutterActor works with GTK+ ≥ 3.1 [Cosimo Cecchi]
+
+        • Check before unmapping the stage [Raluca Elena Podiuc]
+
+        • Fix for introspection annotations [Simon Wenner]
+
 Clutter-GTK 1.0.0                                                    05/04/2011
 ===============================================================================
 
