@@ -183,9 +183,9 @@ gtk_clutter_filter_func (GdkXEvent *native_event,
                          GdkEvent  *event         G_GNUC_UNUSED,
                          gpointer   user_data     G_GNUC_UNUSED)
 {
+#ifdef HAVE_CLUTTER_GTK_X11
   XEvent *xevent = native_event;
 
-#ifdef HAVE_CLUTTER_GTK_X11
   /* let Clutter handle all events coming from the windowing system */
   clutter_x11_handle_event (xevent);
 #endif
