@@ -79,6 +79,9 @@ LT_INIT([disable-static])
 # Checks for header files.
 AC_HEADER_STDC
 
+AC_CHECK_LIBM
+AC_SUBST(LIBM)
+
 m4_define([clutter_req_version], [1.4.0])
 m4_define([gtk_req_version], [3.0.0])
 m4_define([flavour_default], [x11])

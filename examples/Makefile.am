@@ -25,11 +25,11 @@ common_ldadd = \
 
 gtk_clutter_test_SOURCES = gtk-clutter-test.c
 gtk_clutter_test_DEPENDENCIES = $(common_deps)
-gtk_clutter_test_LDADD = $(common_ldadd)
+gtk_clutter_test_LDADD = $(common_ldadd) $(LIBM)
 
 gtk_clutter_test_actor_SOURCES = gtk-clutter-test-actor.c
 gtk_clutter_test_actor_DEPENDENCIES = $(common_deps)
-gtk_clutter_test_actor_LDADD = $(common_ldadd)
+gtk_clutter_test_actor_LDADD = $(common_ldadd) $(LIBM)
 
 gtk_clutter_events_SOURCES = gtk-clutter-events.c
 gtk_clutter_events_DEPENDENCIES = $(common_deps)
@@ -49,7 +49,7 @@ gtk_clutter_window_test2_LDADD = $(common_ldadd)
 
 gtk_clutter_test_scroll_SOURCES = gtk-clutter-test-scroll.c
 gtk_clutter_test_scroll_DEPENDENCIES = $(common_deps)
-gtk_clutter_test_scroll_LDADD = $(common_ldadd)
+gtk_clutter_test_scroll_LDADD = $(common_ldadd) $(LIBM)
 
 EXTRA_DIST = \
 	redhand.png
