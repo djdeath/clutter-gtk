@@ -11,7 +11,7 @@ noinst_PROGRAMS = \
 	gtk-clutter-window-test2 \
 	gtk-clutter-test-scroll
 
-INCLUDES = -I$(srcdir) -I$(top_srcdir)
+INCLUDES = -I$(srcdir) -I$(top_srcdir) -I$(top_builddir)/clutter-gtk
 
 AM_CFLAGS = $(MAINTAINER_CFLAGS) $(CLUTTER_CFLAGS) $(GTK_CFLAGS)
 
