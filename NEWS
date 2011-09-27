@@ -1,3 +1,13 @@
+Clutter-GTK 1.0.4                                                    27/09/2011
+===============================================================================
+
+Changes since 1.0.2:
+
+        • Build fixes
+          - Link against libm [Andre Klapper, Frédéric Péters]
+          - Fix build on non-X11 systems [Chun-wei Fan]
+          - Fix out of tree builds [Colin Walters]
+
 Clutter-GTK 1.0.2                                                    26/07/2011
 ===============================================================================
 
