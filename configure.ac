@@ -14,8 +14,8 @@ m4_define([clutter_gtk_release_status],
           [m4_if(m4_eval(clutter_gtk_micro % 2), [1],
                  [git],
                  [m4_if(m4_eval(clutter_gtk_minor % 2), [1],
-                                [snapshot],
-                                [release])])])
+                        [snapshot],
+                        [release])])])
 
 AC_PREREQ([2.63])
 
@@ -84,51 +84,39 @@ AC_SUBST(LIBM)
 
 m4_define([clutter_req_version], [1.9.1])
 m4_define([gtk_req_version], [3.2.0])
-m4_define([flavour_default], [x11])
-AC_ARG_WITH([flavour],
-            [AS_HELP_STRING([--with-flavour=@<:@x11/win32@:>@],
-                            [Select the Clutter-GTK implementation @<:@default=]flavour_default[@:>@])],
-            [],
-            [with_flavour=flavour_default])
 
-AS_CASE([$with_flavour],
-        [x11],
+PKG_CHECK_MODULES([CLUTTER_GTK_DEPS], [clutter-1.0 >= clutter_req_version gtk+-3.0 >= gtk_req_version])
+AC_SUBST([CLUTTER_GTK_DEPS_CFLAGS])
+AC_SUBST([CLUTTER_GTK_DEPS_LIBS])
+
+m4_define([deprecated_default],
+          [m4_if(m4_eval(clutter_gtk_minor % 2), [1],
+                 [no],
+                 [yes])])
+
+AC_ARG_ENABLE([deprecated],
+              [AS_HELP_STRING([--enable-deprecated=@<:@no/yes@:>@],
+                              [Whether deprecated symbols should be disabled when compiling Clutter-GTK @<:@default=]deprecated_default[@:>
+@])],
+              [],
+              [enable_deprecated=deprecated_default])
+
+AS_CASE([$enable_deprecated],
+
+        [no],
         [
-          AC_DEFINE([HAVE_CLUTTER_GTK_X11], 1, [Using the X11 flavour])
-          PKG_CHECK_MODULES(CLUTTER, clutter-x11-1.0 >= clutter_req_version)
-          PKG_CHECK_MODULES(GTK, gtk+-x11-3.0 >= gtk_req_version)
-          CLUTTER_GTK_REQUIRES="clutter-x11-1.0 gtk+-x11-3.0"
+          CLUTTER_GTK_DEPRECATED_CFLAGS="-DG_DISABLE_SINGLE_INCLUDES -DCOGL_DISABLE_DEPRECATED -DGDK_PIXBUF_DISABLE_DEPRECATED"
         ],
 
-        [win32],
+        [yes],
         [
-          AC_DEFINE([HAVE_CLUTTER_GTK_WIN32], 1, [Using the Win32 flavour])
-          PKG_CHECK_MODULES(CLUTTER, clutter-win32-1.0 >= clutter_req_version)
-          PKG_CHECK_MODULES(GTK, gtk+-win32-3.0 >= gtk_req_version)
-          CLUTTER_GTK_REQUIRES="clutter-win32-1.0 gtk+-win32-3.0"
+          CLUTTER_GTK_DEPRECATED_CFLAGS="-DGLIB_DISABLE_DEPRECATION_WARNINGS -DCLUTTER_DISABLE_DEPRECATION_WARNINGS -DGDK_DISABLE_DEPRECATION_WARNINGS"
         ],
 
-        [AC_MSG_ERROR([Invalid argument for --with-flavour])]
+        [AC_MSG_ERROR([Unknown argument for --enable-deprecated])]
 )
 
-CLUTTER_GTK_FLAVOUR=$with_flavour
-AC_SUBST(CLUTTER_GTK_FLAVOUR)
-AC_SUBST(CLUTTER_GTK_REQUIRES)
-AC_SUBST(CLUTTER_CFLAGS)
-AC_SUBST(CLUTTER_LIBS)
-AC_SUBST(GTK_CFLAGS)
-AC_SUBST(GTK_LIBS)
-
-AS_IF([test clutter_gtk_release_status = 'git'],
-      [
-        CLUTTER_GTK_DEPRECATED_CFLAGS="-DG_DISABLE_DEPRECATED -DGDK_PIXBUF_DISABLE_DEPRECATED -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED -DCOGL_DISABLE_DEPRECATED -DCLUTTER_DISABLE_DEPRECATED"
-      ],
-      [
-        CLUTTER_GTK_DEPRECATED_CFLAGS=""
-      ]
-)
-
-AC_SUBST(CLUTTER_GTK_DEPRECATED_CFLAGS)
+AC_SUBST([CLUTTER_GTK_DEPRECATED_CFLAGS])
 
 dnl = Enable debug level ===================================================
 
@@ -160,7 +148,7 @@ AS_CASE([$enable_debug],
         [AC_MSG_ERROR([Invalid argument for --enable-debug])]
 )
 
-AC_SUBST(CLUTTER_GTK_DEBUG_CFLAGS)
+AC_SUBST([CLUTTER_GTK_DEBUG_CFLAGS])
 
 # use strict compiler flags only on development releases
 m4_define([maintainer_flags_default], [m4_if(m4_eval(clutter_gtk_minor % 2), [1], [yes], [no])])
@@ -241,10 +229,11 @@ echo ""
 echo " Clutter-GTK $CLUTTER_GTK_VERSION ($CLUTTER_GTK_RELEASE_STATUS)"
 echo ""
 echo "   Prefix: ${prefix}"
+echo "   Libdir: ${libdir}"
 echo ""
-echo "   Flavour: ${CLUTTER_GTK_FLAVOUR}"
 echo "   Debug level: ${enable_debug}"
 echo "   Documentation: ${enable_gtk_doc}"
 echo "   Compiler flags: $CFLAGS $MAINTAINER_CFLAGS"
 echo "   Introspection data: ${enable_introspection}"
+echo "   Enable deprecated symbols: ${enable_deprecated}"
 echo ""

@@ -48,18 +48,22 @@
 
 #include <gdk/gdk.h>
 
-#if defined(HAVE_CLUTTER_GTK_X11)
-
+#ifdef CLUTTER_WINDOWING_X11
 #include <clutter/x11/clutter-x11.h>
+#endif
+#ifdef GDK_WINDOWING_X11
 #include <gdk/gdkx.h>
+#endif
+#ifdef CAIRO_HAS_XLIB_SURFACE
 #include <cairo/cairo-xlib.h>
+#endif
 
-#elif defined(HAVE_CLUTTER_GTK_WIN32)
-
+#ifdef CLUTTER_WINDOWING_WIN32
 #include <clutter/clutter-win32.h>
+#endif
+#ifdef GDK_WINDOWING_WIN32
 #include <gdk/gdkwin32.h>
-
-#endif /* HAVE_CLUTTER_GTK_{X11,WIN32} */
+#endif
 
 static void clutter_container_iface_init (ClutterContainerIface *iface);
 
@@ -133,8 +137,9 @@ gtk_clutter_actor_realize (ClutterActor *actor)
 
   priv->surface = _gtk_clutter_offscreen_get_surface (GTK_CLUTTER_OFFSCREEN (priv->widget));
 
-#if HAVE_CLUTTER_GTK_X11
-  if (cairo_surface_get_type (priv->surface) == CAIRO_SURFACE_TYPE_XLIB)
+#if defined(CLUTTER_WINDOWING_X11) && defined(CAIRO_HAS_XLIB_SURFACE)
+  if (clutter_check_windowing_backend (CLUTTER_WINDOWING_X11) &&
+      cairo_surface_get_type (priv->surface) == CAIRO_SURFACE_TYPE_XLIB)
     {
       Drawable pixmap;
       gint pixmap_width, pixmap_height;
@@ -276,8 +281,9 @@ gtk_clutter_actor_allocate (ClutterActor           *actor,
       surface = gdk_offscreen_window_get_surface (window);
       if (surface != priv->surface)
         {
-#if HAVE_CLUTTER_GTK_X11
-          if (cairo_surface_get_type (surface) == CAIRO_SURFACE_TYPE_XLIB)
+#if defined(CLUTTER_WINDOWING_X11) && defined(CAIRO_HAS_XLIB_SURFACE)
+          if (clutter_check_windowing_backend (CLUTTER_WINDOWING_X11) &&
+              cairo_surface_get_type (surface) == CAIRO_SURFACE_TYPE_XLIB)
             {
               Drawable pixmap = cairo_xlib_surface_get_drawable (surface);
 
@@ -504,18 +510,21 @@ gtk_clutter_actor_init (GtkClutterActor *self)
 
   clutter_actor_push_internal (actor);
 
-#if HAVE_CLUTTER_GTK_X11
-  priv->texture = clutter_x11_texture_pixmap_new ();
+#if defined(CLUTTER_WINDOWING_X11)
+  if (clutter_check_windowing_backend (CLUTTER_WINDOWING_X11))
+    {
+      priv->texture = clutter_x11_texture_pixmap_new ();
 
-  clutter_texture_set_sync_size (CLUTTER_TEXTURE (priv->texture), FALSE);
-  clutter_actor_set_parent (priv->texture, actor);
-  clutter_actor_set_name (priv->texture, "Onscreen Texture");
-  clutter_actor_show (priv->texture);
-#else
-  g_critical ("Embedding GtkWidget inside ClutterActor through "
-              "GtkClutterActor does not yet work on non-X11 "
-              "platforms.");
+      clutter_texture_set_sync_size (CLUTTER_TEXTURE (priv->texture), FALSE);
+      clutter_actor_set_parent (priv->texture, actor);
+      clutter_actor_set_name (priv->texture, "Onscreen Texture");
+      clutter_actor_show (priv->texture);
+    }
+  else
 #endif
+    g_critical ("Embedding GtkWidget inside ClutterActor through "
+                "GtkClutterActor does not yet work on non-X11 "
+                "platforms.");
 
   clutter_actor_pop_internal (actor);
 
@@ -605,11 +614,14 @@ _gtk_clutter_actor_update (GtkClutterActor *actor,
 			   gint             width,
 			   gint             height)
 {
-  GtkClutterActorPrivate *priv = actor->priv;
+#if defined(CLUTTER_WINDOWING_X11)
+  if (clutter_check_windowing_backend (CLUTTER_WINDOWING_X11))
+    {
+      GtkClutterActorPrivate *priv = actor->priv;
 
-#if HAVE_CLUTTER_GTK_X11
-  clutter_x11_texture_pixmap_update_area (CLUTTER_X11_TEXTURE_PIXMAP (priv->texture),
-					  x, y, width, height);
+      clutter_x11_texture_pixmap_update_area (CLUTTER_X11_TEXTURE_PIXMAP (priv->texture),
+					      x, y, width, height);
+    }
 #endif
 
   clutter_actor_queue_redraw (CLUTTER_ACTOR (actor));
