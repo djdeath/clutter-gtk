@@ -45,17 +45,25 @@
 
 #include <gdk/gdk.h>
 
-#if defined(HAVE_CLUTTER_GTK_X11)
-
+#if defined(CLUTTER_WINDOWING_X11)
 #include <clutter/x11/clutter-x11.h>
-#include <gdk/gdkx.h>
+#endif
 
-#elif defined(HAVE_CLUTTER_GTK_WIN32)
+#if defined(CLUTTER_WINDOWING_GDK)
+#include <clutter/gdk/clutter-gdk.h>
+#endif
 
+#if defined(CLUTTER_WINDOWING_WIN32)
 #include <clutter/win32/clutter-win32.h>
-#include <gdk/gdkwin32.h>
+#endif
 
-#endif /* HAVE_CLUTTER_GTK_{X11,WIN32} */
+#if defined(GDK_WINDOWING_X11)
+#include <gdk/gdkx.h>
+#endif
+
+#if defined(GDK_WINDOWING_WIN32)
+#include <gdk/gdkwin32.h>
+#endif
 
 G_DEFINE_TYPE (GtkClutterEmbed, gtk_clutter_embed, GTK_TYPE_CONTAINER);
 
@@ -183,11 +191,31 @@ gtk_clutter_filter_func (GdkXEvent *native_event,
                          GdkEvent  *event         G_GNUC_UNUSED,
                          gpointer   user_data     G_GNUC_UNUSED)
 {
-#ifdef HAVE_CLUTTER_GTK_X11
-  XEvent *xevent = native_event;
+#if defined(CLUTTER_WINDOWING_X11)
+  if (clutter_check_backend (CLUTTER_X11_BACKEND))
+    {
+      XEvent *xevent = native_event;
 
-  /* let Clutter handle all events coming from the windowing system */
-  clutter_x11_handle_event (xevent);
+      /* let Clutter handle all events coming from the windowing system */
+      clutter_x11_handle_event (xevent);
+    }
+  else
+#endif
+#if defined(CLUTTER_WINDOWING_GDK)
+  if (clutter_check_backend (CLUTTER_GDK_BACKEND))
+    {
+      clutter_gdk_handle_event (event);
+    }
+  else
+#endif
+#if defined(CLUTTER_WINDOWING_WIN32)
+  if (clutter_check_backend (CLUTTER_WIN32_BACKEND))
+    {
+      MSG *msg = native_event;
+
+      clutter_win32_handle_event (msg);
+    }
+  else
 #endif
 
   /* we don't care if Clutter handled the event: we want GDK to continue
@@ -207,26 +235,27 @@ gtk_clutter_embed_realize (GtkWidget *widget)
   gint attributes_mask;
   gint border_width;
 
-#ifdef HAVE_CLUTTER_GTK_X11
-  {
-    const XVisualInfo *xvinfo;
-    GdkVisual *visual;
+#if defined(GDK_WINDOWING_X11) && defined(CLUTTER_WINDOWING_X11)
+  if (clutter_check_backend (CLUTTER_X11_BACKEND))
+    {
+      const XVisualInfo *xvinfo;
+      GdkVisual *visual;
 
-    /* We need to use the colormap from the Clutter visual, since
-     * the visual is tied to the GLX context
-     */
-    xvinfo = clutter_x11_get_visual_info ();
-    if (xvinfo == None)
-      {
-        g_critical ("Unable to retrieve the XVisualInfo from Clutter");
-        return;
-      }
+      /* We need to use the colormap from the Clutter visual, since
+       * the visual is tied to the GLX context
+       */
+      xvinfo = clutter_x11_get_visual_info ();
+      if (xvinfo == None)
+        {
+          g_critical ("Unable to retrieve the XVisualInfo from Clutter");
+          return;
+        }
 
-    visual = gdk_x11_screen_lookup_visual (gtk_widget_get_screen (widget),
-                                           xvinfo->visualid);
-    gtk_widget_set_visual (widget, visual);
-  }
-#endif /* HAVE_CLUTTER_GTK_X11 */
+      visual = gdk_x11_screen_lookup_visual (gtk_widget_get_screen (widget),
+                                             xvinfo->visualid);
+      gtk_widget_set_visual (widget, visual);
+    }
+#endif
 
   gtk_widget_set_realized (widget, TRUE);
 
@@ -259,6 +288,7 @@ gtk_clutter_embed_realize (GtkWidget *widget)
   window = gdk_window_new (gtk_widget_get_parent_window (widget),
                            &attributes,
                            attributes_mask);
+
   gtk_widget_set_window (widget, window);
   gdk_window_set_user_data (window, widget);
 
@@ -274,13 +304,28 @@ gtk_clutter_embed_realize (GtkWidget *widget)
 
   gdk_window_add_filter (NULL, gtk_clutter_filter_func, widget);
 
-#if defined(HAVE_CLUTTER_GTK_X11)
-  clutter_x11_set_stage_foreign (CLUTTER_STAGE (priv->stage), 
-                                 GDK_WINDOW_XID (window));
-#elif defined(HAVE_CLUTTER_GTK_WIN32)
-  clutter_win32_set_stage_foreign (CLUTTER_STAGE (priv->stage), 
-				   GDK_WINDOW_HWND (window));
-#endif /* HAVE_CLUTTER_GTK_{X11,WIN32} */
+#if defined(CLUTTER_WINDOWING_GDK)
+  if (clutter_check_backend (CLUTTER_GDK_BACKEND))
+    {
+      clutter_gdk_set_stage_foreign (CLUTTER_STAGE (priv->stage), window);
+    }
+  else
+#endif
+#if defined(GDK_WINDOWING_X11) && defined(CLUTTER_WINDOWING_X11)
+  if (clutter_check_backend (CLUTTER_X11_BACKEND) &&
+      GDK_IS_X11_WINDOW (window))
+    {
+      clutter_x11_set_stage_foreign (CLUTTER_STAGE (priv->stage), GDK_WINDOW_XID (window));
+    }
+  else
+#endif
+#if defined(GDK_WINDOWING_WIN32) && defined(CLUTTER_WINDOWING_WIN32)
+  if (clutter_check_backend (CLUTTER_WIN32_BACKEND) &&
+      GDK_IS_WIN32_WINDOW (window))
+    {
+      clutter_win32_set_stage_foreign (CLUTTER_STAGE (priv->stage), GDK_WINDOW_HWND (window));
+    }
+#endif
 
   clutter_actor_realize (priv->stage);
 
@@ -444,10 +489,10 @@ gtk_clutter_embed_style_updated (GtkWidget *widget)
   ClutterSettings *clutter_settings;
   gchar *font_name;
   gint double_click_time, double_click_distance;
-#if HAVE_CLUTTER_GTK_X11
+#if defined(GDK_WINDOWING_X11) && defined(CLUTTER_WINDOWING_X11)
   gint xft_dpi, xft_hinting, xft_antialias;
   gchar *xft_hintstyle, *xft_rgba;
-#endif /* HAVE_CLUTTER_GTK_X11 */
+#endif
 
   if (gtk_widget_get_realized (widget))
     {
@@ -484,13 +529,13 @@ gtk_clutter_embed_style_updated (GtkWidget *widget)
                 "gtk-font-name", &font_name,
                 "gtk-double-click-time", &double_click_time,
                 "gtk-double-click-distance", &double_click_distance,
-#if HAVE_CLUTTER_GTK_X11
+#if defined(GDK_WINDOWING_X11) && defined(CLUTTER_WINDOWING_X11) 
                 "gtk-xft-dpi", &xft_dpi,
                 "gtk-xft-antialias", &xft_antialias,
                 "gtk-xft-hinting", &xft_hinting,
                 "gtk-xft-hintstyle", &xft_hintstyle,
                 "gtk-xft-rgba", &xft_rgba,
-#endif /* HAVE_CLUTTER_GTK_X11 */
+#endif
                 NULL);
 
   /* copy all settings and values coming from GTK+ into
@@ -502,19 +547,19 @@ gtk_clutter_embed_style_updated (GtkWidget *widget)
                 "font-name", font_name,
                 "double-click-time", double_click_time,
                 "double-click-distance", double_click_distance,
-#if HAVE_CLUTTER_GTK_X11
+#if defined(GDK_WINDOWING_X11) && defined(CLUTTER_WINDOWING_X11) 
                 "font-antialias", xft_antialias,
                 "font-dpi", xft_dpi,
                 "font-hinting", xft_hinting,
                 "font-hint-style", xft_hintstyle,
                 "font-subpixel-order", xft_rgba,
-#endif /* HAVE_CLUTTER_GTK_X11 */
+#endif
                 NULL);
 
-#if HAVE_CLUTTER_GTK_X11
+#if defined(GDK_WINDOWING_X11) && defined(CLUTTER_WINDOWING_X11)
   g_free (xft_hintstyle);
   g_free (xft_rgba);
-#endif /* HAVE_CLUTTER_GTK_X11 */
+#endif
 
   g_free (font_name);
 

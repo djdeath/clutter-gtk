@@ -11,17 +11,25 @@
 #include <gtk/gtk.h>
 #include <clutter/clutter.h>
 
-#if defined(HAVE_CLUTTER_GTK_X11)
+#if defined(CLUTTER_WINDOWING_GDK)
+#include <clutter/gdk/clutter-gdk.h>
+#endif
 
+#if defined(CLUTTER_WINDOWING_X11)
 #include <clutter/x11/clutter-x11.h>
-#include <gdk/gdkx.h>
+#endif
 
-#elif defined(HAVE_CLUTTER_GTK_WIN32)
-
+#if defined(CLUTTER_WINDOWING_WIN32)
 #include <clutter/win32/clutter-win32.h>
-#include <gdk/gdkwin32.h>
+#endif
 
-#endif /* HAVE_CLUTTER_GTK_{X11,WIN32} */
+#if defined(GDK_WINDOWING_X11)
+#include <gdk/gdkx.h>
+#endif
+
+#if defined(GDK_WINDOWING_WIN32)
+#include <gdk/gdkwin32.h>
+#endif
 
 /**
  * SECTION:gtk-clutter-util
@@ -50,16 +58,35 @@ post_parse_hook (GOptionContext  *context,
 {
   gtk_clutter_is_initialized = TRUE;
 
-#if defined(GDK_WINDOWING_X11)
-  /* share the X11 Display with GTK+ */
-  clutter_x11_set_display (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()));
+#if defined(CLUTTER_WINDOWING_GDK)
+  if (clutter_check_backend (CLUTTER_GDK_BACKEND))
+    {
+      clutter_gdk_set_display (gdk_display_get_default ());
 
-  /* let GTK+ in charge of the event handling */
-  clutter_x11_disable_event_retrieval ();
-#elif defined(GDK_WINDOWING_WIN32)
-  /* let GTK+ in charge of the event handling */
-  clutter_win32_disable_event_retrieval ();
-#endif /* GDK_WINDOWING_{X11,WIN32} */
+      clutter_gdk_disable_event_retrieval ();
+    }
+  else
+#endif
+#if defined(GDK_WINDOWING_X11) && defined(CLUTTER_WINDOWING_X11)
+  if (clutter_check_backend (CLUTTER_X11_BACKEND))
+    {
+      /* share the X11 Display with GTK+ */
+      clutter_x11_set_display (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()));
+
+      /* let GTK+ in charge of the event handling */
+      clutter_x11_disable_event_retrieval ();
+    }
+  else
+#endif
+#if defined(GDK_WINDOWING_WIN32) && defined(CLUTTER_WINDOWING_WIN32)
+  if (clutter_check_backend (CLUTTER_WIN32_BACKEND))
+    {
+      /* let GTK+ in charge of the event handling */
+      clutter_win32_disable_event_retrieval ();
+    }
+  else
+#endif
+    g_error ("*** Unsupported backend.");
 
   /* this is required since parsing clutter's option group did not
    * complete the initialization process
@@ -141,26 +168,24 @@ gtk_clutter_init (int    *argc,
 
   gtk_clutter_is_initialized = TRUE;
 
-  gdk_disable_multidevice ();
-
   if (!gtk_init_check (argc, argv))
     return CLUTTER_INIT_ERROR_UNKNOWN;
 
-#if defined(HAVE_CLUTTER_GTK_X11)
-# if CLUTTER_CHECK_VERSION (1, 1, 5)
-  /* enable ARGB visuals by default for Clutter */
-  clutter_x11_set_use_argb_visual (TRUE);
-# endif
+#if defined(CLUTTER_WINDOWING_GDK)
+  clutter_gdk_disable_event_retrieval ();
+#endif
 
-  /* share the X11 Display with GTK+ */
+#if defined(GDK_WINDOWING_X11) && defined(CLUTTER_WINDOWING_X11)
+  clutter_x11_set_use_argb_visual (TRUE);
+
   clutter_x11_set_display (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()));
 
-  /* let GTK+ in charge of the event handling */
   clutter_x11_disable_event_retrieval ();
-#elif defined(HAVE_CLUTTER_GTK_WIN32)
-  /* let GTK+ in charge of the event handling */
+#endif
+
+#if defined(CLUTTER_WINDOWING_WIN32)
   clutter_win32_disable_event_retrieval ();
-#endif /* HAVE_CLUTTER_GTK_{X11,WIN32} */
+#endif
 
   return clutter_init (argc, argv);
 }
@@ -202,9 +227,7 @@ gtk_clutter_init_with_args (int            *argc,
   if (gtk_clutter_is_initialized)
     return CLUTTER_INIT_SUCCESS;
 
-  gdk_disable_multidevice ();
-
-#if defined(GDK_WINDOWING_X11) && CLUTTER_CHECK_VERSION (1, 1, 5)
+#if defined(CLUTTER_WINDOWING_X11)
   /* enable ARGB visuals by default for Clutter */
   clutter_x11_set_use_argb_visual (TRUE);
 #endif
