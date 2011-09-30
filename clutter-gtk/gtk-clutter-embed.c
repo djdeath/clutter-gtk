@@ -217,6 +217,7 @@ gtk_clutter_filter_func (GdkXEvent *native_event,
     }
   else
 #endif
+    g_critical ("Unsuppored Clutter backend");
 
   /* we don't care if Clutter handled the event: we want GDK to continue
    * the event processing as usual
