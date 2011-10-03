@@ -70,6 +70,10 @@ post_parse_hook (GOptionContext  *context,
 #if defined(GDK_WINDOWING_X11) && defined(CLUTTER_WINDOWING_X11)
   if (clutter_check_backend (CLUTTER_X11_BACKEND))
     {
+      clutter_x11_enable_xinput ();
+
+      clutter_x11_set_use_argb_visual (TRUE);
+
       /* share the X11 Display with GTK+ */
       clutter_x11_set_display (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()));
 
@@ -176,6 +180,8 @@ gtk_clutter_init (int    *argc,
 #endif
 
 #if defined(GDK_WINDOWING_X11) && defined(CLUTTER_WINDOWING_X11)
+  clutter_x11_enable_xinput ();
+
   clutter_x11_set_use_argb_visual (TRUE);
 
   clutter_x11_set_display (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()));

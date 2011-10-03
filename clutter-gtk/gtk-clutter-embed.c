@@ -201,13 +201,6 @@ gtk_clutter_filter_func (GdkXEvent *native_event,
     }
   else
 #endif
-#if defined(CLUTTER_WINDOWING_GDK)
-  if (clutter_check_backend (CLUTTER_GDK_BACKEND))
-    {
-      clutter_gdk_handle_event (event);
-    }
-  else
-#endif
 #if defined(CLUTTER_WINDOWING_WIN32)
   if (clutter_check_backend (CLUTTER_WIN32_BACKEND))
     {
@@ -303,8 +296,6 @@ gtk_clutter_embed_realize (GtkWidget *widget)
   style_context = gtk_widget_get_style_context (widget);
   gtk_style_context_set_background (style_context, window);
 
-  gdk_window_add_filter (NULL, gtk_clutter_filter_func, widget);
-
 #if defined(CLUTTER_WINDOWING_GDK)
   if (clutter_check_backend (CLUTTER_GDK_BACKEND))
     {
@@ -316,7 +307,15 @@ gtk_clutter_embed_realize (GtkWidget *widget)
   if (clutter_check_backend (CLUTTER_X11_BACKEND) &&
       GDK_IS_X11_WINDOW (window))
     {
+      static gboolean has_filter = FALSE;
+
       clutter_x11_set_stage_foreign (CLUTTER_STAGE (priv->stage), GDK_WINDOW_XID (window));
+
+      if (G_UNLIKELY (!has_filter))
+        {
+          gdk_window_add_filter (NULL, gtk_clutter_filter_func, widget);
+          has_filter = TRUE;
+        }
     }
   else
 #endif
@@ -324,7 +323,15 @@ gtk_clutter_embed_realize (GtkWidget *widget)
   if (clutter_check_backend (CLUTTER_WIN32_BACKEND) &&
       GDK_IS_WIN32_WINDOW (window))
     {
+      static gboolean has_filter = FALSE;
+
       clutter_win32_set_stage_foreign (CLUTTER_STAGE (priv->stage), GDK_WINDOW_HWND (window));
+
+      if (G_UNLIKELY (!has_filter))
+        {
+          gdk_window_add_filter (NULL, gtk_clutter_filter_func, widget);
+          has_filter = TRUE;
+        }
     }
 #endif
 
@@ -389,6 +396,8 @@ gtk_clutter_embed_map_event (GtkWidget	 *widget,
     res = parent_class->map_event (widget, event);
 
   clutter_actor_map (priv->stage);
+
+  clutter_actor_queue_redraw (priv->stage);
 
   return res;
 }
@@ -641,6 +650,18 @@ gtk_clutter_embed_child_type (GtkContainer *container)
   return GTK_CLUTTER_TYPE_OFFSCREEN;
 }
 
+static gboolean
+gtk_clutter_embed_event (GtkWidget *widget,
+                         GdkEvent  *event)
+{
+#if defined(CLUTTER_WINDOWING_GDK)
+  if (clutter_check_backend (CLUTTER_GDK_BACKEND))
+    clutter_gdk_handle_event (event);
+#endif
+
+  return FALSE;
+}
+
 static void
 gtk_clutter_embed_class_init (GtkClutterEmbedClass *klass)
 {
@@ -665,6 +686,7 @@ gtk_clutter_embed_class_init (GtkClutterEmbedClass *klass)
   widget_class->focus_out_event = gtk_clutter_embed_focus_out;
   widget_class->key_press_event = gtk_clutter_embed_key_event;
   widget_class->key_release_event = gtk_clutter_embed_key_event;
+  widget_class->event = gtk_clutter_embed_event;
 
   container_class->add = gtk_clutter_embed_add;
   container_class->remove = gtk_clutter_embed_remove;
