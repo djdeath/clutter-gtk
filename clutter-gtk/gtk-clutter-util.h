@@ -32,13 +32,13 @@
 G_BEGIN_DECLS
 
 ClutterInitError gtk_clutter_init           (int            *argc,
-                                             char         ***argv);
+                                             char         ***argv)  G_GNUC_WARN_UNUSED_RESULT;
 ClutterInitError gtk_clutter_init_with_args (int            *argc,
                                              char         ***argv,
                                              const char     *parameter_string,
                                              GOptionEntry   *entries,
                                              const char     *translation_domain,
-                                             GError        **error);
+                                             GError        **error) G_GNUC_WARN_UNUSED_RESULT;
 GOptionGroup *gtk_clutter_get_option_group  (void);
 
 G_END_DECLS
