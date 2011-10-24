@@ -6,7 +6,7 @@
 
 #include <clutter-gtk/clutter-gtk.h>
 
-#define NHANDS          2
+#define NHANDS          4
 #define WINWIDTH        400
 #define WINHEIGHT       400
 #define RADIUS          150
@@ -14,22 +14,24 @@
 typedef struct SuperOH
 {
   ClutterActor *stage;
-  ClutterActor *hand[NHANDS], *bgtex;
+  ClutterActor *hand[NHANDS];
+  ClutterActor *bgtex;
   ClutterActor *group;
-  GdkPixbuf    *bgpixb;
-
 } SuperOH; 
 
 static gboolean fade = FALSE;
 static gboolean fullscreen = FALSE;
 
 /* input handler */
-void 
+static gboolean
 input_cb (ClutterStage *stage,
 	  ClutterEvent *event,
 	  gpointer      data)
 {
-  if (event->type == CLUTTER_BUTTON_PRESS)
+  ClutterEventType event_type = clutter_event_type (event);
+  SuperOH *oh = data;
+
+  if (event_type == CLUTTER_BUTTON_PRESS)
     {
       ClutterActor *a;
       gfloat x, y;
@@ -37,7 +39,7 @@ input_cb (ClutterStage *stage,
       clutter_event_get_coords (event, &x, &y);
 
       a = clutter_stage_get_actor_at_pos (stage, CLUTTER_PICK_ALL, x, y);
-      if (a && (CLUTTER_IS_TEXTURE (a) || CLUTTER_IS_CLONE (a)))
+      if (a != NULL && (CLUTTER_IS_TEXTURE (a) || CLUTTER_IS_CLONE (a)))
 	clutter_actor_hide (a);
     }
   else if (event->type == CLUTTER_KEY_PRESS)
@@ -45,9 +47,18 @@ input_cb (ClutterStage *stage,
       g_print ("*** key press event (key:%c) ***\n",
 	       clutter_event_get_key_symbol (event));
       
-      if (clutter_event_get_key_symbol (event) == CLUTTER_q)
+      if (clutter_event_get_key_symbol (event) == CLUTTER_KEY_q)
 	gtk_main_quit ();
+      else if (clutter_event_get_key_symbol (event) == CLUTTER_KEY_r)
+        {
+          int i;
+
+          for (i = 0; i < NHANDS; i++)
+            clutter_actor_show (oh->hand[i]);
+        }
     }
+
+  return TRUE;
 }
 
 
@@ -109,7 +120,6 @@ main (int argc, char *argv[])
 {
   ClutterTimeline *timeline;
   ClutterActor    *stage;
-  ClutterColor     stage_color = { 0x61, 0x64, 0x8c, 0xff };
   ClutterConstraint *constraint;
   GtkWidget       *window, *clutter;
   GtkWidget       *label, *button, *vbox;
@@ -144,26 +154,30 @@ main (int argc, char *argv[])
     g_error("pixbuf load failed");
 
   window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  g_signal_connect (window, "destroy",
-                    G_CALLBACK (gtk_main_quit), NULL);
+  gtk_window_set_default_size (GTK_WINDOW (window), WINWIDTH, WINHEIGHT);
+  gtk_window_set_title (GTK_WINDOW (window), "Clutter Embedding");
+  g_signal_connect (window, "destroy", G_CALLBACK (gtk_main_quit), NULL);
 
-  vbox = gtk_vbox_new (FALSE, 6);
+  vbox = gtk_grid_new ();
+  gtk_orientable_set_orientation (GTK_ORIENTABLE (vbox), GTK_ORIENTATION_VERTICAL);
+  gtk_widget_set_hexpand (vbox, TRUE);
+  gtk_widget_set_vexpand (vbox, TRUE);
   gtk_container_add (GTK_CONTAINER (window), vbox);
 
   clutter = gtk_clutter_embed_new ();
-  gtk_widget_set_size_request (clutter, WINWIDTH, WINHEIGHT);
-
   gtk_container_add (GTK_CONTAINER (vbox), clutter);
 
   stage = gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (clutter));
+  clutter_stage_set_color (CLUTTER_STAGE (stage), CLUTTER_COLOR_LightSkyBlue);
 
   label = gtk_label_new ("This is a label");
-  gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 0);
+  gtk_container_add (GTK_CONTAINER (vbox), label);
+  gtk_widget_set_hexpand (label, TRUE);
 
   button = gtk_button_new_with_label ("This is a button...clicky");
-  g_signal_connect (button, "clicked",
-                    G_CALLBACK (clickity), NULL);
-  gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 0);
+  g_signal_connect (button, "clicked", G_CALLBACK (clickity), NULL);
+  gtk_container_add (GTK_CONTAINER (vbox), button);
+  gtk_widget_set_hexpand (button, TRUE);
 
   button = gtk_button_new_with_label ("Fullscreen");
   gtk_button_set_image (GTK_BUTTON (button),
@@ -172,18 +186,15 @@ main (int argc, char *argv[])
   g_signal_connect (button, "clicked",
                     G_CALLBACK (on_fullscreen),
                     window);
-  gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 0);
+  gtk_container_add (GTK_CONTAINER (vbox), button);
+  gtk_widget_set_hexpand (button, TRUE);
 
   button = gtk_button_new_from_stock (GTK_STOCK_QUIT);
   g_signal_connect_swapped (button, "clicked",
                             G_CALLBACK (gtk_widget_destroy),
                             window);
-  gtk_box_pack_end (GTK_BOX (vbox), button, FALSE, FALSE, 0);
-  
-  /* and its background color */
-
-  clutter_stage_set_color (CLUTTER_STAGE (stage),
-		           &stage_color);
+  gtk_container_add (GTK_CONTAINER (vbox), button);
+  gtk_widget_set_hexpand (button, TRUE);
 
   oh = g_new (SuperOH, 1);
   oh->stage = stage;
@@ -208,8 +219,8 @@ main (int argc, char *argv[])
       w = clutter_actor_get_width (oh->hand[0]);
       h = clutter_actor_get_height (oh->hand[0]);
 
-      x = WINWIDTH/2  + RADIUS * cos (i * M_PI / (NHANDS/2)) - w/2;
-      y = WINHEIGHT/2 + RADIUS * sin (i * M_PI / (NHANDS/2)) - h/2;
+      x = WINWIDTH / 2  + RADIUS * cos (i * M_PI / (NHANDS / 2)) - w / 2;
+      y = WINHEIGHT / 2 + RADIUS * sin (i * M_PI / (NHANDS / 2)) - h / 2;
 
       clutter_actor_set_position (oh->hand[i], x, y);
 
@@ -236,23 +247,17 @@ main (int argc, char *argv[])
 
   gtk_widget_show_all (window);
 
-  /* Only show the actors after parent show otherwise it will just be
-   * unrealized when the clutter foreign window is set. widget_show
-   * will call show on the stage.
-   */
-  clutter_actor_show_all (CLUTTER_ACTOR (oh->group));
-
   /* Create a timeline to manage animation */
   timeline = clutter_timeline_new (6000);
-  g_object_set(timeline, "loop", TRUE, NULL);   /* have it loop */
+  clutter_timeline_set_loop (timeline, TRUE);
 
   /* fire a callback for frame change */
-  g_signal_connect(timeline, "new-frame",  G_CALLBACK (frame_cb), oh);
+  g_signal_connect (timeline, "new-frame",  G_CALLBACK (frame_cb), oh);
 
   /* and start it */
   clutter_timeline_start (timeline);
 
-  gtk_main();
+  gtk_main ();
 
   return 0;
 }
