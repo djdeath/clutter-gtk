@@ -207,6 +207,8 @@ gtk_clutter_embed_realize (GtkWidget *widget)
   gint attributes_mask;
   gint border_width;
 
+  static gboolean filter_installed = FALSE;
+
 #ifdef HAVE_CLUTTER_GTK_X11
   {
     const XVisualInfo *xvinfo;
@@ -272,7 +274,11 @@ gtk_clutter_embed_realize (GtkWidget *widget)
   style_context = gtk_widget_get_style_context (widget);
   gtk_style_context_set_background (style_context, window);
 
-  gdk_window_add_filter (NULL, gtk_clutter_filter_func, widget);
+  if (G_UNLIKELY (!filter_installed))
+    {
+      filter_installed = TRUE;
+      gdk_window_add_filter (NULL, gtk_clutter_filter_func, widget);
+    }
 
 #if defined(HAVE_CLUTTER_GTK_X11)
   clutter_x11_set_stage_foreign (CLUTTER_STAGE (priv->stage), 
