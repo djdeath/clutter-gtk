@@ -630,16 +630,27 @@ static void
 gtk_clutter_embed_init (GtkClutterEmbed *embed)
 {
   GtkClutterEmbedPrivate *priv;
+  GtkWidget *widget;
 
   embed->priv = priv = GTK_CLUTTER_EMBED_GET_PRIVATE (embed);
 
-  gtk_widget_set_can_focus (GTK_WIDGET (embed), TRUE);
-  gtk_widget_set_has_window (GTK_WIDGET (embed), TRUE);
+  widget = GTK_WIDGET (embed);
 
-  /* disable double-buffering: it's automatically provided
-   * by OpenGL
-   */
-  gtk_widget_set_double_buffered (GTK_WIDGET (embed), FALSE);
+  /* we have a real window backing our drawing */
+  gtk_widget_set_has_window (widget, TRUE);
+
+  /* we accept key focus */
+  gtk_widget_set_can_focus (widget, TRUE);
+
+  /* disable double-buffering: it's automatically provided by OpenGL */
+  gtk_widget_set_double_buffered (widget, FALSE);
+
+  /* we own the whole drawing of this widget, including the background */
+  gtk_widget_set_app_paintable (widget, TRUE);
+
+  /* this widget should expand in both directions */
+  gtk_widget_set_hexpand (widget, TRUE);
+  gtk_widget_set_vexpand (widget, TRUE);
 
   /* we always create new stages rather than use the default */
   priv->stage = clutter_stage_new ();
