@@ -28,14 +28,14 @@ main (int argc, char *argv[])
     g_error ("Unable to initialize GtkClutter");
 
   window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  g_signal_connect (window, "destroy",
-                    G_CALLBACK (gtk_main_quit), NULL);
+  gtk_window_set_default_size (GTK_WINDOW (window), 600, 400);
+  gtk_window_set_title (GTK_WINDOW (window), "Multiple GtkClutterEmbed");
+  g_signal_connect (window, "destroy", G_CALLBACK (gtk_main_quit), NULL);
 
   notebook = gtk_notebook_new ();
   gtk_container_add (GTK_CONTAINER (window), notebook);
 
   clutter0 = gtk_clutter_embed_new ();
-  gtk_widget_set_size_request (clutter0, 320, 320);
   gtk_notebook_append_page (GTK_NOTEBOOK (notebook), clutter0,
                             gtk_label_new ("One stage"));
   stage0 = gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (clutter0));
