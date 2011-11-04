@@ -50,6 +50,15 @@ post_parse_hook (GOptionContext  *context,
 {
   gtk_clutter_is_initialized = TRUE;
 
+  gdk_disable_multidevice ();
+
+#if defined(HAVE_CLUTTER_GTK_X11)
+# if CLUTTER_CHECK_VERSION (1, 1, 5)
+  /* enable ARGB visuals by default for Clutter */
+  clutter_x11_set_use_argb_visual (TRUE);
+# endif
+#endif
+
 #if defined(GDK_WINDOWING_X11)
   /* share the X11 Display with GTK+ */
   clutter_x11_set_display (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()));
