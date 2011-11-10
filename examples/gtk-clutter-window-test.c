@@ -5,6 +5,7 @@
  * Written by Davyd Madeley <davyd.madeley@collabora.co.uk>
  */
 
+#include <stdlib.h>
 #include <gtk/gtk.h>
 #include <clutter/clutter.h>
 #include <clutter-gtk/clutter-gtk.h>
@@ -97,7 +98,8 @@ main (int argc, char **argv)
     GtkListStore *store;
     ClutterActor *stage, *actor;
 
-    gtk_clutter_init (&argc, &argv);
+    if (gtk_clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
+      return EXIT_FAILURE;
 
     window = gtk_clutter_window_new ();
     g_signal_connect (window, "destroy", G_CALLBACK (gtk_main_quit), NULL);

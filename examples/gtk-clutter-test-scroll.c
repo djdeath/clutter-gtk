@@ -121,7 +121,7 @@ create_gtk_actor (int i)
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scroll), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
   gtk_container_add (GTK_CONTAINER (bin), scroll);
 
-  vbox = gtk_vbox_new (FALSE, 6);
+  vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 6);
   gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (scroll), vbox);
 
   button = gtk_button_new_with_label ("A Button");
@@ -166,7 +166,7 @@ main (int argc, char *argv[])
   g_signal_connect (window, "destroy",
 		    G_CALLBACK (gtk_main_quit), NULL);
 
-  vbox = gtk_vbox_new (FALSE, 6);
+  vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 6);
   gtk_container_add (GTK_CONTAINER (window), vbox);
 
   clutter = gtk_clutter_embed_new ();

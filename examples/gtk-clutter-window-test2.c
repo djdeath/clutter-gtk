@@ -5,6 +5,7 @@
  * Written by Davyd Madeley <davyd.madeley@collabora.co.uk>
  */
 
+#include <stdlib.h>
 #include <gtk/gtk.h>
 #include <clutter/clutter.h>
 #include <clutter-gtk/clutter-gtk.h>
@@ -120,12 +121,13 @@ button_clicked (GtkButton *button, char *stock_id)
 }
 
 static GtkWidget *
-add_button (GtkTable *table, char *stock_id, int row)
+add_button (GtkGrid *table, char *stock_id, int row)
 {
     GtkWidget *button = gtk_button_new_from_stock (stock_id);
-    gtk_table_attach_defaults (GTK_TABLE (table), button,
-                               row, row + 1,
-                               row, row + 1);
+
+    gtk_grid_insert_row (GTK_GRID (table), row);
+    gtk_grid_insert_column (GTK_GRID (table), row);
+    gtk_grid_attach (GTK_GRID (table), button, row, row, 1, 1);
 
     g_signal_connect (button, "clicked",
                       G_CALLBACK (button_clicked),
@@ -140,17 +142,21 @@ main (int argc, char **argv)
     GtkWidget *window, *table;
     GtkSettings *settings;
 
-    gtk_clutter_init (&argc, &argv);
+    if (gtk_clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
+      return EXIT_FAILURE;
 
     window = gtk_clutter_window_new ();
-    table = gtk_table_new (6, 6, TRUE);
 
-    add_button (GTK_TABLE (table), GTK_STOCK_OK, 0);
-    add_button (GTK_TABLE (table), GTK_STOCK_CANCEL, 1);
-    add_button (GTK_TABLE (table), GTK_STOCK_CLOSE, 2);
-    add_button (GTK_TABLE (table), GTK_STOCK_ABOUT, 3);
-    add_button (GTK_TABLE (table), GTK_STOCK_BOLD, 4);
-    add_button (GTK_TABLE (table), GTK_STOCK_ITALIC, 5);
+    table = gtk_grid_new ();
+    gtk_widget_set_hexpand (table, TRUE);
+    gtk_widget_set_vexpand (table, TRUE);
+
+    add_button (GTK_GRID (table), GTK_STOCK_OK, 0);
+    add_button (GTK_GRID (table), GTK_STOCK_CANCEL, 1);
+    add_button (GTK_GRID (table), GTK_STOCK_CLOSE, 2);
+    add_button (GTK_GRID (table), GTK_STOCK_ABOUT, 3);
+    add_button (GTK_GRID (table), GTK_STOCK_BOLD, 4);
+    add_button (GTK_GRID (table), GTK_STOCK_ITALIC, 5);
 
     gtk_container_add (GTK_CONTAINER (window), table);
     gtk_widget_show_all (window);
@@ -168,5 +174,5 @@ main (int argc, char **argv)
 
     gtk_main ();
 
-    return 0;
+    return EXIT_SUCCESS;
 }

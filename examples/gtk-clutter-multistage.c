@@ -41,7 +41,7 @@ main (int argc, char *argv[])
   stage0 = gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (clutter0));
   clutter_stage_set_color (CLUTTER_STAGE (stage0), &col0);
 
-  vbox = gtk_vbox_new (FALSE, 6);
+  vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 6);
   gtk_notebook_append_page (GTK_NOTEBOOK (notebook), vbox,
                             gtk_label_new ("Two stages"));
 

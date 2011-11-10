@@ -68,7 +68,7 @@ create_gtk_actor (int i)
   gtk_actor = gtk_clutter_actor_new ();
   bin = gtk_clutter_actor_get_widget (GTK_CLUTTER_ACTOR (gtk_actor));
 
-  vbox = gtk_vbox_new (FALSE, 6);
+  vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 6);
   gtk_container_add (GTK_CONTAINER (bin), vbox);
 
   button = gtk_button_new_with_label ("A Button");
