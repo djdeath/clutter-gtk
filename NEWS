@@ -1,3 +1,35 @@
+Clutter-GTK 1.1.2                                                    23/11/2011
+===============================================================================
+
+Changes since 1.0:
+
+        • Drop all flavours
+        Since Clutter 1.9 and GTK+ 3.0 support multiple backends with
+        selection at run-time, Clutter-GTK can drop the multiple flavours,
+        and support the current Clutter and GDK backend. This is still a
+        work in progress, so not every Clutter or GDK backend provide the
+        same set of features. Basic Clutter embedding works with the X11,
+        GDK, and Windows backends. GTK+ widgets embedding inside Clutter
+        works only on the X11 backend.
+
+        • Do not disable multi-device
+        Clutter was fixed to support XI2 events coming from GDK without
+        destroying the event cookie; this means that Clutter-GTK can
+        stop disabling multi-device support in GDK. If your code was
+        calling gdk_disable_multi_device() (something that shouldn't have
+        been done in the first place) this means that event handling
+        will be broken.
+
+        • Make GtkClutterEmbed expand by default
+        The GtkClutterEmbed widget should expand by default on both#
+        orientations; this allows using the default size negotiation
+        mechanisms in GTK, and drop the hack of setting a minimum size
+        on the widget.
+
+Many thanks to:
+
+  Marc-André Lureau, Matthias Clasen
+
 Clutter-GTK 1.0.4                                                    27/09/2011
 ===============================================================================
 
