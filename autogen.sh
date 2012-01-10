@@ -1,6 +1,6 @@
 #! /bin/sh
 
-rcdir=`dirname $0`
+srcdir=`dirname $0`
 test -z "$srcdir" && srcdir=.
 
 ORIGDIR=`pwd`
