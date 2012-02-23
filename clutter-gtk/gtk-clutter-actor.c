@@ -160,6 +160,9 @@ gtk_clutter_actor_unrealize (ClutterActor *actor)
   GtkClutterActor *clutter = GTK_CLUTTER_ACTOR (actor);
   GtkClutterActorPrivate *priv = clutter->priv;
 
+  if (priv->widget == NULL)
+    return;
+
   gtk_widget_unrealize (priv->widget);
 
   priv->surface = NULL;
