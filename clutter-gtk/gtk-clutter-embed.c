@@ -669,6 +669,17 @@ gtk_clutter_embed_event (GtkWidget *widget,
 }
 
 static void
+gtk_clutter_embed_state_flags_changed (GtkWidget *widget,
+                                       GtkStateFlags prev_state_flags)
+{
+  GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->state_flags_changed 
+    (widget, prev_state_flags);
+
+  gtk_container_forall (GTK_CONTAINER (widget),
+                        (GtkCallback) gtk_widget_queue_draw, NULL);
+}
+
+static void
 gtk_clutter_embed_class_init (GtkClutterEmbedClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
@@ -693,6 +704,7 @@ gtk_clutter_embed_class_init (GtkClutterEmbedClass *klass)
   widget_class->key_press_event = gtk_clutter_embed_key_event;
   widget_class->key_release_event = gtk_clutter_embed_key_event;
   widget_class->event = gtk_clutter_embed_event;
+  widget_class->state_flags_changed = gtk_clutter_embed_state_flags_changed;
 
   container_class->add = gtk_clutter_embed_add;
   container_class->remove = gtk_clutter_embed_remove;
