@@ -1,3 +1,20 @@
+Clutter-GTK 1.2.0                                                    23/03/2012
+===============================================================================
+
+Changes since 1.1.2:
+        • Ensure that style changes are propagated to embedded widgets
+        • Avoid segfaults when unrealizing.
+        • Introspection fixes.
+
+List of bugs fixed:
+        #670662 - Gtk-CRITICAL **: gtk_widget_unrealize: assertion
+                  `GTK_IS_WIDGET (widget)' failed
+        #667742 - entries argument of gtk_clutter_init_with_args not
+                  annotated as array
+
+Many thanks to:
+  Cosimo Cecchi, Evan Nemerson, Guillaume Desmottes, Ryan Lortie
+
 Clutter-GTK 1.1.2                                                    23/11/2011
 ===============================================================================
 
