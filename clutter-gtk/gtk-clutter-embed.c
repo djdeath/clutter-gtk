@@ -269,6 +269,7 @@ gtk_clutter_embed_realize (GtkWidget *widget)
    */
   attributes.event_mask = gtk_widget_get_events (widget)
                         | GDK_EXPOSURE_MASK
+                        | GDK_SCROLL_MASK
                         | GDK_BUTTON_PRESS_MASK
                         | GDK_BUTTON_RELEASE_MASK
                         | GDK_KEY_PRESS_MASK
