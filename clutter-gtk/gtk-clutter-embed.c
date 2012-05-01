@@ -31,6 +31,14 @@
  *
  * By using a #GtkClutterEmbed widget is possible to build, show and
  * interact with a scene built using Clutter inside a GTK+ application.
+ *
+ * <warning><para>Though #GtkClutterEmbed is a #GtkContainer subclass,
+ * it is not a real GTK+ container; #GtkClutterEmbed is required to
+ * implement #GtkContainer in order to embed a #GtkWidget through the
+ * #GtkClutterActor class. Calling gtk_container_add() on a #GtkClutterEmbed
+ * will trigger an assertion. It is strongly advised not to override the
+ * #GtkContainer implementation when subclassing
+ * #GtkClutterEmbed.</para></warning>
  */
 
 #ifdef HAVE_CONFIG_H
@@ -613,7 +621,14 @@ gtk_clutter_embed_add (GtkContainer *container,
 {
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (container)->priv;
 
-  g_assert (GTK_CLUTTER_IS_OFFSCREEN (widget));
+#ifndef G_DISABLE_ASSERT
+  if (G_UNLIKELY (!GTK_CLUTTER_IS_OFFSCREEN (widget)))
+    {
+      g_critical ("Widgets of type '%s' do not support children.",
+                  G_OBJECT_TYPE_NAME (container));
+      return;
+    }
+#endif
 
   priv->children = g_list_prepend (priv->children, widget);
   gtk_widget_set_parent (widget, GTK_WIDGET (container));
