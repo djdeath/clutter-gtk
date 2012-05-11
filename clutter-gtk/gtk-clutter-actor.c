@@ -163,6 +163,7 @@ gtk_clutter_actor_unrealize (ClutterActor *actor)
   if (priv->widget == NULL)
     return;
 
+  gtk_widget_hide (priv->widget);
   gtk_widget_unrealize (priv->widget);
 
   priv->surface = NULL;
