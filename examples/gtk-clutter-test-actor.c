@@ -4,14 +4,16 @@
 
 #include <clutter-gtk/clutter-gtk.h>
 
-#define NWIDGETS   4
+#define MAX_NWIDGETS   4
 #define WINWIDTH   400
 #define WINHEIGHT  400
 #define RADIUS     80
 
 static ClutterActor *group = NULL;
-static ClutterActor *widgets[NWIDGETS];
+static ClutterActor *widgets[MAX_NWIDGETS];
 static gboolean do_rotate = TRUE;
+
+static int nwidgets;
 
 /* Timeline handler */
 void
@@ -33,7 +35,7 @@ frame_cb (ClutterTimeline *timeline,
                               WINHEIGHT / 2,
                               0);
 
-  for (i = 0; i < NWIDGETS; i++)
+  for (i = 0; i < nwidgets; i++)
     {
       /* rotate each widget around its center */
       gfloat w = clutter_actor_get_width (widgets[i]);
@@ -87,6 +89,45 @@ create_gtk_actor (int i)
   return gtk_actor;
 }
 
+static void
+add_clutter_actor (ClutterActor *actor,
+		   ClutterActor *group,
+		   int           i)
+{
+  gint x, y, w, h;
+
+  /* Add to our group group */
+  clutter_container_add_actor (CLUTTER_CONTAINER (group), actor);
+
+  /* Place around a circle */
+  w = clutter_actor_get_width (widgets[0]);
+  h = clutter_actor_get_height (widgets[0]);
+
+  x = WINWIDTH/2  + RADIUS * cos (i * 2 * M_PI / (MAX_NWIDGETS)) - w/2;
+  y = WINHEIGHT/2 + RADIUS * sin (i * 2 * M_PI / (MAX_NWIDGETS)) - h/2;
+
+  clutter_actor_set_position (actor, x, y);
+}
+
+static gboolean
+add_or_remove_timeout (gpointer user_data)
+{
+  if (nwidgets == MAX_NWIDGETS) {
+    /* Removing an item */
+    clutter_actor_remove_child (group, widgets[MAX_NWIDGETS - 1]);
+    widgets[MAX_NWIDGETS - 1] = NULL;
+
+    nwidgets--;
+  } else {
+    /* Adding an item */
+    widgets[MAX_NWIDGETS - 1] = create_gtk_actor (MAX_NWIDGETS - 1);
+    nwidgets++;
+
+    add_clutter_actor (widgets[MAX_NWIDGETS - 1], group, MAX_NWIDGETS - 1);
+  }
+  return TRUE;
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -124,26 +165,17 @@ main (int argc, char *argv[])
 
   clutter_stage_set_color (CLUTTER_STAGE (stage), &stage_color);
 
+  nwidgets = 0;
+
   /* create a new group to hold multiple actors in a group */
   group = clutter_group_new ();
 
-  for (i = 0; i < NWIDGETS; i++)
+  for (i = 0; i < MAX_NWIDGETS; i++)
     {
-      gint x, y, w, h;
-
       widgets[i] = create_gtk_actor (i);
+      nwidgets++;
 
-      /* Add to our group group */
-      clutter_container_add_actor (CLUTTER_CONTAINER (group), widgets[i]);
-
-      /* Place around a circle */
-      w = clutter_actor_get_width (widgets[0]);
-      h = clutter_actor_get_height (widgets[0]);
-
-      x = WINWIDTH/2  + RADIUS * cos (i * 2 * M_PI / (NWIDGETS)) - w/2;
-      y = WINHEIGHT/2 + RADIUS * sin (i * 2 * M_PI / (NWIDGETS)) - h/2;
-
-      clutter_actor_set_position (widgets[i], x, y);
+      add_clutter_actor (widgets[i], group, i);
     }
 
   /* Add the group to the stage and center it*/
@@ -168,6 +200,8 @@ main (int argc, char *argv[])
 
   /* and start it */
   clutter_timeline_start (timeline);
+
+  g_timeout_add_seconds (3, add_or_remove_timeout, NULL);
 
   gtk_main();
 
