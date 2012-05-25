@@ -509,6 +509,8 @@ gtk_clutter_actor_init (GtkClutterActor *self)
   g_object_ref_sink (priv->widget);
   gtk_widget_show (priv->widget);
 
+  clutter_actor_set_reactive (self, TRUE);
+
   clutter_actor_push_internal (actor);
 
 #if defined(CLUTTER_WINDOWING_X11)
