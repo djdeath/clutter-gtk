@@ -181,7 +181,7 @@ pick_embedded_child (GdkWindow       *offscreen_window,
   GtkWidget *widget;
 
   a = clutter_stage_get_actor_at_pos (CLUTTER_STAGE (priv->stage),
-				      CLUTTER_PICK_ALL,
+				      CLUTTER_PICK_REACTIVE,
 				      widget_x, widget_y);
   if (GTK_CLUTTER_IS_ACTOR (a))
     {
