@@ -45,6 +45,7 @@
 #include "config.h"
 #endif
 
+#include <math.h>
 #include "gtk-clutter-embed.h"
 #include "gtk-clutter-offscreen.h"
 #include "gtk-clutter-actor.h"
@@ -87,6 +88,14 @@ struct _GtkClutterEmbedPrivate
   guint queue_redraw_id;
 
   guint geometry_changed : 1;
+  guint use_layout_size : 1;
+};
+
+enum
+{
+  PROP_0,
+
+  PROP_USE_LAYOUT_SIZE
 };
 
 static void
@@ -363,6 +372,111 @@ gtk_clutter_embed_unrealize (GtkWidget *widget)
     clutter_actor_hide (priv->stage);
 
   GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->unrealize (widget);
+}
+
+static GtkSizeRequestMode
+gtk_clutter_embed_get_request_mode (GtkWidget *widget)
+{
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
+  GtkSizeRequestMode mode;
+
+  mode = GTK_SIZE_REQUEST_CONSTANT_SIZE;
+  if (priv->stage != NULL &&
+      priv->use_layout_size &&
+      clutter_actor_get_layout_manager (priv->stage) != NULL)
+    {
+      switch (clutter_actor_get_request_mode (priv->stage))
+	{
+	case CLUTTER_REQUEST_HEIGHT_FOR_WIDTH:
+	  mode = GTK_SIZE_REQUEST_HEIGHT_FOR_WIDTH;
+	  break;
+	case CLUTTER_REQUEST_WIDTH_FOR_HEIGHT:
+	  mode = GTK_SIZE_REQUEST_WIDTH_FOR_HEIGHT;
+	  break;
+	}
+    }
+
+  return mode;
+}
+
+static void
+gtk_clutter_embed_get_preferred_width_for_height (GtkWidget *widget,
+						  gint       height,
+						  gint      *minimum,
+						  gint      *natural)
+{
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
+  float min, nat;
+
+  min = 0;
+  nat = 0;
+
+  if (priv->stage != NULL &&
+      priv->use_layout_size)
+    {
+      ClutterLayoutManager *manager = clutter_actor_get_layout_manager (priv->stage);
+      if (manager)
+	clutter_layout_manager_get_preferred_width (manager,
+						    CLUTTER_CONTAINER (priv->stage),
+						    (float)height, &min, &nat);
+    }
+
+  min = ceilf (min);
+  nat = ceilf (nat);
+
+  if (minimum)
+    *minimum = min;
+
+  if (natural)
+    *natural = nat;
+}
+
+static void
+gtk_clutter_embed_get_preferred_height_for_width (GtkWidget *widget,
+						  gint       width,
+						  gint      *minimum,
+						  gint      *natural)
+{
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
+  float min, nat;
+
+  min = 0;
+  nat = 0;
+
+  if (priv->stage != NULL &&
+      priv->use_layout_size)
+    {
+      ClutterLayoutManager *manager = clutter_actor_get_layout_manager (priv->stage);
+      if (manager)
+	clutter_layout_manager_get_preferred_height (manager,
+						     CLUTTER_CONTAINER (priv->stage),
+						     (float)width, &min, &nat);
+    }
+
+  min = ceilf (min);
+  nat = ceilf (nat);
+
+  if (minimum)
+    *minimum = min;
+
+  if (natural)
+    *natural = nat;
+}
+
+static void
+gtk_clutter_embed_get_preferred_width (GtkWidget *widget,
+				       gint      *minimum,
+				       gint      *natural)
+{
+  gtk_clutter_embed_get_preferred_width_for_height (widget, -1, minimum, natural);
+}
+
+static void
+gtk_clutter_embed_get_preferred_height (GtkWidget *widget,
+					gint      *minimum,
+					gint      *natural)
+{
+  gtk_clutter_embed_get_preferred_height_for_width (widget, -1, minimum, natural);
 }
 
 static void
@@ -696,15 +810,58 @@ gtk_clutter_embed_state_flags_changed (GtkWidget *widget,
 }
 
 static void
+gtk_clutter_embed_set_property (GObject       *gobject,
+                                guint          prop_id,
+                                const GValue *value,
+                                GParamSpec   *pspec)
+{
+  GtkClutterEmbed *embed = GTK_CLUTTER_EMBED (gobject);
+
+  switch (prop_id)
+    {
+    case PROP_USE_LAYOUT_SIZE:
+      gtk_clutter_embed_set_use_layout_size (embed, g_value_get_boolean (value));
+      break;
+
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
+      break;
+    }
+}
+
+static void
+gtk_clutter_embed_get_property (GObject    *gobject,
+                                guint       prop_id,
+                                GValue     *value,
+                                GParamSpec *pspec)
+{
+  GtkClutterEmbed *embed = GTK_CLUTTER_EMBED (gobject);
+
+  switch (prop_id)
+    {
+    case PROP_USE_LAYOUT_SIZE:
+      g_value_set_boolean (value, embed->priv->use_layout_size);
+      break;
+
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
+      break;
+    }
+}
+
+static void
 gtk_clutter_embed_class_init (GtkClutterEmbedClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
   GtkContainerClass *container_class = GTK_CONTAINER_CLASS (klass);
+  GParamSpec *pspec;
 
   g_type_class_add_private (klass, sizeof (GtkClutterEmbedPrivate));
 
   gobject_class->dispose = gtk_clutter_embed_dispose;
+  gobject_class->set_property = gtk_clutter_embed_set_property;
+  gobject_class->get_property = gtk_clutter_embed_get_property;
 
   widget_class->style_updated = gtk_clutter_embed_style_updated;
   widget_class->size_allocate = gtk_clutter_embed_size_allocate;
@@ -721,11 +878,31 @@ gtk_clutter_embed_class_init (GtkClutterEmbedClass *klass)
   widget_class->key_release_event = gtk_clutter_embed_key_event;
   widget_class->event = gtk_clutter_embed_event;
   widget_class->state_flags_changed = gtk_clutter_embed_state_flags_changed;
+  widget_class->get_request_mode = gtk_clutter_embed_get_request_mode;
+  widget_class->get_preferred_width = gtk_clutter_embed_get_preferred_width;
+  widget_class->get_preferred_height = gtk_clutter_embed_get_preferred_height;
+  widget_class->get_preferred_width_for_height = gtk_clutter_embed_get_preferred_width_for_height;
+  widget_class->get_preferred_height_for_width = gtk_clutter_embed_get_preferred_height_for_width;
 
   container_class->add = gtk_clutter_embed_add;
   container_class->remove = gtk_clutter_embed_remove;
   container_class->forall = gtk_clutter_embed_forall;
   container_class->child_type = gtk_clutter_embed_child_type;
+
+
+  /**
+   * GtkClutterEmbed:use-layout-size:
+   *
+   * The #GtkWidget to be embedded into the #GtkClutterActor
+   *
+   * Since: 1.4
+   */
+  pspec = g_param_spec_boolean ("use-layout-size",
+                                "Use layout size",
+				"Whether to use the reported size of the LayoutManager on the stage as the widget size.",
+				FALSE,
+				G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_STATIC_STRINGS);
+  g_object_class_install_property (gobject_class, PROP_USE_LAYOUT_SIZE, pspec);
 }
 
 static void
@@ -735,7 +912,6 @@ gtk_clutter_embed_init (GtkClutterEmbed *embed)
   GtkWidget *widget;
 
   embed->priv = priv = GTK_CLUTTER_EMBED_GET_PRIVATE (embed);
-
   widget = GTK_WIDGET (embed);
 
   /* we have a real window backing our drawing */
@@ -800,4 +976,62 @@ gtk_clutter_embed_get_stage (GtkClutterEmbed *embed)
   g_return_val_if_fail (GTK_CLUTTER_IS_EMBED (embed), NULL);
 
   return embed->priv->stage;
+}
+
+/**
+ * gtk_clutter_embed_set_use_layout_size:
+ * @embed: a #GtkClutterEmbed
+ * @use_layout_size: a boolean
+ *
+ * Changes the way @embed requests size. If @use_layout_size is
+ * %TRUE, the @embed widget will request the size that the
+ * LayoutManager reports as the preferred size. This means that
+ * a Gtk+ window will automatically get the natural and minimum
+ * toplevel window sizes. This is useful when the contents of the
+ * clutter stage is similar to a traditional UI.
+ *
+ * If @use_layout_size is %FALSE (which is the default) then @embed
+ * will not request any size and its up to the embedder to make sure
+ * there is some size (by setting a custom size on the widget or a default
+ * size on the toplevel. This makes more sense when using the @embed
+ * as a viewport into a potentially unlimited clutter space.
+ *
+ * Since: 1.4
+ */
+void
+gtk_clutter_embed_set_use_layout_size (GtkClutterEmbed *embed,
+                                       gboolean use_layout_size)
+{
+  GtkClutterEmbedPrivate *priv = embed->priv;
+
+  g_return_if_fail (GTK_CLUTTER_IS_EMBED (embed));
+  
+  use_layout_size = !!use_layout_size;
+  if (use_layout_size != priv->use_layout_size)
+    {
+      priv->use_layout_size = use_layout_size;
+      gtk_widget_queue_resize (GTK_WIDGET (embed));
+      g_object_notify (G_OBJECT (embed), "use-layout-size");
+   }
+}
+
+/**
+ * gtk_clutter_embed_get_use_layout_size:
+ * @embed: a #GtkClutterEmbed
+ *
+ * Retrieves whether the embedding uses the layout size, see
+ * gtk_clutter_embed_set_use_layout_size() for details.
+ *
+ * Return value: %TRUE if reporting stage size as widget size, %FALSE otherwise.
+ *
+ * Since: 1.4
+ */
+gboolean
+gtk_clutter_embed_get_honor_stage_size (GtkClutterEmbed *embed)
+{
+  GtkClutterEmbedPrivate *priv = embed->priv;
+
+  g_return_val_if_fail (GTK_CLUTTER_IS_EMBED (embed), FALSE);
+  
+  return priv->use_layout_size;
 }
