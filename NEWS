@@ -1,3 +1,21 @@
+Clutter-GTK 1.3.2                                                    05/06/2012
+===============================================================================
+
+Changes since 1.2:
+        • Ensure that redraws follow resizing, to avoid the contents of the
+          Stage "lagging" behind. [Alexander Larsson]
+        • Allow GtkClutterEmbed to use the embedded stage layout manager to
+          request its size. [Alexander Larsson]
+        • Avoid warnings when hiding or removing GtkWidgets embedded inside
+          a GtkClutterActor. [Bastien Nocera, Alexander Larsson]
+        • Make GtkClutterActor reactive by default. [Alexander Larsson]
+
+List of bugs fixed:
+        #675867, #677282, #677493
+
+Many thanks to:
+  Alexander Larsson, Bastien Nocera, Colin Walters
+
 Clutter-GTK 1.2.0                                                    23/03/2012
 ===============================================================================
 
