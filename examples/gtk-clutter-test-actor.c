@@ -91,13 +91,13 @@ create_gtk_actor (int i)
 
 static void
 add_clutter_actor (ClutterActor *actor,
-		   ClutterActor *group,
+		   ClutterActor *container,
 		   int           i)
 {
   gint x, y, w, h;
 
   /* Add to our group group */
-  clutter_container_add_actor (CLUTTER_CONTAINER (group), actor);
+  clutter_container_add_actor (CLUTTER_CONTAINER (container), actor);
 
   /* Place around a circle */
   w = clutter_actor_get_width (widgets[0]);
