@@ -503,6 +503,21 @@ gtk_clutter_embed_size_allocate (GtkWidget     *widget,
       clutter_stage_ensure_viewport (CLUTTER_STAGE (priv->stage));
 
       gtk_clutter_embed_send_configure (GTK_CLUTTER_EMBED (widget));
+
+#if defined(GDK_WINDOWING_X11) && defined(CLUTTER_WINDOWING_X11)
+      if (clutter_check_windowing_backend (CLUTTER_WINDOWING_X11) &&
+	  GDK_IS_X11_WINDOW (gtk_widget_get_window (widget)))
+	{
+	  XConfigureEvent xevent = { ConfigureNotify };
+	  xevent.window = GDK_WINDOW_XID (gtk_widget_get_window (widget));
+	  xevent.width = allocation->width;
+	  xevent.height = allocation->height;
+
+	  /* Ensure cogl knows about the new size immediately, as we will
+	     draw before we get the ConfigureNotify response. */
+	  clutter_x11_handle_event ((XEvent *)&xevent);
+	}
+#endif
     }
 }
 
