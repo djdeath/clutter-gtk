@@ -86,7 +86,7 @@ GType         gtk_clutter_embed_get_type  (void) G_GNUC_CONST;
 GtkWidget *   gtk_clutter_embed_new       (void);
 ClutterActor *gtk_clutter_embed_get_stage (GtkClutterEmbed *embed);
 void          gtk_clutter_embed_set_use_layout_size (GtkClutterEmbed *embed,
-						     gboolean honor_size);
+						     gboolean use_layout_size);
 gboolean      gtk_clutter_embed_get_use_layout_size (GtkClutterEmbed *embed);
 
 G_END_DECLS
