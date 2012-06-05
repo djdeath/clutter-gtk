@@ -5,6 +5,10 @@ GtkClutterEmbedClass
 gtk_clutter_embed_new
 gtk_clutter_embed_get_stage
 
+<SUBSECTION>
+gtk_clutter_embed_set_use_layout_size
+gtk_clutter_embed_get_use_layout_size
+
 <SUBSECTION Standard>
 GTK_CLUTTER_EMBED
 GTK_CLUTTER_IS_EMBED
