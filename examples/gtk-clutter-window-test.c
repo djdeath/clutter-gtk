@@ -70,12 +70,15 @@ on_toolbar_enter (ClutterActor *actor,
                   ClutterEvent *event,
                   gpointer      dummy G_GNUC_UNUSED)
 {
-  clutter_actor_animate (actor, CLUTTER_LINEAR, 250,
-                         "opacity", 255,
-                         "y", 0.0,
-                         NULL);
+  clutter_actor_save_easing_state (actor);
+  clutter_actor_set_easing_mode (actor, CLUTTER_LINEAR);
 
-  return TRUE;
+  clutter_actor_set_opacity (actor, 255);
+  clutter_actor_set_y (actor, 0);
+
+  clutter_actor_restore_easing_state (actor);
+
+  return CLUTTER_EVENT_STOP;
 }
 
 static gboolean
@@ -83,12 +86,15 @@ on_toolbar_leave (ClutterActor *actor,
                   ClutterEvent *event,
                   gpointer      dummy G_GNUC_UNUSED)
 {
-  clutter_actor_animate (actor, CLUTTER_LINEAR, 250,
-                         "opacity", 128,
-                         "y", clutter_actor_get_height (actor) * -0.5,
-                         NULL);
+  clutter_actor_save_easing_state (actor);
+  clutter_actor_set_easing_mode (actor, CLUTTER_LINEAR);
 
-  return TRUE;
+  clutter_actor_set_opacity (actor, 128);
+  clutter_actor_set_y (actor, clutter_actor_get_height (actor) * -0.5f);
+
+  clutter_actor_restore_easing_state (actor);
+
+  return CLUTTER_EVENT_STOP;
 }
 
 int
@@ -144,10 +150,10 @@ main (int argc, char **argv)
     g_signal_connect (actor, "enter-event", G_CALLBACK (on_toolbar_enter), NULL);
     g_signal_connect (actor, "leave-event", G_CALLBACK (on_toolbar_leave), NULL);
 
-    clutter_container_add_actor (CLUTTER_CONTAINER (stage), actor);
     clutter_actor_set_y (actor, clutter_actor_get_height (actor) * -0.5);
     clutter_actor_set_opacity (actor, 128);
     clutter_actor_set_reactive (actor, TRUE);
+    clutter_actor_add_child (stage, actor);
 
     gtk_widget_show_all (window);
     gtk_main ();
