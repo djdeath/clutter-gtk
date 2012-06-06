@@ -195,7 +195,7 @@ main (gint argc, gchar **argv)
 
   app->hand = actor = gtk_clutter_texture_new ();
   gtk_clutter_texture_set_from_pixbuf (GTK_CLUTTER_TEXTURE (actor), pixbuf, NULL);
-  clutter_container_add_actor (CLUTTER_CONTAINER (app->stage), actor);
+  clutter_actor_add_child (app->stage, actor);
   clutter_actor_set_anchor_point_from_gravity (actor, CLUTTER_GRAVITY_CENTER);
   clutter_actor_set_position (actor,
                               clutter_actor_get_width (app->stage) / 2,
@@ -209,7 +209,7 @@ main (gint argc, gchar **argv)
   /* Setup the clutter entry */
   actor = clutter_text_new_full (NULL, "", CLUTTER_COLOR_Black);
   app->clutter_entry = actor;
-  clutter_group_add (CLUTTER_GROUP (app->stage), actor);
+  clutter_actor_add_child (app->stage, actor);
   clutter_actor_set_position (actor, 0, 0);
   clutter_actor_set_size (actor, 500, 20);
 
@@ -255,7 +255,7 @@ main (gint argc, gchar **argv)
   /* Only show/show_all the stage after parent show. widget_show will call
    * show on the stage.
   */
-  clutter_actor_show_all (app->stage);
+  clutter_actor_show (app->stage);
 
   gtk_main ();
   
