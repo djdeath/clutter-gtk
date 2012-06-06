@@ -94,17 +94,17 @@ add_clutter_actor (ClutterActor *actor,
 		   ClutterActor *container,
 		   int           i)
 {
-  gint x, y, w, h;
+  float x, y, w, h;
 
   /* Add to our group group */
-  clutter_container_add_actor (CLUTTER_CONTAINER (container), actor);
+  clutter_actor_add_child (container, actor);
 
   /* Place around a circle */
   w = clutter_actor_get_width (widgets[0]);
   h = clutter_actor_get_height (widgets[0]);
 
-  x = WINWIDTH/2  + RADIUS * cos (i * 2 * M_PI / (MAX_NWIDGETS)) - w/2;
-  y = WINHEIGHT/2 + RADIUS * sin (i * 2 * M_PI / (MAX_NWIDGETS)) - h/2;
+  x = WINWIDTH / 2  + RADIUS * cosf (i * 2 * M_PI / (MAX_NWIDGETS)) - w / 2;
+  y = WINHEIGHT / 2 + RADIUS * sinf (i * 2 * M_PI / (MAX_NWIDGETS)) - h / 2;
 
   clutter_actor_set_position (actor, x, y);
 }
@@ -163,12 +163,12 @@ main (int argc, char *argv[])
 			    window);
   gtk_box_pack_end (GTK_BOX (vbox), button, FALSE, FALSE, 0);
 
-  clutter_stage_set_color (CLUTTER_STAGE (stage), &stage_color);
+  clutter_actor_set_background_color (stage, &stage_color);
 
   nwidgets = 0;
 
   /* create a new group to hold multiple actors in a group */
-  group = clutter_group_new ();
+  group = clutter_actor_new ();
 
   for (i = 0; i < MAX_NWIDGETS; i++)
     {
@@ -179,21 +179,15 @@ main (int argc, char *argv[])
     }
 
   /* Add the group to the stage and center it*/
-  clutter_container_add_actor (CLUTTER_CONTAINER (stage), group);
+  clutter_actor_add_child (stage, group);
   clutter_actor_add_constraint (group, clutter_align_constraint_new (stage, CLUTTER_ALIGN_X_AXIS, 0.5));
   clutter_actor_add_constraint (group, clutter_align_constraint_new (stage, CLUTTER_ALIGN_Y_AXIS, 0.5));
 
   gtk_widget_show_all (window);
 
-  /* Only show the actors after parent show otherwise it will just be
-   * unrealized when the clutter foreign window is set. widget_show
-   * will call show on the stage.
-   */
-  clutter_actor_show_all (CLUTTER_ACTOR (group));
-
   /* Create a timeline to manage animation */
   timeline = clutter_timeline_new (6000);
-  clutter_timeline_set_loop (timeline, TRUE);
+  clutter_timeline_set_repeat_count (timeline, -1);
 
   /* fire a callback for frame change */
   g_signal_connect (timeline, "new-frame",  G_CALLBACK (frame_cb), stage);
