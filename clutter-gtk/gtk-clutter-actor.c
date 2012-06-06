@@ -65,13 +65,7 @@
 #include <gdk/gdkwin32.h>
 #endif
 
-static void clutter_container_iface_init (ClutterContainerIface *iface);
-
-G_DEFINE_TYPE_WITH_CODE (GtkClutterActor,
-                         gtk_clutter_actor,
-                         CLUTTER_TYPE_ACTOR,
-                         G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_CONTAINER,
-                                                clutter_container_iface_init));
+G_DEFINE_TYPE (GtkClutterActor, gtk_clutter_actor, CLUTTER_TYPE_ACTOR)
 
 #define GTK_CLUTTER_ACTOR_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), GTK_CLUTTER_TYPE_ACTOR, GtkClutterActorPrivate))
 
@@ -83,8 +77,6 @@ struct _GtkClutterActorPrivate
   cairo_surface_t *surface;
 
   ClutterActor *texture;
-
-  GList *children;
 };
 
 enum
@@ -98,14 +90,6 @@ static void
 gtk_clutter_actor_dispose (GObject *object)
 {
   GtkClutterActorPrivate *priv = GTK_CLUTTER_ACTOR (object)->priv;
-
-  if (priv->children != NULL)
-    {
-      g_list_foreach (priv->children, (GFunc) clutter_actor_destroy, NULL);
-      g_list_free (priv->children);
-
-      priv->children = NULL;
-    }
 
   if (priv->widget != NULL)
     {
@@ -184,7 +168,7 @@ gtk_clutter_actor_get_preferred_width (ClutterActor *actor,
 
   if (for_height >= 0)
     {
-      for_height = floorf (for_height + 0.5);
+      for_height = ceilf (for_height);
       gtk_widget_get_preferred_width_for_height (priv->widget,
                                                  for_height,
                                                  &min_width,
@@ -218,8 +202,7 @@ gtk_clutter_actor_get_preferred_height (ClutterActor *actor,
 
   if (for_width >= 0)
     {
-      for_width = floorf (for_width + 0.5);
-
+      for_width = ceilf (for_width);
       gtk_widget_get_preferred_height_for_width (priv->widget,
                                                  for_width,
                                                  &min_height,
@@ -249,21 +232,13 @@ gtk_clutter_actor_allocate (ClutterActor           *actor,
   GtkAllocation child_allocation;
   GdkWindow *window;
   ClutterActorBox child_box;
-  GList *l;
 
-  CLUTTER_ACTOR_CLASS (gtk_clutter_actor_parent_class)->allocate (actor, box, flags);
-
-  /* allocate the children */
-  for (l = priv->children; l != NULL; l = l->next)
-    clutter_actor_allocate_preferred_size (l->data, flags);
+  _gtk_clutter_offscreen_set_in_allocation (GTK_CLUTTER_OFFSCREEN (priv->widget), TRUE);
 
   child_allocation.x = 0;
   child_allocation.y = 0;
   child_allocation.width = clutter_actor_box_get_width (box);
   child_allocation.height = clutter_actor_box_get_height (box);
-
-  _gtk_clutter_offscreen_set_in_allocation (GTK_CLUTTER_OFFSCREEN (priv->widget), TRUE);
-
   gtk_widget_size_allocate (priv->widget, &child_allocation);
 
   if (CLUTTER_ACTOR_IS_REALIZED (actor))
@@ -298,10 +273,13 @@ gtk_clutter_actor_allocate (ClutterActor           *actor,
 
   _gtk_clutter_offscreen_set_in_allocation (GTK_CLUTTER_OFFSCREEN (priv->widget), FALSE);
 
-  child_box.x1 = 0;
-  child_box.y1 = 0;
+  clutter_actor_set_allocation (actor, box, (flags | CLUTTER_DELEGATE_LAYOUT));
+
+  child_box.x1 = child_box.y1 = 0.f;
   child_box.x2 = clutter_actor_box_get_width (box);
   child_box.y2 = clutter_actor_box_get_height (box);
+
+  /* we force the allocation of the offscreen texture */
   clutter_actor_allocate (priv->texture, &child_box, flags);
 }
 
@@ -309,21 +287,15 @@ static void
 gtk_clutter_actor_paint (ClutterActor *actor)
 {
   GtkClutterActorPrivate *priv = GTK_CLUTTER_ACTOR (actor)->priv;
+  ClutterActorIter iter;
+  ClutterActor *child;
 
+  /* we always paint the texture below everything else */
   clutter_actor_paint (priv->texture);
 
-  g_list_foreach (priv->children, (GFunc) clutter_actor_paint, NULL);
-}
-
-static void
-gtk_clutter_actor_pick (ClutterActor       *actor,
-                        const ClutterColor *color)
-{
-  GtkClutterActorPrivate *priv = GTK_CLUTTER_ACTOR (actor)->priv;
-
-  CLUTTER_ACTOR_CLASS (gtk_clutter_actor_parent_class)->pick (actor, color);
-
-  g_list_foreach (priv->children, (GFunc) clutter_actor_paint, NULL);
+  clutter_actor_iter_init (&iter, actor);
+  while (clutter_actor_iter_next (&iter, &child))
+    clutter_actor_paint (child);
 }
 
 static void
@@ -337,23 +309,6 @@ gtk_clutter_actor_show (ClutterActor *self)
   /* proxy this call through to GTK+ */
   if (widget != NULL)
     gtk_widget_show (widget);
-
-  g_list_foreach (priv->children, (GFunc) clutter_actor_show, NULL);
-}
-
-static void
-gtk_clutter_actor_show_all (ClutterActor *self)
-{
-  GtkClutterActorPrivate *priv = GTK_CLUTTER_ACTOR (self)->priv;
-
-  /* proxy this call through to GTK+ */
-  GtkWidget *widget = gtk_bin_get_child (GTK_BIN (priv->widget));
-  if (widget != NULL)
-    gtk_widget_show_all (widget);
-
-  g_list_foreach (priv->children, (GFunc) clutter_actor_show_all, NULL);
-
-  CLUTTER_ACTOR_CLASS (gtk_clutter_actor_parent_class)->show_all (self);
 }
 
 static void
@@ -368,23 +323,6 @@ gtk_clutter_actor_hide (ClutterActor *self)
   widget = gtk_bin_get_child (GTK_BIN (priv->widget));
   if (widget != NULL)
     gtk_widget_hide (widget);
-
-  g_list_foreach (priv->children, (GFunc) clutter_actor_hide, NULL);
-}
-
-static void
-gtk_clutter_actor_hide_all (ClutterActor *self)
-{
-  GtkClutterActorPrivate *priv = GTK_CLUTTER_ACTOR (self)->priv;
-
-  /* proxy this call through to GTK+ */
-  GtkWidget *widget = gtk_bin_get_child (GTK_BIN (priv->widget));
-  if (widget != NULL)
-    gtk_widget_hide (widget);
-
-  g_list_foreach (priv->children, (GFunc) clutter_actor_hide_all, NULL);
-
-  CLUTTER_ACTOR_CLASS (gtk_clutter_actor_parent_class)->hide_all (self);
 }
 
 static void
@@ -465,18 +403,15 @@ gtk_clutter_actor_class_init (GtkClutterActorClass *klass)
 
   g_type_class_add_private (klass, sizeof (GtkClutterActorPrivate));
 
-  actor_class->paint     = gtk_clutter_actor_paint;
-  actor_class->pick      = gtk_clutter_actor_pick;
-  actor_class->realize   = gtk_clutter_actor_realize;
+  actor_class->paint = gtk_clutter_actor_paint;
+  actor_class->realize = gtk_clutter_actor_realize;
   actor_class->unrealize = gtk_clutter_actor_unrealize;
-  actor_class->show      = gtk_clutter_actor_show;
-  actor_class->show_all  = gtk_clutter_actor_show_all;
-  actor_class->hide      = gtk_clutter_actor_hide;
-  actor_class->hide_all  = gtk_clutter_actor_hide_all;
+  actor_class->show = gtk_clutter_actor_show;
+  actor_class->hide = gtk_clutter_actor_hide;
 
-  actor_class->get_preferred_width  = gtk_clutter_actor_get_preferred_width;
+  actor_class->get_preferred_width = gtk_clutter_actor_get_preferred_width;
   actor_class->get_preferred_height = gtk_clutter_actor_get_preferred_height;
-  actor_class->allocate             = gtk_clutter_actor_allocate;
+  actor_class->allocate = gtk_clutter_actor_allocate;
 
   gobject_class->set_property = gtk_clutter_actor_set_property;
   gobject_class->get_property = gtk_clutter_actor_get_property;
@@ -491,7 +426,9 @@ gtk_clutter_actor_class_init (GtkClutterActorClass *klass)
                                "Contents",
                                "The widget to be embedded",
                                GTK_TYPE_WIDGET,
-                               G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_STATIC_STRINGS);
+                               G_PARAM_READWRITE |
+                               G_PARAM_CONSTRUCT |
+                               G_PARAM_STATIC_STRINGS);
   g_object_class_install_property (gobject_class, PROP_CONTENTS, pspec);
 }
 
@@ -511,15 +448,13 @@ gtk_clutter_actor_init (GtkClutterActor *self)
 
   clutter_actor_set_reactive (actor, TRUE);
 
-  clutter_actor_push_internal (actor);
-
 #if defined(CLUTTER_WINDOWING_X11)
   if (clutter_check_windowing_backend (CLUTTER_WINDOWING_X11))
     {
       priv->texture = clutter_x11_texture_pixmap_new ();
 
       clutter_texture_set_sync_size (CLUTTER_TEXTURE (priv->texture), FALSE);
-      clutter_actor_set_parent (priv->texture, actor);
+      clutter_actor_add_child (actor, priv->texture);
       clutter_actor_set_name (priv->texture, "Onscreen Texture");
       clutter_actor_show (priv->texture);
     }
@@ -529,79 +464,7 @@ gtk_clutter_actor_init (GtkClutterActor *self)
                 "GtkClutterActor does not yet work on non-X11 "
                 "platforms.");
 
-  clutter_actor_pop_internal (actor);
-
   g_signal_connect (self, "notify::reactive", G_CALLBACK (on_reactive_change), NULL);
-}
-
-static void
-gtk_clutter_actor_add (ClutterContainer *container,
-                       ClutterActor     *actor)
-{
-  GtkClutterActorPrivate *priv;
-
-  g_return_if_fail (GTK_CLUTTER_IS_ACTOR (container));
-
-  priv = GTK_CLUTTER_ACTOR (container)->priv;
-
-  g_object_ref (actor);
-
-  priv->children = g_list_append (priv->children, actor);
-  clutter_actor_set_parent (actor, CLUTTER_ACTOR (container));
-
-  clutter_actor_queue_relayout (CLUTTER_ACTOR (container));
-
-  g_signal_emit_by_name (container, "actor-added");
-
-  g_object_unref (actor);
-}
-
-static void
-gtk_clutter_actor_remove (ClutterContainer *container,
-                          ClutterActor     *actor)
-{
-  GtkClutterActorPrivate *priv;
-
-  g_return_if_fail (GTK_CLUTTER_IS_ACTOR (container));
-
-  priv = GTK_CLUTTER_ACTOR (container)->priv;
-
-  g_object_ref (actor);
-
-  priv->children = g_list_remove (priv->children, actor);
-  clutter_actor_unparent (actor);
-
-  clutter_actor_queue_relayout (CLUTTER_ACTOR (container));
-
-  g_signal_emit_by_name (container, "actor-removed");
-
-  g_object_unref (actor);
-}
-
-static void
-gtk_clutter_actor_foreach (ClutterContainer *container,
-                           ClutterCallback   callback,
-                           gpointer          user_data)
-{
-  GtkClutterActorPrivate *priv = GTK_CLUTTER_ACTOR (container)->priv;
-  GList *l;
-
-  for (l = priv->children; l != NULL; l = l->next)
-    callback (l->data, user_data);
-}
-
-static void
-gtk_clutter_actor_foreach_with_internals (ClutterContainer *container,
-                                          ClutterCallback   callback,
-                                          gpointer          user_data)
-{
-  GtkClutterActorPrivate *priv = GTK_CLUTTER_ACTOR (container)->priv;
-  GList *l;
-
-  callback (priv->texture, user_data);
-
-  for (l = priv->children; l != NULL; l = l->next)
-    callback (l->data, user_data);
 }
 
 GtkWidget *
@@ -628,15 +491,6 @@ _gtk_clutter_actor_update (GtkClutterActor *actor,
 #endif
 
   clutter_actor_queue_redraw (CLUTTER_ACTOR (actor));
-}
-
-static void
-clutter_container_iface_init (ClutterContainerIface *iface)
-{
-  iface->add = gtk_clutter_actor_add;
-  iface->remove = gtk_clutter_actor_remove;
-  iface->foreach = gtk_clutter_actor_foreach;
-  iface->foreach_with_internals = gtk_clutter_actor_foreach_with_internals;
 }
 
 /**
