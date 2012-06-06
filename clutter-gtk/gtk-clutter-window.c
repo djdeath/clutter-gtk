@@ -272,7 +272,7 @@ gtk_clutter_window_init (GtkClutterWindow *self)
   stage = gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (priv->embed));
 
   priv->actor = gtk_clutter_actor_new ();
-  clutter_container_add_actor (CLUTTER_CONTAINER (stage), priv->actor);
+  clutter_actor_add_child (stage, priv->actor);
   clutter_actor_set_name (priv->actor, "GtkClutterActor");
   clutter_actor_add_constraint_with_name (priv->actor, "content-x",
                                           clutter_bind_constraint_new (stage, CLUTTER_BIND_WIDTH, 0.0));
