@@ -168,7 +168,7 @@ main (int argc, char *argv[])
   gtk_container_add (GTK_CONTAINER (vbox), clutter);
 
   stage = gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (clutter));
-  clutter_stage_set_color (CLUTTER_STAGE (stage), CLUTTER_COLOR_LightSkyBlue);
+  clutter_actor_set_background_color (stage, CLUTTER_COLOR_LightSkyBlue);
 
   label = gtk_label_new ("This is a label");
   gtk_container_add (GTK_CONTAINER (vbox), label);
@@ -199,8 +199,7 @@ main (int argc, char *argv[])
   oh = g_new (SuperOH, 1);
   oh->stage = stage;
 
-  /* create a new group to hold multiple actors in a group */
-  oh->group = clutter_group_new ();
+  oh->group = clutter_actor_new ();
   
   for (i = 0; i < NHANDS; i++)
     {
@@ -225,13 +224,11 @@ main (int argc, char *argv[])
       clutter_actor_set_position (oh->hand[i], x, y);
 
       /* Add to our group group */
-      clutter_container_add_actor (CLUTTER_CONTAINER (oh->group),
-                                   oh->hand[i]);
+      clutter_actor_add_child (oh->group, oh->hand[i]);
     }
 
   /* Add the group to the stage */
-  clutter_container_add_actor (CLUTTER_CONTAINER (stage),
-                               CLUTTER_ACTOR (oh->group));
+  clutter_actor_add_child (stage, oh->group);
 
   constraint = clutter_align_constraint_new (oh->stage, CLUTTER_ALIGN_X_AXIS, 0.5);
   clutter_actor_add_constraint (oh->group, constraint);
@@ -249,7 +246,7 @@ main (int argc, char *argv[])
 
   /* Create a timeline to manage animation */
   timeline = clutter_timeline_new (6000);
-  clutter_timeline_set_loop (timeline, TRUE);
+  clutter_timeline_set_repeat_count (timeline, -1);
 
   /* fire a callback for frame change */
   g_signal_connect (timeline, "new-frame",  G_CALLBACK (frame_cb), oh);
