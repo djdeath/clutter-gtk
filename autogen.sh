@@ -1,9 +1,10 @@
-#! /bin/sh
+#!/bin/sh
+# Run this to generate all the initial makefiles, etc.
 
-srcdir=`dirname $0`
-test -z "$srcdir" && srcdir=.
+test -n "$srcdir" || srcdir=`dirname "$0"`
+test -n "$srcdir" || srcdir=.
 
-ORIGDIR=`pwd`
+olddir=`pwd`
 
 cd $srcdir
 PROJECT=Clutter-GTK
@@ -11,31 +12,25 @@ TEST_TYPE=-f
 FILE=clutter-gtk/clutter-gtk.h
 
 test $TEST_TYPE $FILE || {
-        echo "You must run this script in the top-level $PROJECT directory"
-        exit 1
+	echo "You must run this script in the top-level $PROJECT directory"
+	exit 1
 }
 
-AUTOMAKE=
-ACLOCAL=
-if automake-1.11 --version < /dev/null > /dev/null 2>&1 ; then
-        AUTOMAKE=automake-1.11
-        ACLOCAL=aclocal-1.11
-else
-        echo
-        echo "You must have automake 1.11.x installed to compile $PROJECT
-ECT."
-        echo "Install the appropriate package for your distribution,"
-        echo "or get the source tarball at http://ftp.gnu.org/gnu/automake/"
+# GNU gettext automake support doesn't get along with git.
+# https://bugzilla.gnome.org/show_bug.cgi?id=661128
+touch -t 200001010000 po/cluttergtk-1.0.pot
+
+GTKDOCIZE=`which gtkdocize`
+if test -z $GTKDOCIZE; then
+        echo "*** No GTK-Doc found, please install it ***"
         exit 1
 fi
 
-(gtkdocize --version) < /dev/null > /dev/null 2>&1 || {
-        echo
-        echo "You must have gtk-doc installed to compile $PROJECT."
-        echo "Install the appropriate package for your distribution,"
-        echo "or get the source tarball at http://ftp.gnome.org/pub/GNOME/sources/gtk-doc/"
+AUTORECONF=`which autoreconf`
+if test -z $AUTORECONF; then
+        echo "*** No autoreconf found, please install it ***"
         exit 1
-}
+fi
 
 # NOCONFIGURE is used by gnome-common
 if test -z "$NOCONFIGURE"; then
@@ -48,10 +43,7 @@ fi
 rm -rf autom4te.cache
 
 gtkdocize || exit $?
-ACLOCAL="${ACLOCAL-aclocal} $ACLOCAL_FLAGS" AUTOMAKE=${AUTOMAKE} autoreconf -v --install || exit $?
-cd $ORIGDIR || exit $?
+autoreconf --force --install --verbose || exit $?
 
-if test -z "$NOCONFIGURE"; then
-        $srcdir/configure $AUTOGEN_CONFIGURE_ARGS "$@" || exit $?
-        echo "Now type 'make' to compile $PROJECT."
-fi
+cd "$olddir"
+test -n "$NOCONFIGURE" || "$srcdir/configure" "$@"
