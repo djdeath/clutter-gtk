@@ -817,11 +817,12 @@ static void
 gtk_clutter_embed_state_flags_changed (GtkWidget *widget,
                                        GtkStateFlags prev_state_flags)
 {
-  GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->state_flags_changed 
-    (widget, prev_state_flags);
+  if (GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->state_flags_changed != NULL)
+    GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->state_flags_changed (widget, prev_state_flags);
 
   gtk_container_forall (GTK_CONTAINER (widget),
-                        (GtkCallback) gtk_widget_queue_draw, NULL);
+                        (GtkCallback) gtk_widget_queue_draw,
+                        NULL);
 }
 
 static void
