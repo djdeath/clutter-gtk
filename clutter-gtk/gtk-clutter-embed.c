@@ -86,6 +86,7 @@ struct _GtkClutterEmbedPrivate
   int n_active_children;
 
   guint queue_redraw_id;
+  guint queue_relayout_id;
 
   guint geometry_changed : 1;
   guint use_layout_size : 1;
@@ -134,20 +135,33 @@ on_stage_queue_redraw (ClutterStage *stage,
 }
 
 static void
+on_stage_queue_relayout (ClutterStage *stage,
+			 gpointer      user_data)
+{
+  GtkWidget *embed = user_data;
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (embed)->priv;
+
+  if (priv->use_layout_size)
+    gtk_widget_queue_resize (embed);
+}
+
+static void
 gtk_clutter_embed_dispose (GObject *gobject)
 {
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (gobject)->priv;
 
-  if (priv->queue_redraw_id)
-    {
-      if (priv->stage != NULL)
-        g_signal_handler_disconnect (priv->stage, priv->queue_redraw_id);
-
-      priv->queue_redraw_id = 0;
-    }
 
   if (priv->stage)
     {
+      if (priv->queue_redraw_id)
+        g_signal_handler_disconnect (priv->stage, priv->queue_redraw_id);
+
+      if (priv->queue_relayout_id)
+        g_signal_handler_disconnect (priv->stage, priv->queue_relayout_id);
+
+      priv->queue_redraw_id = 0;
+      priv->queue_relayout_id = 0;
+
       clutter_actor_destroy (priv->stage);
       priv->stage = NULL;
     }
@@ -959,6 +973,15 @@ gtk_clutter_embed_init (GtkClutterEmbed *embed)
   priv->queue_redraw_id =
     g_signal_connect (priv->stage,
                       "queue-redraw", G_CALLBACK (on_stage_queue_redraw),
+                      embed);
+
+  /* intercept the queue-relayout signal of the stage to know when
+   * Clutter-side needs to renegotiate it's size; this way we can
+   * also request a resize GTK-side
+   */
+  priv->queue_relayout_id =
+    g_signal_connect (priv->stage,
+                      "queue-relayout", G_CALLBACK (on_stage_queue_relayout),
                       embed);
 }
 
