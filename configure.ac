@@ -188,8 +188,8 @@ AS_ALL_LINGUAS
 dnl = GTK Doc check ========================================================
 
 G_PREFIX=`$PKG_CONFIG --variable=prefix glib-2.0`
-GDK_PREFIX=`$PKG_CONFIG --variable=prefix gdk-2.0`
-GTK_PREFIX=`$PKG_CONFIG --variable=prefix gtk+-2.0`
+GDK_PREFIX=`$PKG_CONFIG --variable=prefix gdk-3.0`
+GTK_PREFIX=`$PKG_CONFIG --variable=prefix gtk+-3.0`
 GDK_PIXBUF_PREFIX=`$PKG_CONFIG --variable=prefix gdk-pixbuf-2.0`
 CLUTTER_PREFIX=`$PKG_CONFIG --variable=prefix clutter-1.0`
 AC_SUBST(G_PREFIX)
