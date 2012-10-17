@@ -3,11 +3,11 @@
 # An even micro number indicates a released version.
 m4_define([clutter_gtk_major], [1])
 m4_define([clutter_gtk_minor], [4])
-m4_define([clutter_gtk_micro], [0])
+m4_define([clutter_gtk_micro], [1])
 m4_define([clutter_gtk_version], [clutter_gtk_major.clutter_gtk_minor.clutter_gtk_micro])
 
 # increase the interface age for each release; if the API changes, set to 0
-m4_define([clutter_gtk_interface_age], [0])
+m4_define([clutter_gtk_interface_age], [1])
 m4_define([clutter_gtk_binary_age], [m4_eval(100 * clutter_gtk_minor + clutter_gtk_micro)])
 
 m4_define([clutter_gtk_release_status],
