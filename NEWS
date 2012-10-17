@@ -1,3 +1,20 @@
+Clutter-GTK 1.2.2                                                    17/10/2012
+===============================================================================
+
+Changes since 1.2.0:
+        • Ensure that we set the GDK_SCROLL_MASK on GtkClutterEmbed.
+        • Documentation fixes.
+        • Ensure GTK+ invariants when hiding embedded widgets.
+        • Ensure that GtkClutterEmbed works with GTK+ < 3.4.
+        • Use the correct picking mode with embedded widgets.
+
+List of bugs fixed:
+        #675867, #681462
+
+Many thanks to:
+
+  Alexander Larsson, Bastien Nocera.
+
 Clutter-GTK 1.2.0                                                    23/03/2012
 ===============================================================================
 
