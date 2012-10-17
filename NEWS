@@ -1,3 +1,20 @@
+Clutter-GTK 1.4.0                                                    17/10/2012
+===============================================================================
+
+Changes since 1.3.2:
+        • Drop deprecated Clutter API usage from classes and examples.
+        • Ensure that GtkClutterEmbed works with GTK+ < 3.4.
+        • Documentation fixes.
+        • Track the size requests from the embedded ClutterStage. [Tristan Van
+          Berkom]
+        • Translation updates.
+
+List of bugs fixed:
+        #681462, #669877, #684171
+
+Many thanks to:
+  Piotr Drąg, Takeshi AIHANA, Tristan Van Berkom
+
 Clutter-GTK 1.3.2                                                    05/06/2012
 ===============================================================================
 
