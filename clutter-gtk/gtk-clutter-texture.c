@@ -57,7 +57,7 @@ gtk_clutter_texture_error_quark (void)
  *
  * Creates a new #GtkClutterTexture actor.
  *
- * Return value: (transfer full): the newly created #GtkClutterTexture
+ * Return value: the newly created #GtkClutterTexture
  *   instance
  *
  * Since: 1.0
