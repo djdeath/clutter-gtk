@@ -78,6 +78,8 @@ G_DEFINE_TYPE (GtkClutterEmbed, gtk_clutter_embed, GTK_TYPE_CONTAINER);
 
 #define GTK_CLUTTER_EMBED_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), GTK_CLUTTER_TYPE_EMBED, GtkClutterEmbedPrivate))
 
+static gint num_filter = 0;
+
 struct _GtkClutterEmbedPrivate
 {
   ClutterActor *stage;
@@ -339,15 +341,11 @@ gtk_clutter_embed_realize (GtkWidget *widget)
   if (clutter_check_windowing_backend (CLUTTER_WINDOWING_X11) &&
       GDK_IS_X11_WINDOW (window))
     {
-      static gboolean has_filter = FALSE;
-
       clutter_x11_set_stage_foreign (CLUTTER_STAGE (priv->stage), GDK_WINDOW_XID (window));
 
-      if (G_UNLIKELY (!has_filter))
-        {
-          gdk_window_add_filter (NULL, gtk_clutter_filter_func, widget);
-          has_filter = TRUE;
-        }
+      if (num_filter == 0)
+        gdk_window_add_filter (NULL, gtk_clutter_filter_func, widget);
+      num_filter++;
     }
   else
 #endif
@@ -355,15 +353,11 @@ gtk_clutter_embed_realize (GtkWidget *widget)
   if (clutter_check_windowing_backend (CLUTTER_WINDOWING_WIN32) &&
       GDK_IS_WIN32_WINDOW (window))
     {
-      static gboolean has_filter = FALSE;
-
       clutter_win32_set_stage_foreign (CLUTTER_STAGE (priv->stage), GDK_WINDOW_HWND (window));
 
-      if (G_UNLIKELY (!has_filter))
-        {
-          gdk_window_add_filter (NULL, gtk_clutter_filter_func, widget);
-          has_filter = TRUE;
-        }
+      if (num_filter == 0)
+        gdk_window_add_filter (NULL, gtk_clutter_filter_func, widget);
+      num_filter++;
     }
 #endif
 
@@ -380,7 +374,12 @@ gtk_clutter_embed_unrealize (GtkWidget *widget)
 {
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
 
-  gdk_window_remove_filter (NULL, gtk_clutter_filter_func, widget);
+  if (num_filter > 0)
+    {
+      num_filter--;
+      if (num_filter == 0)
+        gdk_window_remove_filter (NULL, gtk_clutter_filter_func, widget);
+    }
 
   if (priv->stage != NULL)
     clutter_actor_hide (priv->stage);
