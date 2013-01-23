@@ -827,18 +827,6 @@ gtk_clutter_embed_event (GtkWidget *widget,
 }
 
 static void
-gtk_clutter_embed_state_flags_changed (GtkWidget *widget,
-                                       GtkStateFlags prev_state_flags)
-{
-  if (GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->state_flags_changed != NULL)
-    GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->state_flags_changed (widget, prev_state_flags);
-
-  gtk_container_forall (GTK_CONTAINER (widget),
-                        (GtkCallback) gtk_widget_queue_draw,
-                        NULL);
-}
-
-static void
 gtk_clutter_embed_set_property (GObject       *gobject,
                                 guint          prop_id,
                                 const GValue *value,
@@ -906,7 +894,6 @@ gtk_clutter_embed_class_init (GtkClutterEmbedClass *klass)
   widget_class->key_press_event = gtk_clutter_embed_key_event;
   widget_class->key_release_event = gtk_clutter_embed_key_event;
   widget_class->event = gtk_clutter_embed_event;
-  widget_class->state_flags_changed = gtk_clutter_embed_state_flags_changed;
   widget_class->get_request_mode = gtk_clutter_embed_get_request_mode;
   widget_class->get_preferred_width = gtk_clutter_embed_get_preferred_width;
   widget_class->get_preferred_height = gtk_clutter_embed_get_preferred_height;
