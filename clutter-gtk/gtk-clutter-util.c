@@ -207,6 +207,11 @@ gtk_clutter_init (int    *argc,
     clutter_win32_disable_event_retrieval ();
 #endif
 
+  /* We disable clutter accessibility support in order to not
+   * interfere with gtk accessibility support.
+   */
+  clutter_disable_accessibility ();
+
   return clutter_init (argc, argv);
 }
 
