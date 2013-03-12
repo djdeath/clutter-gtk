@@ -23,12 +23,20 @@
 #include <clutter/win32/clutter-win32.h>
 #endif
 
+#if defined(CLUTTER_WINDOWING_WAYLAND)
+#include <clutter/wayland/clutter-wayland.h>
+#endif
+
 #if defined(GDK_WINDOWING_X11)
 #include <gdk/gdkx.h>
 #endif
 
 #if defined(GDK_WINDOWING_WIN32)
 #include <gdk/gdkwin32.h>
+#endif
+
+#if defined(GDK_WINDOWING_WAYLAND)
+#include <gdk/gdkwayland.h>
 #endif
 
 /**
@@ -88,6 +96,17 @@ gtk_clutter_init_internal (void)
     {
       /* let GTK+ be in charge of the event handling */
       clutter_win32_disable_event_retrieval ();
+    }
+  else
+#endif
+#if defined(GDK_WINDOWING_WAYLAND) && defined(CLUTTER_WINDOWING_WAYLAND)
+  if (clutter_check_windowing_backend (CLUTTER_WINDOWING_WAYLAND) &&
+      GDK_IS_WAYLAND_DISPLAY (display))
+    {
+      /* let GTK+ be in charge of the event handling */
+      clutter_wayland_disable_event_retrieval ();
+
+      clutter_wayland_set_display (gdk_wayland_display_get_wl_display (display));
     }
   else
 #endif
