@@ -185,21 +185,26 @@ gtk_clutter_init (int    *argc,
     return CLUTTER_INIT_ERROR_UNKNOWN;
 
 #if defined(CLUTTER_WINDOWING_GDK)
-  clutter_gdk_disable_event_retrieval ();
+  if (clutter_check_windowing_backend (CLUTTER_WINDOWING_GDK))
+    clutter_gdk_disable_event_retrieval ();
 #endif
 
 #if defined(GDK_WINDOWING_X11) && defined(CLUTTER_WINDOWING_X11)
-  clutter_x11_enable_xinput ();
+  if (clutter_check_windowing_backend (CLUTTER_WINDOWING_X11))
+    {
+      clutter_x11_enable_xinput ();
 
-  clutter_x11_set_use_argb_visual (TRUE);
+      clutter_x11_set_use_argb_visual (TRUE);
 
-  clutter_x11_set_display (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()));
+      clutter_x11_set_display (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()));
 
-  clutter_x11_disable_event_retrieval ();
+      clutter_x11_disable_event_retrieval ();
+    }
 #endif
 
 #if defined(CLUTTER_WINDOWING_WIN32)
-  clutter_win32_disable_event_retrieval ();
+  if (clutter_check_windowing_backend (CLUTTER_WINDOWING_WIN32))
+    clutter_win32_disable_event_retrieval ();
 #endif
 
   return clutter_init (argc, argv);
