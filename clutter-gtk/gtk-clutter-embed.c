@@ -710,22 +710,37 @@ gtk_clutter_embed_style_updated (GtkWidget *widget)
    * a GtkClutterEmbed will not look completely alien
    */
   clutter_settings = clutter_settings_get_default ();
-  g_object_set (G_OBJECT (clutter_settings),
-                "font-name", font_name,
-                "double-click-time", double_click_time,
-                "double-click-distance", double_click_distance,
-#if defined(GDK_WINDOWING_X11) && defined(CLUTTER_WINDOWING_X11) 
-                "font-antialias", xft_antialias,
-                "font-dpi", xft_dpi,
-                "font-hinting", xft_hinting,
-                "font-hint-style", xft_hintstyle,
-                "font-subpixel-order", xft_rgba,
-#endif
-                NULL);
 
 #if defined(GDK_WINDOWING_X11) && defined(CLUTTER_WINDOWING_X11)
-  g_free (xft_hintstyle);
-  g_free (xft_rgba);
+  if (GDK_IS_X11_SCREEN (screen))
+    {
+      g_object_set (G_OBJECT (clutter_settings),
+                    "font-name", font_name,
+                    "double-click-time", double_click_time,
+                    "double-click-distance", double_click_distance,
+                    "font-antialias", xft_antialias,
+                    "font-dpi", xft_dpi,
+                    "font-hinting", xft_hinting,
+                    "font-hint-style", xft_hintstyle,
+                    "font-subpixel-order", xft_rgba,
+                    NULL);
+    }
+  else
+#endif
+    {
+      g_object_set (G_OBJECT (clutter_settings),
+                    "font-name", font_name,
+                    "double-click-time", double_click_time,
+                    "double-click-distance", double_click_distance,
+                    NULL);
+    }
+
+#if defined(GDK_WINDOWING_X11) && defined(CLUTTER_WINDOWING_X11)
+  if (GDK_IS_X11_SCREEN (screen))
+    {
+      g_free (xft_hintstyle);
+      g_free (xft_rgba);
+    }
 #endif
 
   g_free (font_name);
