@@ -73,20 +73,14 @@ frame_cb (ClutterTimeline *timeline,
   guint           rotation = clutter_timeline_get_progress (timeline) * 360.0f;
 
   /* Rotate everything clockwise about stage center*/
-  clutter_actor_set_rotation (CLUTTER_ACTOR (oh->group),
-                              CLUTTER_Z_AXIS,
-                              rotation,
-                              WINWIDTH / 2, WINHEIGHT / 2, 0);
+  clutter_actor_set_rotation_angle (oh->group, CLUTTER_Z_AXIS, rotation);
 
   for (i = 0; i < NHANDS; i++)
     {
       /* rotate each hand around there centers */
-      clutter_actor_set_rotation (oh->hand[i],
-                                  CLUTTER_Z_AXIS,
-                                  - 6.0 * rotation,
-                                  clutter_actor_get_width (oh->hand[i]) / 2,
-                                  clutter_actor_get_height (oh->hand[i]) / 2,
-                                  0);
+      clutter_actor_set_rotation_angle (oh->hand[i],
+                                        CLUTTER_Z_AXIS,
+                                        - 6.0 * rotation);
       if (fade == TRUE)
         clutter_actor_set_opacity (oh->hand[i], (255 - (rotation % 255)));
     }
@@ -119,14 +113,13 @@ int
 main (int argc, char *argv[])
 {
   ClutterTimeline *timeline;
-  ClutterActor    *stage;
-  ClutterConstraint *constraint;
-  GtkWidget       *window, *clutter;
-  GtkWidget       *label, *button, *vbox;
-  GdkPixbuf       *pixbuf;
-  SuperOH         *oh;
-  gint             i;
-  GError          *error;
+  ClutterActor *stage;
+  GtkWidget *window, *clutter;
+  GtkWidget *label, *button, *vbox;
+  GdkPixbuf *pixbuf;
+  SuperOH *oh;
+  gint i;
+  GError *error;
 
   error = NULL;
   if (gtk_clutter_init_with_args (&argc, &argv,
@@ -200,6 +193,7 @@ main (int argc, char *argv[])
   oh->stage = stage;
 
   oh->group = clutter_actor_new ();
+  clutter_actor_set_pivot_point (oh->group, 0.5, 0.5);
   
   for (i = 0; i < NHANDS; i++)
     {
@@ -222,6 +216,7 @@ main (int argc, char *argv[])
       y = WINHEIGHT / 2 + RADIUS * sin (i * M_PI / (NHANDS / 2)) - h / 2;
 
       clutter_actor_set_position (oh->hand[i], x, y);
+      clutter_actor_set_pivot_point (oh->hand[i], 0.5, 0.5);
 
       /* Add to our group group */
       clutter_actor_add_child (oh->group, oh->hand[i]);
@@ -230,10 +225,7 @@ main (int argc, char *argv[])
   /* Add the group to the stage */
   clutter_actor_add_child (stage, oh->group);
 
-  constraint = clutter_align_constraint_new (oh->stage, CLUTTER_ALIGN_X_AXIS, 0.5);
-  clutter_actor_add_constraint (oh->group, constraint);
-  constraint = clutter_align_constraint_new (oh->stage, CLUTTER_ALIGN_Y_AXIS, 0.5);
-  clutter_actor_add_constraint (oh->group, constraint);
+  clutter_actor_add_constraint (oh->group, clutter_align_constraint_new (oh->stage, CLUTTER_ALIGN_BOTH, 0.5));
 
   g_signal_connect (stage, "button-press-event",
 		    G_CALLBACK (input_cb), 

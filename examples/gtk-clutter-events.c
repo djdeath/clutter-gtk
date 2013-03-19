@@ -42,31 +42,22 @@ on_gtk_entry_changed (GtkEditable *editable, EventApp *app)
 static void
 on_x_changed (GtkSpinButton *button, EventApp *app)
 {
-  clutter_actor_set_rotation (app->hand, CLUTTER_X_AXIS,
-                              gtk_spin_button_get_value (button),
-                              0,
-                              clutter_actor_get_height (app->hand) / 2,
-                              0);
+  clutter_actor_set_rotation_angle (app->hand, CLUTTER_X_AXIS,
+                                    gtk_spin_button_get_value (button));
 }
 
 static void
 on_y_changed (GtkSpinButton *button, EventApp *app)
 {
-  clutter_actor_set_rotation (app->hand, CLUTTER_Y_AXIS,
-                              gtk_spin_button_get_value (button),
-                              clutter_actor_get_width (app->hand) / 2,
-                              0,
-                              0);
+  clutter_actor_set_rotation_angle (app->hand, CLUTTER_Y_AXIS,
+                                    gtk_spin_button_get_value (button));
 }
 
 static void
 on_z_changed (GtkSpinButton *button, EventApp *app)
 {
-  clutter_actor_set_rotation (app->hand, CLUTTER_Z_AXIS,
-                              gtk_spin_button_get_value (button),
-                              clutter_actor_get_width (app->hand) / 2,
-                              clutter_actor_get_height (app->hand) / 2,
-                              0);
+  clutter_actor_set_rotation_angle (app->hand, CLUTTER_Z_AXIS,
+                                    gtk_spin_button_get_value (button));
 }
 
 static void
@@ -196,10 +187,8 @@ main (gint argc, gchar **argv)
   app->hand = actor = gtk_clutter_texture_new ();
   gtk_clutter_texture_set_from_pixbuf (GTK_CLUTTER_TEXTURE (actor), pixbuf, NULL);
   clutter_actor_add_child (app->stage, actor);
-  clutter_actor_set_anchor_point_from_gravity (actor, CLUTTER_GRAVITY_CENTER);
-  clutter_actor_set_position (actor,
-                              clutter_actor_get_width (app->stage) / 2,
-                              clutter_actor_get_height (app->stage) / 2);
+  clutter_actor_set_pivot_point (actor, 0.5, 0.5);
+  clutter_actor_add_constraint (actor, clutter_align_constraint_new (app->stage, CLUTTER_ALIGN_BOTH, 0.5));
   clutter_actor_set_reactive (actor, TRUE);
   clutter_actor_set_name (actor, "Red Hand");
   g_signal_connect (actor, "button-press-event",

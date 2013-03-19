@@ -28,12 +28,7 @@ frame_cb (ClutterTimeline *timeline,
     return;
 
   /* Rotate everything clockwise about stage center */
-  clutter_actor_set_rotation (CLUTTER_ACTOR (group),
-                              CLUTTER_Z_AXIS,
-                              rotation,
-                              WINWIDTH / 2,
-                              WINHEIGHT / 2,
-                              0);
+  clutter_actor_set_rotation_angle (group, CLUTTER_Z_AXIS, rotation);
 
   for (i = 0; i < nwidgets; i++)
     {
@@ -41,11 +36,7 @@ frame_cb (ClutterTimeline *timeline,
       gfloat w = clutter_actor_get_width (widgets[i]);
       gfloat h = clutter_actor_get_height (widgets[i]);
 
-      clutter_actor_set_rotation (widgets[i], CLUTTER_Z_AXIS,
-                                  - 2 * rotation,
-                                  w / 2,
-                                  h / 2,
-                                  0);
+      clutter_actor_set_rotation_angle (widgets[i], CLUTTER_Z_AXIS, - 2 * rotation);
       clutter_actor_set_opacity (widgets[i], 50 * sin (2 * M_PI * rotation / 360) + (255 - 50));
     }
 }
@@ -107,25 +98,30 @@ add_clutter_actor (ClutterActor *actor,
   y = WINHEIGHT / 2 + RADIUS * sinf (i * 2 * M_PI / (MAX_NWIDGETS)) - h / 2;
 
   clutter_actor_set_position (actor, x, y);
+  clutter_actor_set_pivot_point (actor, 0.5, 0.5);
 }
 
 static gboolean
 add_or_remove_timeout (gpointer user_data)
 {
-  if (nwidgets == MAX_NWIDGETS) {
-    /* Removing an item */
-    clutter_actor_remove_child (group, widgets[MAX_NWIDGETS - 1]);
-    widgets[MAX_NWIDGETS - 1] = NULL;
+  if (nwidgets == MAX_NWIDGETS)
+    {
+      /* Removing an item */
+      clutter_actor_remove_child (group, widgets[MAX_NWIDGETS - 1]);
+      widgets[MAX_NWIDGETS - 1] = NULL;
 
-    nwidgets--;
-  } else {
-    /* Adding an item */
-    widgets[MAX_NWIDGETS - 1] = create_gtk_actor (MAX_NWIDGETS - 1);
-    nwidgets++;
+      nwidgets--;
+    }
+  else
+    {
+      /* Adding an item */
+      widgets[MAX_NWIDGETS - 1] = create_gtk_actor (MAX_NWIDGETS - 1);
+      nwidgets++;
 
-    add_clutter_actor (widgets[MAX_NWIDGETS - 1], group, MAX_NWIDGETS - 1);
-  }
-  return TRUE;
+      add_clutter_actor (widgets[MAX_NWIDGETS - 1], group, MAX_NWIDGETS - 1);
+    }
+
+  return G_SOURCE_CONTINUE;
 }
 
 int
@@ -169,6 +165,7 @@ main (int argc, char *argv[])
 
   /* create a new group to hold multiple actors in a group */
   group = clutter_actor_new ();
+  clutter_actor_set_pivot_point (group, 0.5, 0.5);
 
   for (i = 0; i < MAX_NWIDGETS; i++)
     {
@@ -180,8 +177,7 @@ main (int argc, char *argv[])
 
   /* Add the group to the stage and center it*/
   clutter_actor_add_child (stage, group);
-  clutter_actor_add_constraint (group, clutter_align_constraint_new (stage, CLUTTER_ALIGN_X_AXIS, 0.5));
-  clutter_actor_add_constraint (group, clutter_align_constraint_new (stage, CLUTTER_ALIGN_Y_AXIS, 0.5));
+  clutter_actor_add_constraint (group, clutter_align_constraint_new (stage, CLUTTER_ALIGN_BOTH, 0.5));
 
   gtk_widget_show_all (window);
 
