@@ -1,3 +1,20 @@
+Clutter-GTK 1.4.3                                                    19/03/2013
+===============================================================================
+
+Changes since 1.4.2:
+        • Bump the dependency on GTK, to remove a workaround for broken state
+          propagation in the style code.
+        • Bump the dependency on Clutter, to enable using the accessibility
+          support in GTK without conflicting with the one in Clutter.
+        • Improve the multi-backend support, to prepare ourselves for the
+          shiny Wayland future.
+
+List of bugs fixed:
+        #691468, #695685, #692399
+
+Many thanks to:
+  Bastien Nocera, Cosimo Cecchi, Alejandro Piñeiro
+
 Clutter-GTK 1.4.2                                                    17/12/2012
 ===============================================================================
 
