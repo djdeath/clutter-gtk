@@ -76,9 +76,6 @@ post_parse_hook (GOptionContext  *context,
   if (clutter_check_windowing_backend (CLUTTER_WINDOWING_X11) &&
       GDK_IS_X11_DISPLAY (display))
     {
-      /* we need XI enabled because GTK will enable it by default as well */
-      clutter_x11_enable_xinput ();
-
       /* enable ARGB visuals by default for Clutter */
       clutter_x11_set_use_argb_visual (TRUE);
 
@@ -192,8 +189,6 @@ gtk_clutter_init (int    *argc,
 #if defined(GDK_WINDOWING_X11) && defined(CLUTTER_WINDOWING_X11)
   if (clutter_check_windowing_backend (CLUTTER_WINDOWING_X11))
     {
-      clutter_x11_enable_xinput ();
-
       clutter_x11_set_use_argb_visual (TRUE);
 
       clutter_x11_set_display (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()));
