@@ -249,8 +249,11 @@ gtk_clutter_init_with_args (int            *argc,
     return CLUTTER_INIT_SUCCESS;
 
 #if defined(CLUTTER_WINDOWING_X11)
-  /* enable ARGB visuals by default for Clutter */
-  clutter_x11_set_use_argb_visual (TRUE);
+  if (clutter_check_windowing_backend (CLUTTER_WINDOWING_X11))
+    {
+      /* enable ARGB visuals by default for Clutter */
+      clutter_x11_set_use_argb_visual (TRUE);
+    }
 #endif
 
   /* we let gtk+ open the display */
