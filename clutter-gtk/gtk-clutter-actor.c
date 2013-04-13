@@ -59,7 +59,7 @@
 #endif
 
 #ifdef CLUTTER_WINDOWING_WIN32
-#include <clutter/clutter-win32.h>
+#include <clutter/win32/clutter-win32.h>
 #endif
 #ifdef GDK_WINDOWING_WIN32
 #include <gdk/gdkwin32.h>
