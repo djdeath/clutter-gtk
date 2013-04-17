@@ -69,12 +69,25 @@ G_DEFINE_TYPE (GtkClutterActor, gtk_clutter_actor, CLUTTER_TYPE_ACTOR)
 
 #define GTK_CLUTTER_ACTOR_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), GTK_CLUTTER_TYPE_ACTOR, GtkClutterActorPrivate))
 
+/* #define ENABLE_DEBUG    1 */
+
+#ifdef ENABLE_DEBUG
+#define DEBUG(x)        g_printerr(x)
+#else
+#define DEBUG(x)
+#endif
+
 struct _GtkClutterActorPrivate
 {
   GtkWidget *widget;
   GtkWidget *embed;
 
   cairo_surface_t *surface;
+
+  /* canvas instance used as a fallback; owned
+   * by the texture actor below
+   */
+  ClutterContent *canvas;
 
   ClutterActor *texture;
 };
@@ -85,6 +98,47 @@ enum
 
   PROP_CONTENTS
 };
+
+/* we allow overriding the default platform-specific code with an
+ * environment variable
+ */
+static inline gboolean
+gtk_clutter_actor_use_image_surface (void)
+{
+  static const char *env = NULL;
+
+  if (G_UNLIKELY (env == NULL))
+    env = g_getenv ("GTK_CLUTTER_ACTOR_SURFACE");
+
+  return g_strcmp0 (env, "image") == 0;
+}
+
+/* paints the GtkClutterActorPrivate:surface on the cairo_t provided by
+ * a ClutterCanvas, if we use the fallback path. this implies a copy,
+ * plus a copy when we move the contents of the surface we use in the
+ * ClutterCanvas on to the GPU, but it's the most portable method we have
+ * at our disposal to implement embedding GTK widgets into Clutter actors.
+ */
+static gboolean
+gtk_clutter_actor_draw_canvas (ClutterCanvas   *canvas,
+                               cairo_t         *cr,
+                               int              width,
+                               int              height,
+                               GtkClutterActor *actor)
+{
+  /* clear the surface */
+  cairo_save (cr);
+  cairo_set_source_rgba (cr, 1.0, 1.0, 1.0, 1.0);
+  cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
+  cairo_paint (cr);
+  cairo_restore (cr);
+
+  cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
+  cairo_set_source_surface (cr, actor->priv->surface, 0.0, 0.0);
+  cairo_paint (cr);
+
+  return TRUE;
+}
 
 static void
 gtk_clutter_actor_dispose (GObject *object)
@@ -122,7 +176,8 @@ gtk_clutter_actor_realize (ClutterActor *actor)
   priv->surface = _gtk_clutter_offscreen_get_surface (GTK_CLUTTER_OFFSCREEN (priv->widget));
 
 #if defined(CLUTTER_WINDOWING_X11) && defined(CAIRO_HAS_XLIB_SURFACE)
-  if (clutter_check_windowing_backend (CLUTTER_WINDOWING_X11) &&
+  if (!gtk_clutter_actor_use_image_surface () &&
+      clutter_check_windowing_backend (CLUTTER_WINDOWING_X11) &&
       cairo_surface_get_type (priv->surface) == CAIRO_SURFACE_TYPE_XLIB)
     {
       Drawable pixmap;
@@ -135,7 +190,41 @@ gtk_clutter_actor_realize (ClutterActor *actor)
       clutter_x11_texture_pixmap_set_pixmap (CLUTTER_X11_TEXTURE_PIXMAP (priv->texture), pixmap);
       clutter_actor_set_size (priv->texture, pixmap_width, pixmap_height);
     }
+  else
 #endif
+    {
+      int width = gtk_widget_get_allocated_width (priv->widget);
+      int height = gtk_widget_get_allocated_height (priv->widget);
+      int canvas_width = 0, canvas_height = 0;
+
+      DEBUG (G_STRLOC ": Using image surface.\n");
+
+      g_object_get (priv->canvas,
+                    "width", &canvas_width,
+                    "height", &canvas_height,
+                    NULL);
+
+
+      clutter_actor_set_size (priv->texture, width, height);
+
+      /* clutter_canvas_set_size() will invalidate its contents only
+       * if the size differs, but we want to invalidate the contents
+       * in any case; we cannot call clutter_content_invalidate(),
+       * though, because that may cause two invalidations in a row,
+       * so we check the size of the canvas first.
+       */
+      if (width != canvas_width ||
+          height != canvas_height)
+        {
+          clutter_canvas_set_size (CLUTTER_CANVAS (priv->canvas),
+                                   width,
+                                   height);
+        }
+      else
+        {
+          clutter_content_invalidate (priv->canvas);
+        }
+    }
 }
 
 static void
@@ -257,17 +346,26 @@ gtk_clutter_actor_allocate (ClutterActor           *actor,
       surface = gdk_offscreen_window_get_surface (window);
       if (surface != priv->surface)
         {
+          priv->surface = surface;
+
 #if defined(CLUTTER_WINDOWING_X11) && defined(CAIRO_HAS_XLIB_SURFACE)
-          if (clutter_check_windowing_backend (CLUTTER_WINDOWING_X11) &&
+          if (!gtk_clutter_actor_use_image_surface () &&
+              clutter_check_windowing_backend (CLUTTER_WINDOWING_X11) &&
               cairo_surface_get_type (surface) == CAIRO_SURFACE_TYPE_XLIB)
             {
               Drawable pixmap = cairo_xlib_surface_get_drawable (surface);
 
               clutter_x11_texture_pixmap_set_pixmap (CLUTTER_X11_TEXTURE_PIXMAP (priv->texture), pixmap);
             }
+          else
 #endif
+            {
+              DEBUG (G_STRLOC ": Using image surface.\n");
 
-          priv->surface = surface;
+              clutter_canvas_set_size (CLUTTER_CANVAS (priv->canvas),
+                                       gtk_widget_get_allocated_width (priv->widget),
+                                       gtk_widget_get_allocated_height (priv->widget));
+            }
         }
     }
 
@@ -449,7 +547,8 @@ gtk_clutter_actor_init (GtkClutterActor *self)
   clutter_actor_set_reactive (actor, TRUE);
 
 #if defined(CLUTTER_WINDOWING_X11)
-  if (clutter_check_windowing_backend (CLUTTER_WINDOWING_X11))
+  if (!gtk_clutter_actor_use_image_surface () &&
+      clutter_check_windowing_backend (CLUTTER_WINDOWING_X11))
     {
       priv->texture = clutter_x11_texture_pixmap_new ();
 
@@ -460,9 +559,22 @@ gtk_clutter_actor_init (GtkClutterActor *self)
     }
   else
 #endif
-    g_critical ("Embedding GtkWidget inside ClutterActor through "
-                "GtkClutterActor does not yet work on non-X11 "
-                "platforms.");
+    {
+      DEBUG (G_STRLOC ": Using image surface.\n");
+
+      priv->canvas = clutter_canvas_new ();
+      g_signal_connect (priv->canvas, "draw",
+                        G_CALLBACK (gtk_clutter_actor_draw_canvas),
+                        actor);
+
+      priv->texture = clutter_actor_new ();
+      clutter_actor_set_content (priv->texture, priv->canvas);
+      clutter_actor_add_child (actor, priv->texture);
+      clutter_actor_set_name (priv->texture, "Onscreen Texture");
+      clutter_actor_show (priv->texture);
+
+      g_object_unref (priv->canvas);
+    }
 
   g_signal_connect (self, "notify::reactive", G_CALLBACK (on_reactive_change), NULL);
 }
@@ -480,15 +592,24 @@ _gtk_clutter_actor_update (GtkClutterActor *actor,
 			   gint             width,
 			   gint             height)
 {
+  GtkClutterActorPrivate *priv = actor->priv;
+
+  if (gtk_clutter_actor_use_image_surface ())
+    {
+      clutter_content_invalidate (priv->canvas);
+    }
+  else
 #if defined(CLUTTER_WINDOWING_X11)
   if (clutter_check_windowing_backend (CLUTTER_WINDOWING_X11))
     {
-      GtkClutterActorPrivate *priv = actor->priv;
-
       clutter_x11_texture_pixmap_update_area (CLUTTER_X11_TEXTURE_PIXMAP (priv->texture),
 					      x, y, width, height);
     }
+  else
 #endif
+    {
+      /* ... */
+    }
 
   clutter_actor_queue_redraw (CLUTTER_ACTOR (actor));
 }
