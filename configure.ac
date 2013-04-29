@@ -56,7 +56,7 @@ AC_MSG_CHECKING([if building for some Win32 platform])
 AS_CASE([$host],
         [*-*-mingw*|*-*-cygwin*],
         [
-          CLUTTER_LT_LDFLAGS="$CLUTTER_GTK_LT_LDFLAGS -no-undefined"
+          CLUTTER_GTK_LT_LDFLAGS="$CLUTTER_GTK_LT_LDFLAGS -no-undefined"
           platform_win32=yes
         ],
 
