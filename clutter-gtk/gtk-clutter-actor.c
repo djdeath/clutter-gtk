@@ -195,35 +195,20 @@ gtk_clutter_actor_realize (ClutterActor *actor)
     {
       int width = gtk_widget_get_allocated_width (priv->widget);
       int height = gtk_widget_get_allocated_height (priv->widget);
-      int canvas_width = 0, canvas_height = 0;
 
       DEBUG (G_STRLOC ": Using image surface.\n");
-
-      g_object_get (priv->canvas,
-                    "width", &canvas_width,
-                    "height", &canvas_height,
-                    NULL);
-
 
       clutter_actor_set_size (priv->texture, width, height);
 
       /* clutter_canvas_set_size() will invalidate its contents only
        * if the size differs, but we want to invalidate the contents
-       * in any case; we cannot call clutter_content_invalidate(),
-       * though, because that may cause two invalidations in a row,
-       * so we check the size of the canvas first.
+       * in any case; we cannot call clutter_content_invalidate()
+       * unconditionally, though, because that may cause two
+       * invalidations in a row, so we check the size of the canvas
+       * first.
        */
-      if (width != canvas_width ||
-          height != canvas_height)
-        {
-          clutter_canvas_set_size (CLUTTER_CANVAS (priv->canvas),
-                                   width,
-                                   height);
-        }
-      else
-        {
-          clutter_content_invalidate (priv->canvas);
-        }
+      if (!clutter_canvas_set_size (CLUTTER_CANVAS (priv->canvas), width, height))
+        clutter_content_invalidate (priv->canvas);
     }
 }
 
