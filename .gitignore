@@ -61,6 +61,8 @@ ltmain.sh
 missing
 stamp-h1
 /clutter-gtk/gtk-clutter-version.h
+/clutter-gtk/subsurface-client-protocol.h
+/clutter-gtk/subsurface-protocol.c
 /clutter-gtk/GtkClutter-*.gir
 /clutter-gtk/GtkClutter-*.typelib
 /po/Makefile.in.in
