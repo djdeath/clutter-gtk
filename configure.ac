@@ -88,6 +88,7 @@ m4_define([gtk_req_version], [3.6.0])
 PKG_CHECK_MODULES([CLUTTER_GTK_DEPS], [clutter-1.0 >= clutter_req_version gtk+-3.0 >= gtk_req_version])
 AC_SUBST([CLUTTER_GTK_DEPS_CFLAGS])
 AC_SUBST([CLUTTER_GTK_DEPS_LIBS])
+PKG_CHECK_MODULES([WAYLAND_DEPS], [wayland-client gtk+-wayland-3.0 clutter-wayland-1.0])
 
 m4_define([deprecated_default],
           [m4_if(m4_eval(clutter_gtk_minor % 2), [1],
@@ -201,6 +202,8 @@ AC_SUBST(CLUTTER_PREFIX)
 GTK_DOC_CHECK([1.14], [--flavour=no-tmpl])
 
 GOBJECT_INTROSPECTION_CHECK([0.9.12])
+
+WAYLAND_SCANNER_RULES(['$(top_srcdir)/protocol'])
 
 AC_CONFIG_FILES([
         Makefile
