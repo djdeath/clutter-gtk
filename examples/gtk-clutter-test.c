@@ -88,8 +88,12 @@ frame_cb (ClutterTimeline *timeline,
 
 static void
 clickity (GtkButton *button,
-          gpointer ud)
+          gpointer   stack)
 {
+	if (g_strcmp0 (gtk_stack_get_visible_child_name (GTK_STACK (stack)), "label") == 0)
+		gtk_stack_set_visible_child_name (GTK_STACK (stack), "clutter");
+	else
+		gtk_stack_set_visible_child_name (GTK_STACK (stack), "label");
         fade = !fade;
 }
 
@@ -114,7 +118,7 @@ main (int argc, char *argv[])
 {
   ClutterTimeline *timeline;
   ClutterActor *stage;
-  GtkWidget *window, *clutter;
+  GtkWidget *window, *stack, *clutter;
   GtkWidget *label, *button, *vbox;
   GdkPixbuf *pixbuf;
   SuperOH *oh;
@@ -157,8 +161,14 @@ main (int argc, char *argv[])
   gtk_widget_set_vexpand (vbox, TRUE);
   gtk_container_add (GTK_CONTAINER (window), vbox);
 
+  stack = gtk_stack_new ();
+  gtk_container_add (GTK_CONTAINER (vbox), stack);
+
+  label = gtk_label_new ("This is a label in a stack");
+  gtk_stack_add_named (GTK_STACK (stack), label, "label");
+
   clutter = gtk_clutter_embed_new ();
-  gtk_container_add (GTK_CONTAINER (vbox), clutter);
+  gtk_stack_add_named (GTK_STACK (stack), clutter, "clutter");
 
   stage = gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (clutter));
   clutter_actor_set_background_color (stage, CLUTTER_COLOR_LightSkyBlue);
@@ -168,7 +178,7 @@ main (int argc, char *argv[])
   gtk_widget_set_hexpand (label, TRUE);
 
   button = gtk_button_new_with_label ("This is a button...clicky");
-  g_signal_connect (button, "clicked", G_CALLBACK (clickity), NULL);
+  g_signal_connect (button, "clicked", G_CALLBACK (clickity), stack);
   gtk_container_add (GTK_CONTAINER (vbox), button);
   gtk_widget_set_hexpand (button, TRUE);
 
