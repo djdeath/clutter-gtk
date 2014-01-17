@@ -367,6 +367,24 @@ gtk_clutter_actor_allocate (ClutterActor           *actor,
 }
 
 static void
+gtk_clutter_actor_pick (ClutterActor       *actor,
+                        const ClutterColor *color)
+{
+  GtkClutterActorPrivate *priv = GTK_CLUTTER_ACTOR (actor)->priv;
+  ClutterActorIter iter;
+  ClutterActor *child;
+
+  CLUTTER_ACTOR_CLASS (gtk_clutter_actor_parent_class)->pick (actor, color);
+
+  /* we always have the backing texture below everything else */
+  clutter_actor_paint (priv->texture);
+
+  clutter_actor_iter_init (&iter, actor);
+  while (clutter_actor_iter_next (&iter, &child))
+    clutter_actor_paint (child);
+}
+
+static void
 gtk_clutter_actor_paint (ClutterActor *actor)
 {
   GtkClutterActorPrivate *priv = GTK_CLUTTER_ACTOR (actor)->priv;
