@@ -499,6 +499,7 @@ gtk_clutter_embed_size_allocate (GtkWidget     *widget,
                                  GtkAllocation *allocation)
 {
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
+  int scale_factor = gtk_widget_get_scale_factor (widget);
 
   gtk_widget_set_allocation (widget, allocation);
 
@@ -506,6 +507,11 @@ gtk_clutter_embed_size_allocate (GtkWidget     *widget,
    * has been updated as well
    */
   clutter_actor_set_size (priv->stage, allocation->width, allocation->height);
+
+  allocation->x = allocation->x * scale_factor;
+  allocation->x = allocation->x * scale_factor;
+  allocation->width = allocation->width * scale_factor;
+  allocation->height = allocation->height * scale_factor;
 
   if (gtk_widget_get_realized (widget))
     {
