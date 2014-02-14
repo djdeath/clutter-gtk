@@ -508,11 +508,6 @@ gtk_clutter_embed_size_allocate (GtkWidget     *widget,
    */
   clutter_actor_set_size (priv->stage, allocation->width, allocation->height);
 
-  allocation->x = allocation->x * scale_factor;
-  allocation->x = allocation->x * scale_factor;
-  allocation->width = allocation->width * scale_factor;
-  allocation->height = allocation->height * scale_factor;
-
   if (gtk_widget_get_realized (widget))
     {
       gdk_window_move_resize (gtk_widget_get_window (widget),
@@ -531,8 +526,8 @@ gtk_clutter_embed_size_allocate (GtkWidget     *widget,
 	{
 	  XConfigureEvent xevent = { ConfigureNotify };
 	  xevent.window = GDK_WINDOW_XID (gtk_widget_get_window (widget));
-	  xevent.width = allocation->width;
-	  xevent.height = allocation->height;
+	  xevent.width = allocation->width * scale_factor;
+	  xevent.height = allocation->height * scale_factor;
 
 	  /* Ensure cogl knows about the new size immediately, as we will
 	     draw before we get the ConfigureNotify response. */
