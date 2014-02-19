@@ -1,3 +1,17 @@
+Clutter-GTK 1.5.2                                                    19/02/2014
+===============================================================================
+
+Changes since 1.4:
+        • Allow falling back to Cairo-based embedding of GTK+ widgets if
+          the Clutter-X11 API is not available.
+        • Support window scaling factor in GtkClutterEmbed.
+
+List of bugs fixed:
+        #724055
+
+Many thanks to:
+  Adel Gadllah, Bastien Nocera
+
 Clutter-GTK 1.4.3                                                    19/03/2013
 ===============================================================================
 
