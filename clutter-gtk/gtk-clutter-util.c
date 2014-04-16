@@ -98,6 +98,11 @@ post_parse_hook (GOptionContext  *context,
 #endif
     g_error ("*** Unsupported backend.");
 
+  /* We disable clutter accessibility support in order to not
+   * interfere with gtk accessibility support.
+   */
+  clutter_disable_accessibility ();
+
   /* this is required since parsing clutter's option group did not
    * complete the initialization process
    */
