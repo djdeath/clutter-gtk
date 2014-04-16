@@ -178,6 +178,8 @@ ClutterInitError
 gtk_clutter_init (int    *argc,
                   char ***argv)
 {
+  GdkDisplay *display;
+
   if (gtk_clutter_is_initialized)
     return CLUTTER_INIT_SUCCESS;
 
@@ -186,30 +188,43 @@ gtk_clutter_init (int    *argc,
   if (!gtk_init_check (argc, argv))
     return CLUTTER_INIT_ERROR_UNKNOWN;
 
+  display = gdk_display_get_default ();
+
 #if defined(CLUTTER_WINDOWING_GDK)
   if (clutter_check_windowing_backend (CLUTTER_WINDOWING_GDK))
     {
       clutter_gdk_set_display (gdk_display_get_default ());
 
+      /* let GDK be in charge of the event handling */
       clutter_gdk_disable_event_retrieval ();
     }
+  else
 #endif
-
 #if defined(GDK_WINDOWING_X11) && defined(CLUTTER_WINDOWING_X11)
-  if (clutter_check_windowing_backend (CLUTTER_WINDOWING_X11))
+  if (clutter_check_windowing_backend (CLUTTER_WINDOWING_X11) &&
+      GDK_IS_X11_DISPLAY (display))
     {
+      /* enable ARGB visuals by default for Clutter */
       clutter_x11_set_use_argb_visual (TRUE);
 
+      /* share the X11 Display with GTK+ */
       clutter_x11_set_display (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()));
 
+      /* let GTK+ be in charge of the event handling */
       clutter_x11_disable_event_retrieval ();
     }
+  else
 #endif
-
-#if defined(CLUTTER_WINDOWING_WIN32)
-  if (clutter_check_windowing_backend (CLUTTER_WINDOWING_WIN32))
-    clutter_win32_disable_event_retrieval ();
+#if defined(GDK_WINDOWING_WIN32) && defined(CLUTTER_WINDOWING_WIN32)
+  if (clutter_check_windowing_backend (CLUTTER_WINDOWING_WIN32) &&
+      GDK_IS_WIN32_DISPLAY (display))
+    {
+      /* let GTK+ be in charge of the event handling */
+      clutter_win32_disable_event_retrieval ();
+    }
+  else
 #endif
+    g_error ("*** Unsupported backend.");
 
   /* We disable clutter accessibility support in order to not
    * interfere with gtk accessibility support.
