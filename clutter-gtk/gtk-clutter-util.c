@@ -183,7 +183,11 @@ gtk_clutter_init (int    *argc,
 
 #if defined(CLUTTER_WINDOWING_GDK)
   if (clutter_check_windowing_backend (CLUTTER_WINDOWING_GDK))
-    clutter_gdk_disable_event_retrieval ();
+    {
+      clutter_gdk_set_display (gdk_display_get_default ());
+
+      clutter_gdk_disable_event_retrieval ();
+    }
 #endif
 
 #if defined(GDK_WINDOWING_X11) && defined(CLUTTER_WINDOWING_X11)
