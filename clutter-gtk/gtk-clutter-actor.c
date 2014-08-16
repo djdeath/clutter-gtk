@@ -579,13 +579,9 @@ _gtk_clutter_actor_update (GtkClutterActor *actor,
 {
   GtkClutterActorPrivate *priv = actor->priv;
 
-  if (gtk_clutter_actor_use_image_surface ())
-    {
-      clutter_content_invalidate (priv->canvas);
-    }
-  else
 #if defined(CLUTTER_WINDOWING_X11)
-  if (clutter_check_windowing_backend (CLUTTER_WINDOWING_X11))
+  if (!gtk_clutter_actor_use_image_surface () &&
+      clutter_check_windowing_backend (CLUTTER_WINDOWING_X11))
     {
       clutter_x11_texture_pixmap_update_area (CLUTTER_X11_TEXTURE_PIXMAP (priv->texture),
 					      x, y, width, height);
@@ -593,7 +589,7 @@ _gtk_clutter_actor_update (GtkClutterActor *actor,
   else
 #endif
     {
-      /* ... */
+      clutter_content_invalidate (priv->canvas);
     }
 
   clutter_actor_queue_redraw (CLUTTER_ACTOR (actor));
