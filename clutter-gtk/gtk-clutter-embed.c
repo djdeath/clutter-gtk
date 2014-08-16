@@ -265,6 +265,19 @@ gtk_clutter_filter_func (GdkXEvent *native_event,
   return GDK_FILTER_CONTINUE;
 }
 
+static gboolean
+gtk_clutter_embed_draw (GtkWidget *widget, cairo_t *cr)
+{
+#if defined(CLUTTER_WINDOWING_GDK)
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
+
+  if (clutter_check_windowing_backend (CLUTTER_WINDOWING_GDK))
+    clutter_actor_queue_redraw (priv->stage);
+#endif
+
+  return GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->draw (widget, cr);
+}
+
 static void
 gtk_clutter_embed_realize (GtkWidget *widget)
 {
@@ -940,6 +953,7 @@ gtk_clutter_embed_class_init (GtkClutterEmbedClass *klass)
 
   widget_class->style_updated = gtk_clutter_embed_style_updated;
   widget_class->size_allocate = gtk_clutter_embed_size_allocate;
+  widget_class->draw = gtk_clutter_embed_draw;
   widget_class->realize = gtk_clutter_embed_realize;
   widget_class->unrealize = gtk_clutter_embed_unrealize;
   widget_class->show = gtk_clutter_embed_show;
