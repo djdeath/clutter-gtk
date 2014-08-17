@@ -272,7 +272,7 @@ gtk_clutter_embed_draw (GtkWidget *widget, cairo_t *cr)
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
 
   if (clutter_check_windowing_backend (CLUTTER_WINDOWING_GDK))
-    clutter_actor_queue_redraw (priv->stage);
+    clutter_stage_ensure_redraw (CLUTTER_STAGE (priv->stage));
 #endif
 
   return GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->draw (widget, cr);
