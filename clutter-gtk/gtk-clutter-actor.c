@@ -535,9 +535,15 @@ gtk_clutter_actor_init (GtkClutterActor *self)
   if (!gtk_clutter_actor_use_image_surface () &&
       clutter_check_windowing_backend (CLUTTER_WINDOWING_X11))
     {
+      /* FIXME: write a GtkClutterWidgetContent that uses CoglTexturePixmapX11
+       * and a cairo_surface_t internally
+       */
       priv->texture = clutter_x11_texture_pixmap_new ();
 
+      G_GNUC_BEGIN_IGNORE_DEPRECATIONS
       clutter_texture_set_sync_size (CLUTTER_TEXTURE (priv->texture), FALSE);
+      G_GNUC_END_IGNORE_DEPRECATIONS
+
       clutter_actor_add_child (actor, priv->texture);
       clutter_actor_set_name (priv->texture, "Onscreen Texture");
       clutter_actor_show (priv->texture);
