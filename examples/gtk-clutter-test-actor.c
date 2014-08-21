@@ -32,10 +32,6 @@ frame_cb (ClutterTimeline *timeline,
 
   for (i = 0; i < nwidgets; i++)
     {
-      /* rotate each widget around its center */
-      gfloat w = clutter_actor_get_width (widgets[i]);
-      gfloat h = clutter_actor_get_height (widgets[i]);
-
       clutter_actor_set_rotation_angle (widgets[i], CLUTTER_Z_AXIS, - 2 * rotation);
       clutter_actor_set_opacity (widgets[i], 50 * sin (2 * M_PI * rotation / 360) + (255 - 50));
     }
