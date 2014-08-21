@@ -30,6 +30,7 @@
 
 #include "config.h"
 
+#define CLUTTER_DISABLE_DEPRECATION_WARNINGS
 #include "gtk-clutter-texture.h"
 
 #include <glib/gi18n-lib.h>
@@ -125,7 +126,10 @@ gtk_clutter_texture_set_from_stock (GtkClutterTexture  *texture,
   g_return_val_if_fail (stock_id != NULL, FALSE);
   g_return_val_if_fail ((icon_size > GTK_ICON_SIZE_INVALID) || (icon_size == -1), FALSE);
 
+  G_GNUC_BEGIN_IGNORE_DEPRECATIONS
   pixbuf = gtk_widget_render_icon_pixbuf (widget, stock_id, icon_size);
+  G_GNUC_END_IGNORE_DEPRECATIONS
+
   if (pixbuf == NULL)
     {
       g_set_error (error,
@@ -190,11 +194,13 @@ gtk_clutter_texture_set_from_icon_name (GtkClutterTexture  *texture,
       icon_theme = gtk_icon_theme_get_default ();
     }
 
+  G_GNUC_BEGIN_IGNORE_DEPRECATIONS
   if (icon_size == -1 ||
       !gtk_icon_size_lookup_for_settings (settings, icon_size, &width, &height))
     {
       width = height = 48;
     }
+  G_GNUC_END_IGNORE_DEPRECATIONS
 
   pixbuf = gtk_icon_theme_load_icon (icon_theme,
                                      icon_name,
