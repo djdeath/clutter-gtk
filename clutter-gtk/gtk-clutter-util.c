@@ -265,7 +265,9 @@ gtk_clutter_init_with_args (int            *argc,
   /* and we prevent clutter from doing so too */
   clutter_group = clutter_get_option_group_without_init ();
 
+  G_GNUC_BEGIN_IGNORE_DEPRECATIONS
   cogl_group = cogl_get_option_group ();
+  G_GNUC_END_IGNORE_DEPRECATIONS
 
   clutter_gtk_group = gtk_clutter_get_option_group ();
 
