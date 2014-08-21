@@ -115,6 +115,7 @@ gtk_clutter_offscreen_realize (GtkWidget *widget)
   gint attributes_mask;
   guint border_width;
   GtkWidget *parent, *child;
+  GdkScreen *screen;
 
   gtk_widget_set_realized (widget, TRUE);
 
@@ -135,8 +136,9 @@ gtk_clutter_offscreen_realize (GtkWidget *widget)
   attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL;
 
   parent = gtk_widget_get_parent (widget);
+  screen = gtk_widget_get_screen (widget);
 
-  window = gdk_window_new (gtk_widget_get_root_window (widget),
+  window = gdk_window_new (gdk_screen_get_root_window (screen),
 			   &attributes,
                            attributes_mask);
   gtk_widget_set_window (widget, window);
@@ -318,7 +320,11 @@ static void
 _gtk_clutter_offscreen_init (GtkClutterOffscreen *offscreen)
 {
   gtk_widget_set_has_window (GTK_WIDGET (offscreen), TRUE);
+
+  G_GNUC_BEGIN_IGNORE_DEPRECATIONS
   gtk_container_set_resize_mode (GTK_CONTAINER (offscreen), GTK_RESIZE_IMMEDIATE);
+  G_GNUC_END_IGNORE_DEPRECATIONS
+
   offscreen->active = TRUE;
 }
 
