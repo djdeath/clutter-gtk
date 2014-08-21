@@ -9,8 +9,11 @@ noinst_PROGRAMS = \
 	gtk-clutter-test-actor \
 	gtk-clutter-window-test
 
-INCLUDES = -I$(srcdir) -I$(top_srcdir) -I$(top_builddir)/clutter-gtk
-
+AM_CPPFLAGS = \
+	-I$(srcdir) -I$(top_srcdir) -I$(top_builddir)/clutter-gtk \
+	-DGLIB_DISABLE_DEPRECATION_WARNINGS \
+	-DGDK_DISABLE_DEPRECATION_WARNINGS \
+	-DCLUTTER_DISABLE_DEPRECATION_WARNINGS
 AM_CFLAGS = $(MAINTAINER_CFLAGS) $(CLUTTER_GTK_DEPS_CFLAGS)
 
 common_deps = \

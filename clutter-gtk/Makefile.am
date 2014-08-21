@@ -6,9 +6,9 @@ CLEANFILES =
 DISTCLEANFILES =
 EXTRA_DIST =
 
-INCLUDES = -I$(srcdir) -I$(top_srcdir) -I$(top_builddir)
 
 AM_CPPFLAGS = \
+	-I$(srcdir) -I$(top_srcdir) -I$(top_builddir) \
 	-DG_LOG_DOMAIN=\"Clutter-Gtk\" 		\
 	-DPREFIX=\""$(prefix)"\" 		\
 	-DLIBDIR=\""$(libdir)"\"		\
