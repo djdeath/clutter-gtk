@@ -1,3 +1,20 @@
+Clutter-GTK 1.5.4                                                    21/08/2014
+===============================================================================
+
+Changes since 1.5.2
+        • Improve initialization sequence
+        • Require GDK backend when using Clutter-GTK
+        • Use subsurface protocol when using Wayland
+
+List of bugs fixed:
+        #695737 - Add wayland support
+        #734905 - Unpainted GtkClutterActor with the GDK backend
+        #734906 - Unpainted GtkClutterEmbed with GDK backend
+
+Many thanks to:
+  Jasper St. Pierre, Lionel Landwerlin, Bastien Nocera, Olav Vitters, Piotr
+  Drąg, Rob Bradford
+
 Clutter-GTK 1.5.2                                                    19/02/2014
 ===============================================================================
 
