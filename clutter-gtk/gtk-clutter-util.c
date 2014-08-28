@@ -66,9 +66,6 @@ gtk_clutter_init_internal (void)
   display = gdk_display_get_default ();
 
 #if defined(CLUTTER_WINDOWING_GDK)
-  /* we want the GDK backend by default */
-  clutter_set_windowing_backend (CLUTTER_WINDOWING_GDK);
-
   if (clutter_check_windowing_backend (CLUTTER_WINDOWING_GDK))
     {
       clutter_gdk_set_display (gdk_display_get_default ());
@@ -82,7 +79,7 @@ gtk_clutter_init_internal (void)
   if (clutter_check_windowing_backend (CLUTTER_WINDOWING_X11) &&
       GDK_IS_X11_DISPLAY (display))
     {
-      /* enable ARGB visuals by default for Clutter; this is a no-op */
+      /* enable ARGB visuals by default for Clutter */
       clutter_x11_set_use_argb_visual (TRUE);
 
       /* share the X11 Display with GTK+ */
@@ -113,9 +110,7 @@ gtk_clutter_init_internal (void)
     }
   else
 #endif
-    {
-      g_error ("*** Unsupported backend.");
-    }
+    g_error ("*** Unsupported backend.");
 
   /* We disable clutter accessibility support in order to not
    * interfere with gtk accessibility support.
