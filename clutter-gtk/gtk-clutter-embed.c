@@ -104,6 +104,7 @@ struct _GtkClutterEmbedPrivate
 
 #if defined(GDK_WINDOWING_WAYLAND) && defined(CLUTTER_WINDOWING_WAYLAND)
   struct wl_subcompositor *subcompositor;
+  struct wl_surface *clutter_surface;
   struct wl_subsurface *subsurface;
 #endif
 };
@@ -180,6 +181,10 @@ gtk_clutter_embed_dispose (GObject *gobject)
 
       clutter_actor_destroy (priv->stage);
       priv->stage = NULL;
+
+#if defined(GDK_WINDOWING_WAYLAND) && defined(CLUTTER_WINDOWING_WAYLAND)
+      g_clear_pointer (&priv->subsurface, wl_subsurface_destroy);
+#endif
     }
 
   G_OBJECT_CLASS (gtk_clutter_embed_parent_class)->dispose (gobject);
@@ -277,6 +282,39 @@ gtk_clutter_embed_draw (GtkWidget *widget, cairo_t *cr)
 
   return GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->draw (widget, cr);
 }
+
+#if defined(GDK_WINDOWING_WAYLAND) && defined(CLUTTER_WINDOWING_WAYLAND)
+static void
+gtk_clutter_embed_ensure_subsurface (GtkClutterEmbed *embed)
+{
+  GtkClutterEmbedPrivate *priv;
+  GtkWidget *widget;
+  struct wl_surface *gtk_surface;
+  GtkAllocation allocation;
+  GdkWindow *window;
+  gint x, y;
+
+  widget = GTK_WIDGET (embed);
+  priv = embed->priv;
+
+  if (priv->subsurface)
+    return;
+
+  gtk_widget_get_allocation (widget, &allocation);
+  window = gtk_widget_get_window (widget);
+  gtk_surface = gdk_wayland_window_get_wl_surface (gdk_window_get_toplevel(window));
+
+  priv->subsurface =
+          wl_subcompositor_get_subsurface (priv->subcompositor,
+                                           priv->clutter_surface,
+                                           gtk_surface);
+
+  gtk_widget_translate_coordinates (widget, gtk_widget_get_toplevel (widget), 0, 0, &x, &y);
+  gdk_window_get_origin (gtk_widget_get_parent_window (widget), &x, &y);
+  wl_subsurface_set_position (priv->subsurface, x + allocation.x, y + allocation.y);
+  wl_subsurface_set_desync (priv->subsurface);
+}
+#endif
 
 static void
 gtk_clutter_embed_realize (GtkWidget *widget)
@@ -394,21 +432,13 @@ gtk_clutter_embed_realize (GtkWidget *widget)
   if (priv->subcompositor)
     {
       GdkDisplay *display;
-      struct wl_surface *clutter_surface, *gtk_surface;
       struct wl_compositor *compositor;
 
       display = gtk_widget_get_display (widget);
       compositor = gdk_wayland_display_get_wl_compositor (display);
-      clutter_surface = wl_compositor_create_surface (compositor);
-      gtk_surface = gdk_wayland_window_get_wl_surface (gdk_window_get_toplevel(window));
+      priv->clutter_surface = wl_compositor_create_surface (compositor);
       clutter_wayland_stage_set_wl_surface (CLUTTER_STAGE (priv->stage),
-                                            clutter_surface);
-      priv->subsurface =
-              wl_subcompositor_get_subsurface (priv->subcompositor,
-                                               clutter_surface,
-                                               gtk_surface);
-      wl_subsurface_set_position (priv->subsurface, allocation.x, allocation.y);
-      wl_subsurface_set_desync (priv->subsurface);
+                                            priv->clutter_surface);
     }
 #endif
 
@@ -585,7 +615,11 @@ gtk_clutter_embed_size_allocate (GtkWidget     *widget,
 #endif
 #if defined(GDK_WINDOWING_WAYLAND) && defined(CLUTTER_WINDOWING_WAYLAND)
       if (priv->subsurface)
-        wl_subsurface_set_position (priv->subsurface, allocation->x, allocation->y);
+        {
+          gint x, y;
+          gdk_window_get_origin (gtk_widget_get_window (widget), &x, &y);
+          wl_subsurface_set_position (priv->subsurface, x, y);
+        }
 #endif
     }
 }
@@ -623,7 +657,33 @@ gtk_clutter_embed_unmap_event (GtkWidget   *widget,
 
   clutter_actor_unmap (priv->stage);
 
+#if defined(GDK_WINDOWING_WAYLAND) && defined(CLUTTER_WINDOWING_WAYLAND)
+  g_clear_pointer (&priv->subsurface, wl_subsurface_destroy);
+#endif
+
   return res;
+}
+
+static void
+gtk_clutter_embed_map (GtkWidget *widget)
+{
+  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
+
+#if defined(GDK_WINDOWING_WAYLAND) && defined(CLUTTER_WINDOWING_WAYLAND)
+  {
+    GdkDisplay *gdk_display = gtk_widget_get_display (widget);
+
+    if (clutter_check_windowing_backend (CLUTTER_WINDOWING_WAYLAND) &&
+        GDK_IS_WAYLAND_DISPLAY (gdk_display))
+      {
+        gtk_clutter_embed_ensure_subsurface (GTK_CLUTTER_EMBED (widget));
+      }
+  }
+#endif
+
+  GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->map (widget);
+
+  clutter_actor_map (priv->stage);
 }
 
 static void
@@ -631,12 +691,16 @@ gtk_clutter_embed_unmap (GtkWidget *widget)
 {
   GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
 
+  GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->unmap (widget);
+
   /* gtk may emit an unmap signal after dispose, so it's possible we may
    * have already disposed priv->stage. */
   if (priv->stage != NULL)
     clutter_actor_unmap (priv->stage);
 
-  GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->unmap (widget);
+#if defined(GDK_WINDOWING_WAYLAND) && defined(CLUTTER_WINDOWING_WAYLAND)
+  g_clear_pointer (&priv->subsurface, wl_subsurface_destroy);
+#endif
 }
 
 static gboolean
@@ -958,6 +1022,7 @@ gtk_clutter_embed_class_init (GtkClutterEmbedClass *klass)
   widget_class->unrealize = gtk_clutter_embed_unrealize;
   widget_class->show = gtk_clutter_embed_show;
   widget_class->hide = gtk_clutter_embed_hide;
+  widget_class->map = gtk_clutter_embed_map;
   widget_class->unmap = gtk_clutter_embed_unmap;
   widget_class->map_event = gtk_clutter_embed_map_event;
   widget_class->unmap_event = gtk_clutter_embed_unmap_event;
