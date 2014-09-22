@@ -30,7 +30,6 @@
 
 #include "config.h"
 
-#define CLUTTER_DISABLE_DEPRECATION_WARNINGS
 #include "gtk-clutter-texture.h"
 
 #include <glib/gi18n-lib.h>
