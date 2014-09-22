@@ -1,3 +1,17 @@
+Clutter-GTK 1.6.0                                                    22/09/2014
+===============================================================================
+
+Changes since 1.5.4
+        • Revert to the X11 backend by default; the GDK backend is not ready
+          for Wayland, yet
+        • Improve support for Wayland
+
+List of bugs fixed:
+        #736564 - problem with gtkclutterembed and gtkstack under wayland
+
+Many thanks to:
+  Bastien Nocera
+
 Clutter-GTK 1.5.4                                                    21/08/2014
 ===============================================================================
 
