@@ -39,6 +39,10 @@
 #include <gdk/gdkwayland.h>
 #endif
 
+#if defined(GDK_WINDOWING_MIR)
+#include <gdk/gdkmir.h>
+#endif
+
 /**
  * SECTION:gtk-clutter-util
  * @Title: Utility Functions
@@ -107,6 +111,19 @@ gtk_clutter_init_internal (void)
       clutter_wayland_disable_event_retrieval ();
 
       clutter_wayland_set_display (gdk_wayland_display_get_wl_display (display));
+    }
+  else
+#endif
+#if defined(GDK_WINDOWING_MIR) && defined(CLUTTER_WINDOWING_MIR)
+  if (clutter_check_windowing_backend (CLUTTER_WINDOWING_MIR) &&
+      GDK_IS_MIR_DISPLAY (display))
+    {
+      /* let GTK+ be in charge of the event handling */
+      /* This is disabled until Mir does not support sub-surfaces.
+      clutter_mir_disable_event_retrieval ();
+      */
+
+      clutter_mir_set_connection (gdk_mir_display_get_mir_connection (display));
     }
   else
 #endif
