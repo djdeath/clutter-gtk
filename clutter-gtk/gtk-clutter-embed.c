@@ -327,6 +327,13 @@ gtk_clutter_embed_realize (GtkWidget *widget)
   gint attributes_mask;
   gint border_width;
 
+#if defined(CLUTTER_WINDOWING_GDK)
+  if (clutter_check_windowing_backend (CLUTTER_WINDOWING_GDK))
+    {
+      GdkVisual *visual = clutter_gdk_get_visual ();
+      gtk_widget_set_visual (widget, visual);
+    }
+#endif
 #if defined(GDK_WINDOWING_X11) && defined(CLUTTER_WINDOWING_X11)
   if (clutter_check_windowing_backend (CLUTTER_WINDOWING_X11))
     {
