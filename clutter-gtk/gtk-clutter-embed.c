@@ -32,13 +32,41 @@
  * By using a #GtkClutterEmbed widget is possible to build, show and
  * interact with a scene built using Clutter inside a GTK+ application.
  *
- * <warning><para>Though #GtkClutterEmbed is a #GtkContainer subclass,
- * it is not a real GTK+ container; #GtkClutterEmbed is required to
- * implement #GtkContainer in order to embed a #GtkWidget through the
- * #GtkClutterActor class. Calling gtk_container_add() on a #GtkClutterEmbed
- * will trigger an assertion. It is strongly advised not to override the
- * #GtkContainer implementation when subclassing
- * #GtkClutterEmbed.</para></warning>
+ * ## Event handling with GtkClutterEmbed
+ *
+ * Due to re-entrancy concerns, you should not use GTK event-related
+ * API from within event handling signals emitted by Clutter actors
+ * inside a #GtkClutterEmbed.
+ *
+ * Event-related API, like the GTK drag and drop functions, or the
+ * GTK grab ones, cause events to be processed inside the GDK event
+ * loop; #GtkClutterEmbed and the Clutter event loop may use those
+ * events to generate Clutter events, and thus emit signals on
+ * #ClutterActors. If you use the event-related signals of a
+ * #ClutterActor to call the GTK API, one of the two event loops
+ * will try to re-enter into each other, and either cause a crash
+ * or simply block your application.
+ *
+ * To avoid this behavior, you can either:
+ *
+ *  - only use GTK+ event handling signals to call event-related
+ *    GTK functions
+ *  - let the main loop re-enter, by calling event-related GTK
+ *    functions from within an idle or a timeout callback
+ *
+ * You should also make sure you're not using GTK widgets that call
+ * event-related GTK API, like the grab functions in a #GtkMenu, in
+ * response to Clutter actor events.
+ *
+ * ## Using GtkClutterEmbed as a container
+ *
+ * Though #GtkClutterEmbed is a #GtkContainer subclass, it is not a
+ * real GTK+ container; #GtkClutterEmbed is required to implement the
+ * #GtkContainer virtual functions in order to embed a #GtkWidget
+ * through the #GtkClutterActor class. Calling gtk_container_add()
+ * on a #GtkClutterEmbed will trigger an assertion. It is strongly
+ * advised not to override the #GtkContainer implementation when
+ * subclassing #GtkClutterEmbed, to avoid breaking internal state.
  */
 
 #ifdef HAVE_CONFIG_H
