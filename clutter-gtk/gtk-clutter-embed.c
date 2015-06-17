@@ -111,12 +111,6 @@
 #include <gdk/gdkwayland.h>
 #endif
 
-G_DEFINE_TYPE (GtkClutterEmbed, gtk_clutter_embed, GTK_TYPE_CONTAINER);
-
-#define GTK_CLUTTER_EMBED_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), GTK_CLUTTER_TYPE_EMBED, GtkClutterEmbedPrivate))
-
-static gint num_filter = 0;
-
 struct _GtkClutterEmbedPrivate
 {
   ClutterActor *stage;
@@ -137,12 +131,16 @@ struct _GtkClutterEmbedPrivate
 #endif
 };
 
+static gint num_filter = 0;
+
 enum
 {
   PROP_0,
 
   PROP_USE_LAYOUT_SIZE
 };
+
+G_DEFINE_TYPE_WITH_PRIVATE (GtkClutterEmbed, gtk_clutter_embed, GTK_TYPE_CONTAINER)
 
 static void
 gtk_clutter_embed_send_configure (GtkClutterEmbed *embed)
@@ -333,9 +331,9 @@ gtk_clutter_embed_ensure_subsurface (GtkClutterEmbed *embed)
   gtk_surface = gdk_wayland_window_get_wl_surface (gdk_window_get_toplevel(window));
 
   priv->subsurface =
-          wl_subcompositor_get_subsurface (priv->subcompositor,
-                                           priv->clutter_surface,
-                                           gtk_surface);
+    wl_subcompositor_get_subsurface (priv->subcompositor,
+                                     priv->clutter_surface,
+                                     gtk_surface);
 
   gtk_widget_translate_coordinates (widget, gtk_widget_get_toplevel (widget), 0, 0, &x, &y);
   gdk_window_get_origin (gtk_widget_get_parent_window (widget), &x, &y);
@@ -1044,8 +1042,6 @@ gtk_clutter_embed_class_init (GtkClutterEmbedClass *klass)
   GtkContainerClass *container_class = GTK_CONTAINER_CLASS (klass);
   GParamSpec *pspec;
 
-  g_type_class_add_private (klass, sizeof (GtkClutterEmbedPrivate));
-
   gobject_class->dispose = gtk_clutter_embed_dispose;
   gobject_class->set_property = gtk_clutter_embed_set_property;
   gobject_class->get_property = gtk_clutter_embed_get_property;
@@ -1132,7 +1128,7 @@ gtk_clutter_embed_init (GtkClutterEmbed *embed)
   GtkClutterEmbedPrivate *priv;
   GtkWidget *widget;
 
-  embed->priv = priv = GTK_CLUTTER_EMBED_GET_PRIVATE (embed);
+  embed->priv = priv = gtk_clutter_embed_get_instance_private (embed);
   widget = GTK_WIDGET (embed);
 
   /* we have a real window backing our drawing */
