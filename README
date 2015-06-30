@@ -10,8 +10,8 @@ actor for embedding any GtkWidget inside a Clutter stage.
 
 Requirements:
 
-  Clutter >= 1.4.0 (X11 backend) or >= 1.4.0 (Win32 backend)
-  GTK+ >= 3.0
+  Clutter >= 1.22.4
+  GTK+ >= 3.6
 
 Copyright (C) 2006, 2007, 2008  OpenedHand Ltd
 Copyright (C) 2009, 2010, 2011  Intel Corporation
