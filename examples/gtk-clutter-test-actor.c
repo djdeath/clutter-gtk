@@ -149,7 +149,7 @@ main (int argc, char *argv[])
 
   stage = gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (clutter));
 
-  button = gtk_button_new_from_stock (GTK_STOCK_QUIT);
+  button = gtk_button_new_with_mnemonic ("_Quit");
   g_signal_connect_swapped (button, "clicked",
 			    G_CALLBACK (gtk_widget_destroy),
 			    window);
