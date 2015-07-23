@@ -90,11 +90,12 @@ static void
 clickity (GtkButton *button,
           gpointer   stack)
 {
-	if (g_strcmp0 (gtk_stack_get_visible_child_name (GTK_STACK (stack)), "label") == 0)
-		gtk_stack_set_visible_child_name (GTK_STACK (stack), "clutter");
-	else
-		gtk_stack_set_visible_child_name (GTK_STACK (stack), "label");
-        fade = !fade;
+  if (g_strcmp0 (gtk_stack_get_visible_child_name (GTK_STACK (stack)), "label") == 0)
+    gtk_stack_set_visible_child_name (GTK_STACK (stack), "clutter");
+  else
+    gtk_stack_set_visible_child_name (GTK_STACK (stack), "label");
+
+  fade = !fade;
 }
 
 static void
@@ -182,17 +183,14 @@ main (int argc, char *argv[])
   gtk_container_add (GTK_CONTAINER (vbox), button);
   gtk_widget_set_hexpand (button, TRUE);
 
-  button = gtk_button_new_with_label ("Fullscreen");
-  gtk_button_set_image (GTK_BUTTON (button),
-                        gtk_image_new_from_stock (GTK_STOCK_FULLSCREEN,
-                                                  GTK_ICON_SIZE_BUTTON));
+  button = gtk_button_new_with_mnemonic ("_Fullscreen");
   g_signal_connect (button, "clicked",
                     G_CALLBACK (on_fullscreen),
                     window);
   gtk_container_add (GTK_CONTAINER (vbox), button);
   gtk_widget_set_hexpand (button, TRUE);
 
-  button = gtk_button_new_from_stock (GTK_STOCK_QUIT);
+  button = gtk_button_new_with_mnemonic ("_Quit");
   g_signal_connect_swapped (button, "clicked",
                             G_CALLBACK (gtk_widget_destroy),
                             window);
