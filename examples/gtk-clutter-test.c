@@ -170,6 +170,7 @@ main (int argc, char *argv[])
 
   clutter = gtk_clutter_embed_new ();
   gtk_stack_add_named (GTK_STACK (stack), clutter, "clutter");
+  gtk_widget_realize (clutter);
 
   stage = gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (clutter));
   clutter_actor_set_background_color (stage, CLUTTER_COLOR_LightSkyBlue);
