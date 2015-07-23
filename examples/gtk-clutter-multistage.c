@@ -39,11 +39,11 @@ main (int argc, char *argv[])
   stage1 = gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (clutter1));
   clutter_actor_set_background_color (stage1, &col1);
   tex1 = gtk_clutter_texture_new ();
-  gtk_clutter_texture_set_from_stock (GTK_CLUTTER_TEXTURE (tex1),
-                                      clutter1,
-                                      GTK_STOCK_DIALOG_INFO,
-                                      GTK_ICON_SIZE_DIALOG,
-                                      NULL);
+  gtk_clutter_texture_set_from_icon_name (GTK_CLUTTER_TEXTURE (tex1),
+                                          clutter1,
+                                          "dialog-information",
+                                          GTK_ICON_SIZE_DIALOG,
+                                          NULL);
   clutter_actor_set_position (tex1,
                               160 - clutter_actor_get_width (tex1) / 2.0,
                               120 - clutter_actor_get_height (tex1) / 2.0);
