@@ -82,7 +82,7 @@ AC_HEADER_STDC
 AC_CHECK_LIBM
 AC_SUBST(LIBM)
 
-m4_define([clutter_req_version], [1.22.3])
+m4_define([clutter_req_version], [1.23.7])
 m4_define([gtk_req_version], [3.6.0])
 
 PKG_CHECK_MODULES([CLUTTER_GTK_DEPS], [clutter-1.0 >= clutter_req_version gtk+-3.0 >= gtk_req_version])
