@@ -335,7 +335,6 @@ gtk_clutter_embed_ensure_subsurface (GtkClutterEmbed *embed)
                                      priv->clutter_surface,
                                      gtk_surface);
 
-  gtk_widget_translate_coordinates (widget, gtk_widget_get_toplevel (widget), 0, 0, &x, &y);
   gdk_window_get_origin (gtk_widget_get_parent_window (widget), &x, &y);
   wl_subsurface_set_position (priv->subsurface, x + allocation.x, y + allocation.y);
   wl_subsurface_set_desync (priv->subsurface);
