@@ -779,29 +779,6 @@ gtk_clutter_embed_unmap_event (GtkWidget   *widget,
   return res;
 }
 
-static void
-gtk_clutter_embed_map (GtkWidget *widget)
-{
-  GtkClutterEmbed *embed = GTK_CLUTTER_EMBED (widget);
-  GtkClutterEmbedPrivate *priv = embed->priv;
-
-
-  GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->map (widget);
-
-  gtk_clutter_embed_ensure_stage_realized (embed);
-}
-
-static void
-gtk_clutter_embed_unmap (GtkWidget *widget)
-{
-  GtkClutterEmbed *embed = GTK_CLUTTER_EMBED (widget);
-  GtkClutterEmbedPrivate *priv = embed->priv;
-
-  GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->unmap (widget);
-
-  gtk_clutter_embed_stage_unrealize (embed);
-}
-
 static gboolean
 gtk_clutter_embed_focus_in (GtkWidget     *widget,
                             GdkEventFocus *event)
@@ -1118,8 +1095,6 @@ gtk_clutter_embed_class_init (GtkClutterEmbedClass *klass)
   widget_class->realize = gtk_clutter_embed_realize;
   widget_class->unrealize = gtk_clutter_embed_unrealize;
   widget_class->show = gtk_clutter_embed_show;
-  widget_class->map = gtk_clutter_embed_map;
-  widget_class->unmap = gtk_clutter_embed_unmap;
   widget_class->map_event = gtk_clutter_embed_map_event;
   widget_class->unmap_event = gtk_clutter_embed_unmap_event;
   widget_class->focus_in_event = gtk_clutter_embed_focus_in;
