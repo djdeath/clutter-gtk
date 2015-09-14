@@ -271,7 +271,8 @@ gtk_clutter_embed_ensure_stage_realized (GtkClutterEmbed *embed)
       else
 #endif
 #if defined(GDK_WINDOWING_WAYLAND) && defined (CLUTTER_WINDOWING_WAYLAND)
-      if (clutter_check_windowing_backend (CLUTTER_WINDOWING_WAYLAND))
+      if (clutter_check_windowing_backend (CLUTTER_WINDOWING_WAYLAND) &&
+          GDK_IS_WAYLAND_WINDOW (window))
         {
           gtk_clutter_embed_ensure_surface (embed);
           clutter_wayland_stage_set_wl_surface (CLUTTER_STAGE (priv->stage),
