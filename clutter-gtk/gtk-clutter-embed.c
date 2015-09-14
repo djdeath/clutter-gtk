@@ -521,7 +521,8 @@ gtk_clutter_embed_realize (GtkWidget *widget)
                         | GDK_ENTER_NOTIFY_MASK
                         | GDK_LEAVE_NOTIFY_MASK
                         | GDK_TOUCH_MASK
-                        | GDK_SMOOTH_SCROLL_MASK;
+                        | GDK_SMOOTH_SCROLL_MASK
+                        | GDK_STRUCTURE_MASK;
 
   attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL;
 
