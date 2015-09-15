@@ -353,9 +353,6 @@ gtk_clutter_embed_dispose (GObject *gobject)
 static void
 gtk_clutter_embed_show (GtkWidget *widget)
 {
-  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
-
-
   GTK_WIDGET_CLASS (gtk_clutter_embed_parent_class)->show (widget);
 
   gtk_clutter_embed_ensure_stage_realized (GTK_CLUTTER_EMBED (widget));
@@ -433,7 +430,6 @@ gtk_clutter_embed_draw (GtkWidget *widget, cairo_t *cr)
 static void
 gtk_clutter_embed_realize (GtkWidget *widget)
 {
-  GtkClutterEmbedPrivate *priv = GTK_CLUTTER_EMBED (widget)->priv;
   GtkAllocation allocation;
   GtkStyleContext *style_context;
   GdkWindow *window;
@@ -550,7 +546,6 @@ static void
 gtk_clutter_embed_unrealize (GtkWidget *widget)
 {
   GtkClutterEmbed *embed = GTK_CLUTTER_EMBED (widget);
-  GtkClutterEmbedPrivate *priv = embed->priv;
 
   if (num_filter > 0)
     {
@@ -745,7 +740,6 @@ gtk_clutter_embed_unmap_event (GtkWidget   *widget,
                                GdkEventAny *event)
 {
   GtkClutterEmbed *embed = GTK_CLUTTER_EMBED (widget);
-  GtkClutterEmbedPrivate *priv = embed->priv;
   GtkWidgetClass *parent_class;
   gboolean res = FALSE;
 
