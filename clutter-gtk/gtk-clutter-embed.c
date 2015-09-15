@@ -578,6 +578,9 @@ gtk_clutter_embed_get_request_mode (GtkWidget *widget)
 	case CLUTTER_REQUEST_WIDTH_FOR_HEIGHT:
 	  mode = GTK_SIZE_REQUEST_WIDTH_FOR_HEIGHT;
 	  break;
+        case CLUTTER_REQUEST_CONTENT_SIZE:
+          mode = GTK_SIZE_REQUEST_CONSTANT_SIZE;
+          break;
 	}
     }
 
