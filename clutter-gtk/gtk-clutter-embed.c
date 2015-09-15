@@ -165,31 +165,6 @@ gtk_clutter_embed_send_configure (GtkClutterEmbed *embed)
 
 #if defined(GDK_WINDOWING_WAYLAND) && defined(CLUTTER_WINDOWING_WAYLAND)
 static void
-get_window_position_relative_to_parent (GdkWindow *window,
-                                        GdkWindow *parent,
-                                        gint *x,
-                                        gint *y)
-{
-  gint lx, ly;
-
-  if (window == parent ||
-      gdk_window_get_window_type (window) == GDK_WINDOW_TOPLEVEL)
-    {
-      *x = 0;
-      *y = 0;
-      return;
-    }
-
-  get_window_position_relative_to_parent (gdk_window_get_parent (window),
-                                          parent,
-                                          &lx, &ly);
-  gdk_window_get_position (window, x, y);
-
-  *x += lx;
-  *y += ly;
-}
-
-static void
 gtk_clutter_embed_ensure_surface (GtkClutterEmbed *embed)
 {
   GtkClutterEmbedPrivate *priv = embed->priv;
