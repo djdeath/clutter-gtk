@@ -1,3 +1,22 @@
+Clutter-GTK 1.6.4                                                    15/09/2015
+===============================================================================
+
+Changes since 1.6.2:
+        • Stop using deprecated API wherever possible
+        • Fix embedding of the stage on Wayland when using the GDK backend
+        • Fix event handling on GDK and X11
+        • Translation updates
+
+List of bugs fixed:
+        #755053 - Fix gtk-clutter-events on X11/GDK-X11 backends
+        #755017 - Consistency between backend checks.
+        #755016 - Fix jittery rendering with GDK Clutter backend on X11
+        #754944 - Remove unnecessary callbacks from GtkClutterEmbed
+        #754891 - Rework foreign stage setup to work on gdk/wayland
+
+Many thanks to:
+  Lionel Landwerlin, Piotr Drąg
+
 Clutter-GTK 1.6.2                                                    30/06/2015
 ===============================================================================
 
