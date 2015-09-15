@@ -567,6 +567,8 @@ gtk_clutter_embed_realize (GtkWidget *widget)
     {
       /* Nothing to do. */
     }
+
+  gtk_clutter_embed_ensure_stage_realized (GTK_CLUTTER_EMBED (widget));
 }
 
 static void
