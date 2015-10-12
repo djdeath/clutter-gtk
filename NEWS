@@ -1,3 +1,10 @@
+Clutter-GTK 1.6.6                                                    12/10/2015
+===============================================================================
+
+Changes since 1.6.4:
+        • Fix the build of the API reference so it's usable in DevHelp
+        • Add missing symbol indices to the API reference
+
 Clutter-GTK 1.6.4                                                    15/09/2015
 ===============================================================================
 
