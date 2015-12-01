@@ -144,6 +144,8 @@ gtk_clutter_offscreen_realize (GtkWidget *widget)
   gtk_widget_set_window (widget, window);
   gdk_window_set_user_data (window, widget);
 
+  gdk_offscreen_window_set_embedder (gtk_widget_get_window (parent),
+                                     window);
   g_signal_connect (window, "to-embedder",
 		    G_CALLBACK (offscreen_window_to_parent),
                     widget);

@@ -199,6 +199,7 @@ gtk_clutter_actor_realize (ClutterActor *actor)
   else
 #endif
     {
+      GdkWindow *window = gtk_widget_get_window (priv->widget);
       int width = gtk_widget_get_allocated_width (priv->widget);
       int height = gtk_widget_get_allocated_height (priv->widget);
 
@@ -206,6 +207,8 @@ gtk_clutter_actor_realize (ClutterActor *actor)
 
       clutter_actor_set_size (priv->texture, width, height);
 
+      clutter_canvas_set_scale_factor (CLUTTER_CANVAS (priv->canvas),
+                                       gdk_window_get_scale_factor (window));
       /* clutter_canvas_set_size() will invalidate its contents only
        * if the size differs, but we want to invalidate the contents
        * in any case; we cannot call clutter_content_invalidate()
@@ -310,6 +313,7 @@ gtk_clutter_actor_allocate (ClutterActor           *actor,
   GtkAllocation child_allocation;
   GdkWindow *window;
   ClutterActorBox child_box;
+  gint dummy;
 
   _gtk_clutter_offscreen_set_in_allocation (GTK_CLUTTER_OFFSCREEN (priv->widget), TRUE);
 
@@ -317,6 +321,15 @@ gtk_clutter_actor_allocate (ClutterActor           *actor,
   child_allocation.y = 0;
   child_allocation.width = clutter_actor_box_get_width (box);
   child_allocation.height = clutter_actor_box_get_height (box);
+
+  /* Silence the following GTK+ warning:
+   *
+   * Gtk-WARNING **: Allocating size to Offscreen Container
+   * without calling gtk_widget_get_preferred_width/height(). How does the
+   * code know the size to allocate?
+   */
+  gtk_widget_get_preferred_width (priv->widget, &dummy, NULL);
+
   gtk_widget_size_allocate (priv->widget, &child_allocation);
 
   if (CLUTTER_ACTOR_IS_REALIZED (actor))
@@ -352,6 +365,8 @@ gtk_clutter_actor_allocate (ClutterActor           *actor,
         {
           DEBUG (G_STRLOC ": Using image surface.\n");
 
+          clutter_canvas_set_scale_factor (CLUTTER_CANVAS (priv->canvas),
+                                           gdk_window_get_scale_factor (window));
           clutter_canvas_set_size (CLUTTER_CANVAS (priv->canvas),
                                    gtk_widget_get_allocated_width (priv->widget),
                                    gtk_widget_get_allocated_height (priv->widget));
