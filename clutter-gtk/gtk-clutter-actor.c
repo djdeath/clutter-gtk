@@ -82,7 +82,9 @@ struct _GtkClutterActorPrivate
   GtkWidget *widget;
   GtkWidget *embed;
 
-  cairo_surface_t *surface;
+#ifdef CLUTTER_WINDOWING_X11
+  Drawable pixmap;
+#endif
 
   /* canvas instance used as a fallback; owned
    * by the texture actor below
@@ -126,6 +128,10 @@ gtk_clutter_actor_draw_canvas (ClutterCanvas   *canvas,
                                int              height,
                                GtkClutterActor *actor)
 {
+  GtkClutterActorPrivate *priv = actor->priv;
+  cairo_surface_t *surface =
+    _gtk_clutter_offscreen_get_surface (GTK_CLUTTER_OFFSCREEN (priv->widget));
+
   /* clear the surface */
   cairo_save (cr);
   cairo_set_source_rgba (cr, 1.0, 1.0, 1.0, 1.0);
@@ -134,7 +140,7 @@ gtk_clutter_actor_draw_canvas (ClutterCanvas   *canvas,
   cairo_restore (cr);
 
   cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
-  cairo_set_source_surface (cr, actor->priv->surface, 0.0, 0.0);
+  cairo_set_source_surface (cr, surface, 0.0, 0.0);
   cairo_paint (cr);
 
   return TRUE;
@@ -166,6 +172,7 @@ gtk_clutter_actor_realize (ClutterActor *actor)
   GtkClutterActor *clutter = GTK_CLUTTER_ACTOR (actor);
   GtkClutterActorPrivate *priv = clutter->priv;
   ClutterActor *stage;
+  cairo_surface_t *surface;
 
   stage = clutter_actor_get_stage (actor);
   priv->embed = g_object_get_data (G_OBJECT (stage), "gtk-clutter-embed");
@@ -173,21 +180,20 @@ gtk_clutter_actor_realize (ClutterActor *actor)
 
   gtk_widget_realize (priv->widget);
 
-  priv->surface = _gtk_clutter_offscreen_get_surface (GTK_CLUTTER_OFFSCREEN (priv->widget));
+  surface = _gtk_clutter_offscreen_get_surface (GTK_CLUTTER_OFFSCREEN (priv->widget));
 
 #if defined(CLUTTER_WINDOWING_X11) && defined(CAIRO_HAS_XLIB_SURFACE)
   if (!gtk_clutter_actor_use_image_surface () &&
       clutter_check_windowing_backend (CLUTTER_WINDOWING_X11) &&
-      cairo_surface_get_type (priv->surface) == CAIRO_SURFACE_TYPE_XLIB)
+      cairo_surface_get_type (surface) == CAIRO_SURFACE_TYPE_XLIB)
     {
-      Drawable pixmap;
       gint pixmap_width, pixmap_height;
 
-      pixmap_width = cairo_xlib_surface_get_width (priv->surface);
-      pixmap_height = cairo_xlib_surface_get_height (priv->surface);
-      pixmap = cairo_xlib_surface_get_drawable (priv->surface);
+      pixmap_width = cairo_xlib_surface_get_width (surface);
+      pixmap_height = cairo_xlib_surface_get_height (surface);
+      priv->pixmap = cairo_xlib_surface_get_drawable (surface);
 
-      clutter_x11_texture_pixmap_set_pixmap (CLUTTER_X11_TEXTURE_PIXMAP (priv->texture), pixmap);
+      clutter_x11_texture_pixmap_set_pixmap (CLUTTER_X11_TEXTURE_PIXMAP (priv->texture), priv->pixmap);
       clutter_actor_set_size (priv->texture, pixmap_width, pixmap_height);
     }
   else
@@ -220,8 +226,6 @@ gtk_clutter_actor_unrealize (ClutterActor *actor)
 
   if (priv->widget == NULL)
     return;
-
-  priv->surface = NULL;
 
   g_object_ref (priv->widget);
   gtk_container_remove (GTK_CONTAINER (priv->embed), priv->widget);
@@ -329,28 +333,28 @@ gtk_clutter_actor_allocate (ClutterActor           *actor,
       gdk_window_process_updates (window, TRUE);
 
       surface = gdk_offscreen_window_get_surface (window);
-      if (surface != priv->surface)
-        {
-          priv->surface = surface;
-
 #if defined(CLUTTER_WINDOWING_X11) && defined(CAIRO_HAS_XLIB_SURFACE)
-          if (!gtk_clutter_actor_use_image_surface () &&
-              clutter_check_windowing_backend (CLUTTER_WINDOWING_X11) &&
-              cairo_surface_get_type (surface) == CAIRO_SURFACE_TYPE_XLIB)
-            {
-              Drawable pixmap = cairo_xlib_surface_get_drawable (surface);
+      if (!gtk_clutter_actor_use_image_surface () &&
+          clutter_check_windowing_backend (CLUTTER_WINDOWING_X11) &&
+          cairo_surface_get_type (surface) == CAIRO_SURFACE_TYPE_XLIB)
+        {
+          Drawable pixmap = cairo_xlib_surface_get_drawable (surface);
 
-              clutter_x11_texture_pixmap_set_pixmap (CLUTTER_X11_TEXTURE_PIXMAP (priv->texture), pixmap);
+          if (pixmap != priv->pixmap)
+            {
+              priv->pixmap = pixmap;
+              clutter_x11_texture_pixmap_set_pixmap (CLUTTER_X11_TEXTURE_PIXMAP (priv->texture),
+                                                     priv->pixmap);
             }
-          else
+        }
+      else
 #endif
-            {
-              DEBUG (G_STRLOC ": Using image surface.\n");
+        {
+          DEBUG (G_STRLOC ": Using image surface.\n");
 
-              clutter_canvas_set_size (CLUTTER_CANVAS (priv->canvas),
-                                       gtk_widget_get_allocated_width (priv->widget),
-                                       gtk_widget_get_allocated_height (priv->widget));
-            }
+          clutter_canvas_set_size (CLUTTER_CANVAS (priv->canvas),
+                                   gtk_widget_get_allocated_width (priv->widget),
+                                   gtk_widget_get_allocated_height (priv->widget));
         }
     }
 
