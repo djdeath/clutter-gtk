@@ -200,15 +200,19 @@ gtk_clutter_actor_realize (ClutterActor *actor)
 #endif
     {
       GdkWindow *window = gtk_widget_get_window (priv->widget);
-      int width = gtk_widget_get_allocated_width (priv->widget);
-      int height = gtk_widget_get_allocated_height (priv->widget);
+      int width = gtk_widget_get_allocated_width (priv->widget),
+        height = gtk_widget_get_allocated_height (priv->widget),
+        scale = gdk_window_get_scale_factor (window);
 
       DEBUG (G_STRLOC ": Using image surface.\n");
 
       clutter_actor_set_size (priv->texture, width, height);
 
-      clutter_canvas_set_scale_factor (CLUTTER_CANVAS (priv->canvas),
-                                       gdk_window_get_scale_factor (window));
+      if (scale == 1)
+        clutter_canvas_set_tile_size (CLUTTER_CANVAS (priv->canvas), 256);
+      else
+        clutter_canvas_set_tile_size (CLUTTER_CANVAS (priv->canvas), 512);
+      clutter_canvas_set_scale_factor (CLUTTER_CANVAS (priv->canvas), scale);
       /* clutter_canvas_set_size() will invalidate its contents only
        * if the size differs, but we want to invalidate the contents
        * in any case; we cannot call clutter_content_invalidate()
@@ -335,6 +339,7 @@ gtk_clutter_actor_allocate (ClutterActor           *actor,
   if (CLUTTER_ACTOR_IS_REALIZED (actor))
     {
       cairo_surface_t *surface;
+      gint scale;
 
       /* The former size allocate may have queued an expose we then need to
        * process immediately, since we will paint the pixmap when this
@@ -343,6 +348,7 @@ gtk_clutter_actor_allocate (ClutterActor           *actor,
        * we may see an intermediate state of the pixmap, causing flicker
        */
       window = gtk_widget_get_window (priv->widget);
+      scale = gdk_window_get_scale_factor (window);
       gdk_window_process_updates (window, TRUE);
 
       surface = gdk_offscreen_window_get_surface (window);
@@ -365,8 +371,11 @@ gtk_clutter_actor_allocate (ClutterActor           *actor,
         {
           DEBUG (G_STRLOC ": Using image surface.\n");
 
-          clutter_canvas_set_scale_factor (CLUTTER_CANVAS (priv->canvas),
-                                           gdk_window_get_scale_factor (window));
+          if (scale == 1)
+            clutter_canvas_set_tile_size (CLUTTER_CANVAS (priv->canvas), 256);
+          else
+            clutter_canvas_set_tile_size (CLUTTER_CANVAS (priv->canvas), 512);
+          clutter_canvas_set_scale_factor (CLUTTER_CANVAS (priv->canvas), scale);
           clutter_canvas_set_size (CLUTTER_CANVAS (priv->canvas),
                                    gtk_widget_get_allocated_width (priv->widget),
                                    gtk_widget_get_allocated_height (priv->widget));
@@ -610,14 +619,14 @@ _gtk_clutter_actor_update (GtkClutterActor *actor,
     {
       clutter_x11_texture_pixmap_update_area (CLUTTER_X11_TEXTURE_PIXMAP (priv->texture),
 					      x, y, width, height);
+      clutter_actor_queue_redraw (CLUTTER_ACTOR (actor));
     }
   else
 #endif
     {
-      clutter_content_invalidate (priv->canvas);
+      clutter_canvas_invalidate_area (CLUTTER_CANVAS (priv->canvas),
+                                      x, y, width, height);
     }
-
-  clutter_actor_queue_redraw (CLUTTER_ACTOR (actor));
 }
 
 /**
